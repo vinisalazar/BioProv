@@ -96,14 +96,34 @@ def test_SequenceFile():
     genome_path = Path.joinpath(bp.genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna")
     tag = "Synechococcus elongatus PCC 6301"
     genome = bp.SequenceFile(genome_path, tag)
-    attributes = {
+    nf_genome, nf_tag = randomString(), randomString(4)
+    nf_genome = bp.SequenceFile(nf_genome, nf_tag)
+
+    # Instance where file exists
+    existing_instance = {
         "exists": genome.exists,
         "tag": genome.tag == tag,
         "class": type(genome) == bp.SequenceFile,
-        "records": all((type(genome.records) == dict, len(genome.records) == 1)),
+        "records": all(
+            (
+                type(genome.records) == dict,
+                len(genome.records),
+                genome.records["NC_006576.1"],
+            )
+        ),
     }
-    for k, statement in attributes.items():
-        assert statement, f"{k} did not pass!"
+
+    # Check instance where the file does not exist
+    non_existing_instance = {
+        "exists": nf_genome.exists is False,
+        "tag": nf_genome.tag == nf_tag,
+        "class": type(nf_genome) == bp.SequenceFile,
+        "records": nf_genome.records
+        is False,  # To-do: implement more exceptions to __getitem__
+    }
+    for dict_ in (existing_instance, non_existing_instance):
+        for k, statement in dict_.items():
+            assert statement, f"{k} did not pass!"
 
     pass
 

@@ -19,6 +19,13 @@ class SequenceFile(File):
         File.__init__(self, path, tag)
         self.records = seqrecordgenerator(self.path)
 
+    def __getitem__(self, item):
+        try:
+            return self.records[item]
+        except KeyError:
+            print(f"{item} does not exist. Please check the existing keys.")
+            raise
+
     @property
     def records(self):
         return self._records
@@ -44,4 +51,4 @@ def seqrecordgenerator(path):
         return records
     except FileNotFoundError as e:
         print(e)
-        return None
+        return False
