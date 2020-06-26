@@ -1,5 +1,5 @@
 """
-Files module containing classes File and SequenceFile.
+Contains the File class and related functions.
 """
 from pathlib import Path
 
@@ -9,7 +9,7 @@ class File:
     Class for holding file and file information.
     """
 
-    def __init__(self, path, tag=None, warnings=True):
+    def __init__(self, path, tag=None):
         """
         :param path: A UNIX-like file path.
         :param tag: optional tag describing the file.
@@ -22,6 +22,14 @@ class File:
         self.exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
+
+    def __repr__(self):
+        if self.exists is True:
+            return f"File {self.name} with {self.size} in directory {self.directory}."
+        else:
+            return (
+                f"Path {self.name} in directory {self.directory}. File does not exist."
+            )
 
     @property
     def size(self):
@@ -42,19 +50,12 @@ class File:
     pass
 
 
-class SequenceFile(File):
-    """
-    Class for holding sequence file and sequence information. Inherits from File.
-    """
-
-    pass
-
-
 def convert_bytes(num):
     """
     Helper function to convert bytes into KB, MB, etc.
-
     From https://stackoverflow.com/questions/2104080/how-can-i-check-file-size-in-python
+
+    :param num: Number of bytes.
     """
     for x in ["bytes", "KB", "MB", "GB", "TB"]:
         if num < 1024.0:
