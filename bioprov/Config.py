@@ -1,7 +1,7 @@
 """
 Contains the Config class.
 """
-from .data import data_dir, genomes_dir
+from bioprov.data import data_dir, genomes_dir
 
 
 class Config:
