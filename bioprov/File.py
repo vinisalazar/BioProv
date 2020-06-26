@@ -9,7 +9,7 @@ class File:
     Class for holding file and file information.
     """
 
-    def __init__(self, path, tag=None):
+    def __init__(self, path, tag=None, warnings=True):
         """
         :param path: A UNIX-like file path.
         :param tag: optional tag describing the file.
@@ -30,6 +30,14 @@ class File:
     @size.setter
     def size(self, value):
         self._size = value
+
+    @property
+    def exists(self):
+        return self._exists
+
+    @exists.setter
+    def exists(self, value):
+        self._exists = value
 
     pass
 
@@ -62,8 +70,8 @@ def get_size(path, convert=True):
     :return: Size with converted values. 0 if file does not exist.
     """
     path = Path(path)
-    size = path.stat().st_size
-    if path.exists:
+    if path.exists():
+        size = path.stat().st_size
         if convert:
             return convert_bytes(size)
         else:
