@@ -86,7 +86,7 @@ def seqstats(path, megabases=False, percentage=False, decimals=5):
     :return: Number of base pairs,
     """
     if not Path(path).exists:
-        print("File does not exist.")
+        print(not_exist)
         return False
 
     sequences = seqrecordgenerator(path)
