@@ -1,3 +1,4 @@
 name = "bioprov"
 
-from .config import Config
+from .Config import Config
+from .File import File, SequenceFile
