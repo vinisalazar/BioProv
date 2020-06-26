@@ -151,15 +151,14 @@ def test_seqstats():
 
 def test_Program():
     name, params = "prodigal", "-h"
-    program = bp.Program(name, params)
+    program = bp.Program(name)
     statements = {
         "name": program.name == name,
-        "params": program.params == params,
         "tag": program.tag == name,
         "path": Path(program.path).exists(),
         "cmd": isinstance(program.cmd, str),
         "repr": program.__repr__()
-        == program.cmd.replace(program.path, Path(program.path).stem),
+        == f"Program '{program.name}' with {len(program.params)} parameter(s).",
     }
     for k, statement in statements.items():
         assert statement, f"{k} did not pass!"
