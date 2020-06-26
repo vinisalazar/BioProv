@@ -24,7 +24,10 @@ class SequenceFile(File):
         if self.exists:
             self.seqstats = seqstats(self.path)
         else:
-            self.seqstats = None
+            self.seqstats = False
+
+    def __len__(self):
+        return self.seqstats.total_bps
 
     def __getitem__(self, key):
         try:
@@ -42,7 +45,7 @@ class SequenceFile(File):
         try:
             self._records = SeqIO.to_dict(value)
         except TypeError:  # in case the file does not exist
-            print(f"File {self.path} does not exist!")
+            print(not_exist)
             self._records = value
 
     @property
@@ -149,3 +152,6 @@ def calculate_n50(numlist):
         medianpos = int((len(newlist) / 2) - 0.5)
         # noinspection PyTypeChecker
         return newlist[medianpos]
+
+
+not_exist = "File does not exist!"

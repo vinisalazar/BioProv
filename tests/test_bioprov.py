@@ -134,8 +134,7 @@ def test_SequenceFile():
 def test_seqstats():
     genome = bp.SequenceFile(genome_path)
     seqstats_ = genome.seqstats
-    bps = 2696255
-    gc = 0.55484
+    bps, gc = 2696255, 0.55484
     attributes = {
         "number_seqs": 1,
         "total_bps": bps,
@@ -146,8 +145,9 @@ def test_seqstats():
         "min_bp": bps,
         "max_bp": bps,
     }
-    for k, statement in attributes.items():
-        assert seqstats_.__getattribute__(k) == statement
+    for attr, statement in attributes.items():
+        assert getattr(seqstats_, attr) == statement
+    assert len(genome) == bps  # Test __len__() method.
     pass
 
 
