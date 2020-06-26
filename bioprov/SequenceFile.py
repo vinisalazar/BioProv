@@ -14,17 +14,19 @@ class SequenceFile(File):
     Class for holding sequence file and sequence information. Inherits from File.
     """
 
-    def __init__(self, path, tag=None):
+    def __init__(self, path, tag=None, import_data=True):
         """
         :param path: A UNIX-like file path.
         :pram tag: optional tag describing the file.
         """
         File.__init__(self, path, tag)
-        self.records = seqrecordgenerator(self.path)
-        if self.exists:
+        if not self.exists:
+            import_data = False
+        if import_data:
+            self.records = seqrecordgenerator(self.path)
             self.seqstats = seqstats(self.path)
         else:
-            self.seqstats = False
+            self.records, self.seqstats = False, False
 
     def __len__(self):
         return self.seqstats.total_bps
