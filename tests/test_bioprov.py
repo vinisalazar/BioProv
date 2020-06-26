@@ -86,6 +86,10 @@ def test_File():
         assert statement, f"{k} did not pass!"
 
 
+# Setting this variable for future tests.
+genome_path = Path.joinpath(bp.genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna")
+
+
 def test_SequenceFile():
     """
     Tests objects in the SequenceFile module:
@@ -93,7 +97,6 @@ def test_SequenceFile():
         - seqrecord_generator()
     :return:
     """
-    genome_path = Path.joinpath(bp.genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna")
     tag = "Synechococcus elongatus PCC 6301"
     genome = bp.SequenceFile(genome_path, tag)
     nf_genome, nf_tag = randomString(), randomString(4)
@@ -125,6 +128,26 @@ def test_SequenceFile():
         for k, statement in dict_.items():
             assert statement, f"{k} did not pass!"
 
+    pass
+
+
+def test_seqstats():
+    genome = bp.SequenceFile(genome_path)
+    seqstats_ = genome.seqstats
+    bps = 2696255
+    gc = 0.55484
+    attributes = {
+        "number_seqs": 1,
+        "total_bps": bps,
+        "gc": gc,
+        "avg_bp": bps,
+        "median_bp": bps,
+        "n50": bps,
+        "min_bp": bps,
+        "max_bp": bps,
+    }
+    for k, statement in attributes.items():
+        assert seqstats_.__getattribute__(k) == statement
     pass
 
 
