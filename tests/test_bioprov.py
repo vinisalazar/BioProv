@@ -8,8 +8,6 @@ Tests include:
 import random
 import string
 from pathlib import Path
-
-# Actual module
 import bioprov as bp
 
 
@@ -151,11 +149,29 @@ def test_seqstats():
     pass
 
 
+def test_Program():
+    name, params = "prodigal", "-h"
+    program = bp.Program(name, params)
+    statements = {
+        "name": program.name == name,
+        "params": program.params == params,
+        "tag": program.tag == name,
+        "path": Path(program.path).exists(),
+        "cmd": isinstance(program.cmd, str),
+        "repr": program.__repr__()
+        == program.cmd.replace(program.path, Path(program.path).stem),
+    }
+    for k, statement in statements.items():
+        assert statement, f"{k} did not pass!"
+
+    pass
+
+
 def randomString(n=8):
     """
-    Generate random strings for testings
+    Generate random strings for tests.
     :param n: Length of string.
     :return: Random string of n characters.
     """
     letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for i in range(n))
+    return "".join(random.choice(letters) for _ in range(n))
