@@ -1,9 +1,8 @@
 """
 Testing module for drafting new ideas.
 
-To do:
+To-do:
     - create classes Sample, Process
-    - create 'kind' attribute in Parameter class
 """
 
 import bioprov as bp
@@ -18,10 +17,13 @@ def test_pipeline():
     assert genome.exists
     program, version = "prodigal", "v2.6.3"
     program = bp.Program(program, version=version)
-    param_i = bp.Parameter("-i", genome_path, description="assembly")  # , kind='input')
+    param_i = bp.Parameter("-i", genome_path, description="assembly", kind="input")
     param_a = bp.Parameter(
-        "-a", str(genome.path).replace(".fna", "_proteins.faa"), description="proteins"
-    )  # , kind='output')
+        "-a",
+        str(genome.path).replace(".fna", "_proteins.faa"),
+        description="proteins",
+        kind="output",
+    )
     program.add_parameter(param_i)
     program.add_parameter(param_a)
     p = Popen(program.cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
