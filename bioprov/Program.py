@@ -1,8 +1,11 @@
 """
 Contains the Program class and related functions.
+
+To-do:
+    - implement ParameterDict
+    - add input and output attributes to parameters
 """
 import subprocess
-from pathlib import Path
 
 
 class Program:
@@ -10,18 +13,17 @@ class Program:
     Class for holding information about programs.
     """
 
-    def __init__(
-        self, name, params=False, tag=False, path=False, cmd=False,
-    ):
+    def __init__(self, name, params="", tag=False, path=False, cmd=False, version=None):
         """
         :param name: Name of the program being called.
         :param params: String of parameters to add.
         :param tag: Tag to call the program if different from name. Default: self.name
         :param path: A full path to the program's binary. Default: get from self.name.
         :param cmd: A command string to call the program. Default: build from self.path and self.params.
+        :param version: Version of the program.
         """
         self.name = name
-        if params is False:
+        if params == "":
             self.params = dict()
         else:
             self.params = params
@@ -29,6 +31,7 @@ class Program:
         self.tag = tag
         self.path = path
         self.cmd = cmd
+        self.version = version
         if not tag:
             self.tag = self.name
         if not path:
@@ -40,17 +43,26 @@ class Program:
         return f"Program '{self.name}' with {len(self.params)} parameter(s)."
 
     def generate_cmd(self):
+        """
+        Generates command string to execute.
+        :return: command string
+        """
         return " ".join([self.path, self.param_str]).strip()
 
-    def add_parameter(self, parameter):
+    def add_parameter(self, parameter, _print=True):
         """
-        :param parameter: an instance of the Parameter class
+        Adds a parameter to the current instance and updates the command.
+
+        :param parameter: an instance of the Parameter class.
+        :param _print: whether to print the parameter has been added.
         :return:
         """
-        k = getattr(parameter, "key")
-        self.params[k] = parameter.value
+        k, v = parameter.key, parameter.value
+        self.params[k] = v
         self.param_str = generate_param_str(self.params)
         self.cmd = self.generate_cmd()
+        if _print:
+            print(f"Added parameter {k} with value '{v}' to program {self.name}")
 
     def run(self):
         pass
@@ -128,6 +140,7 @@ class Parameter:
     pass
 
 
+# Replace 'params' here with ParameterDict
 def generate_param_str(params):
     """
     To-do: imporve this docstring
@@ -154,12 +167,3 @@ def generate_param_str(params):
         print("Must provide either a string or a dictionary for the paramaters!")
         raise TypeError
     return param_str.strip()
-
-
-name_, param_ = "prodigal", "-h"
-param = Parameter(param_, description="Help.")
-p = Program(name_)
-param_i = Parameter("-i", "bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna")
-param_a = Parameter("-a", "bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna")
-p.add_parameter(param_i)
-p.add_parameter(param_a)
