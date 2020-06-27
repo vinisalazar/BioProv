@@ -85,7 +85,9 @@ def test_File():
 
 
 # Setting this variable for future tests.
-genome_path = Path.joinpath(bp.genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna")
+genome_path = str(
+    Path.joinpath(bp.genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna")
+)
 
 
 def test_SequenceFile():
@@ -149,8 +151,15 @@ def test_seqstats():
     pass
 
 
+def test_Parameter():
+    param_i = bp.Parameter("-i", genome_path)
+    param_a = bp.Parameter("-a", str(genome_path).replace(".fna", "_proteins.faa"))
+    assert param_i.tag == "-i"
+    assert param_a.tag == "-a"
+
+
 def test_Program():
-    name, params = "prodigal", "-h"
+    name = "prodigal"
     program = bp.Program(name)
     statements = {
         "name": program.name == name,
