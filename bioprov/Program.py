@@ -13,30 +13,29 @@ class Program:
     Class for holding information about programs.
     """
 
-    def __init__(self, name, params="", tag=False, path=False, cmd=False, version=None):
+    def __init__(self, name, params=None, tag=None, path=None, cmd=None, version=None):
         """
         :param name: Name of the program being called.
-        :param params: String of parameters to add.
+        :param params: Dictionary of parameters.
         :param tag: Tag to call the program if different from name. Default: self.name
         :param path: A full path to the program's binary. Default: get from self.name.
         :param cmd: A command string to call the program. Default: build from self.path and self.params.
         :param version: Version of the program.
         """
+        if params is None:
+            params = dict()
         self.name = name
-        if params == "":
-            self.params = dict()
-        else:
-            self.params = params
+        self.params = params
         self.param_str = generate_param_str(self.params)
         self.tag = tag
         self.path = path
         self.cmd = cmd
         self.version = version
-        if not tag:
+        if tag is None:
             self.tag = self.name
-        if not path:
+        if path is None:
             self.path = subprocess.getoutput(f"which {self.name}")
-        if not cmd:
+        if cmd is None:
             self.cmd = self.generate_cmd()
 
     def __repr__(self):
@@ -77,8 +76,8 @@ class Parameter:
 
     def __init__(
         self,
-        key="",
-        value="",
+        key=None,
+        value=None,
         tag=None,
         program=None,
         cmd_string=None,
@@ -98,9 +97,9 @@ class Parameter:
         self.tag = tag
         self.cmd_string = cmd_string
         self.description = description
-        if not self.tag:
+        if tag is None:
             self.tag = self.key
-        if not self.cmd_string:
+        if cmd_string is None:
             self.cmd_string = key + " " + str(value)
         self.dict = {key: value}
 
@@ -109,33 +108,9 @@ class Parameter:
             str_ = f"Parameter {self.key} with no value."
         else:
             str_ = f"Parameter {self.key} with value {self.value}."
-        if self.description:
+        if self.description is not None:
             str_ += " Parameter description: " + self.description
         return str_
-
-    @property
-    def value(self):
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        self._value = value
-
-    @property
-    def cmd_string(self):
-        return self._cmd_string
-
-    @cmd_string.setter
-    def cmd_string(self, value):
-        self._cmd_string = value
-
-    @property
-    def dict(self):
-        return self._dict
-
-    @dict.setter
-    def dict(self, value):
-        self._dict = value
 
     pass
 
@@ -143,7 +118,7 @@ class Parameter:
 # Replace 'params' here with ParameterDict
 def generate_param_str(params):
     """
-    To-do: imporve this docstring
+    To-do: improve this docstring
     Generates a string from a dictionary of parameters
     :param params: Dictionary of parameters.
     :return:
@@ -155,15 +130,14 @@ def generate_param_str(params):
         for k, v in params.items():
             # If is a Parameter class instance, we inherit the corresponding tags.
             if isinstance(v, Parameter):
-                v = v.dict
-                str_ += v + " "
+                str_ += v.key + " " + v.value + " "
             else:
                 str_ += (
                     k + " " + v + " "
                 )  # Else we construct the string from the the provided dict.
-        param_str = str_
+        param_str = str_.strip()
     else:
         # To-do: add more parameters options. List of tuples, List of Parameter instances, etc.
         print("Must provide either a string or a dictionary for the paramaters!")
         raise TypeError
-    return param_str.strip()
+    return param_str
