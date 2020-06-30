@@ -10,6 +10,10 @@ from os import remove
 
 
 def test_pipeline():
+    """
+    Tests an example pipeline of running Prodigal.
+    :return:
+    """
 
     # Build Sample with Files
     assembly_file_path = str(bp.genomes_dir) + "/GCF_000010065.1_ASM1006v1_genomic.fna"
@@ -44,8 +48,15 @@ def test_pipeline():
 
     # Run Program on sample
     run = program.run(sample=sample)
+
+    # Assert block
     assert protein_file.exists
+    assert run.status is "Finished"
+
+    # Clean up
     remove(str(sample.files["proteins"]))
+
+    # Return (useful for debugging)
     return sample, program, run
 
 
