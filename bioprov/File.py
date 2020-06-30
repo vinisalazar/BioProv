@@ -9,10 +9,11 @@ class File:
     Class for holding file and file information.
     """
 
-    def __init__(self, path, tag=None):
+    def __init__(self, path, tag=None, generated_by=None):
         """
         :param path: A UNIX-like file path.
         :param tag: optional tag describing the file.
+        :param generated_by: An instance of the Run class which generated the command.
         """
         self.path = Path(path).absolute()
         self.name = self.path.stem
@@ -22,6 +23,7 @@ class File:
         self.exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
+        self.generated_by = generated_by
 
     def __repr__(self):
         if self.exists is True:
