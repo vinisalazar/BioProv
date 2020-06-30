@@ -6,7 +6,7 @@ To-do:
 """
 
 import bioprov as bp
-from subprocess import Popen, PIPE
+from os import remove
 
 
 def test_pipeline():
@@ -43,9 +43,10 @@ def test_pipeline():
     )  # And another with add_file()
 
     # Run Program on sample
-    p = Popen(program.cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    (stdin, stdout, stderr) = (p.stdin, p.stdout, p.stderr)
-    return sample, program, p, (stdin, stdout, stderr)
+    run = program.run(sample=sample)
+    assert protein_file.exists
+    remove(str(sample.files["proteins"]))
+    return sample, program, run
 
 
-genome, program, p, (stdin, stdout, stderr) = test_pipeline()
+genome, program, run_ = test_pipeline()
