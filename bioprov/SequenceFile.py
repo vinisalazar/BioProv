@@ -17,7 +17,7 @@ class SequenceFile(File):
     def __init__(self, path, tag=None, import_data=True):
         """
         :param path: A UNIX-like file path.
-        :pram tag: optional tag describing the file.
+        :param tag: optional tag describing the file.
         """
         File.__init__(self, path, tag)
         if not self.exists:
