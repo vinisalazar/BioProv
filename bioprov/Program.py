@@ -23,7 +23,17 @@ class Program:
         """
         self.name = name
         if isinstance(params, dict):
-            params = {k: Parameter(k, v, program=self) for k, v in params.items()}
+            params_ = dict()
+            for k, v in params.items():
+                if isinstance(v, Parameter):
+                    v.program, v.tag = self
+                    params_[k] = v
+                else:
+                    params_[k] = Parameter(k, v, program=self)
+            params = params_
+        elif isinstance(params, Parameter):
+            params.program = self
+            params = {params.key: params}
         elif params is None:
             params = dict()
         self.params = params
