@@ -165,7 +165,7 @@ class Run(Program):
         # Run status
         self.started = False
         self.finished = False
-        self.status = self._finished_to_status(self, self.finished)
+        self.status = self._finished_to_status(self.finished)
 
     def __repr__(self):
         str_ = f"Run of Program '{self.program.name}' with {len(self.params)} parameter(s)."
@@ -178,15 +178,15 @@ class Run(Program):
 
     @property
     def status(self):
-        return self._finished_to_status(self, self.finished)
+        return self._finished_to_status(self.finished)
 
     @status.setter
     def status(self, _):
-        value = self._finished_to_status(self, self.finished)
+        value = self._finished_to_status(self.finished)
         self._status = value
 
     @staticmethod
-    def _finished_to_status(self, finished_status):
+    def _finished_to_status(finished_status):
         """
         :bool finished_status: 
         :return: String representation of status.
@@ -210,8 +210,7 @@ class Run(Program):
             print(str_)
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
-        self.started = True
-        start = time()
+        self.started, start = True, time()
         self.start_time = datetime.datetime.fromtimestamp(start).strftime("%c")
 
         # Run process
@@ -224,7 +223,7 @@ class Run(Program):
         duration = str(datetime.timedelta(seconds=duration))
         self.duration = duration
         self.finished = True
-        self.status = self._finished_to_status(self, self.finished)
+        self.status = self._finished_to_status(self.finished)
 
         return self.stdout
 

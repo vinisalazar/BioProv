@@ -9,7 +9,7 @@ import bioprov as bp
 from os import remove
 
 
-def test_pipeline():
+def test_pipeline(debug=False):
     """
     Tests an example pipeline of running Prodigal.
     :return:
@@ -32,22 +32,22 @@ def test_pipeline():
     assert assembly_file.exists, sample.files["assembly"].exists
 
     # Build Program with parameters
-    program, version = "prodigal", "v2.6.3"
+    program_name, version = "prodigal", "v2.6.3"
     param_i = bp.Parameter(
         "-i", str(assembly_file), description="assembly", kind="input"
     )
-    program = bp.Program(
-        program, params=param_i, version=version
+    program_ = bp.Program(
+        program_name, params=param_i, version=version
     )  # Add one parameter with __init__ method
     param_a = bp.Parameter(
         "-a", str(protein_file), description="proteins", kind="output",
     )
-    program.add_parameter(param_i), program.add_parameter(
+    program_.add_parameter(param_i), program_.add_parameter(
         param_a
     )  # And another with add_file()
 
     # Run Program on sample
-    run = program.run(sample=sample)
+    run = program_.run(sample=sample)
 
     # Assert block
     assert protein_file.exists
@@ -57,7 +57,9 @@ def test_pipeline():
     remove(str(sample.files["proteins"]))
 
     # Return (useful for debugging)
-    return sample, program, run
+    if debug:
+        return sample, program_, run
 
 
-genome, program, run_ = test_pipeline()
+# Uncomment this if you want to test locally
+# genome, program, run_ = test_pipeline(debug=True)

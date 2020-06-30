@@ -24,7 +24,7 @@ class Sample:
                 if isinstance(v, File):
                     files_[k] = v
                 else:  # if it is not a File instance, create one.
-                    files_[k] = File(name=k, path=v)
+                    files_[k] = File(path=v, tag=k)
             files = files_
         self.tag = tag
         self.files = files
