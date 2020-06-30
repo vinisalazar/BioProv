@@ -10,14 +10,19 @@ from subprocess import Popen, PIPE
 
 
 def test_pipeline():
-    genome_path = str(bp.genomes_dir) + "/GCF_000010065.1_ASM1006v1_genomic.fna"
-    tag = "Synechococcus elongatus PCC 6301"
-    genome = bp.SequenceFile(genome_path, tag)
-    # sample = Sample(tag, files={"assembly": genome})
-    assert genome.exists
+    assembly_file_path = str(bp.genomes_dir) + "/GCF_000010065.1_ASM1006v1_genomic.fna"
+    name, tag = "Synechococcus elongatus PCC 6301", "GCF_000010065.1"
+    assembly_file = bp.SequenceFile(assembly_file_path, tag)
+    sample = bp.Sample(
+        name,
+        tag,
+        {"assembly": assembly_file},
+        {"description": f"Genome of {name} with RefSeq accession {tag}"},
+    )
+    assert assembly_file.exists, sample.files["assembly"].exists
     program, version = "prodigal", "v2.6.3"
     program = bp.Program(program, version=version)
-    param_i = bp.Parameter("-i", genome_path, description="assembly", kind="input")
+    param_i = bp.Parameter("-i", assembly_file, description="assembly", kind="input")
     param_a = bp.Parameter(
         "-a",
         str(genome.path).replace(".fna", "_proteins.faa"),
