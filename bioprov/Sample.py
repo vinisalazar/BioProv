@@ -51,7 +51,9 @@ class Sample:
 
         # If it is a single item, also transform to dict
         elif isinstance(files, File):
-            files = {files.name: files}
+            files = {
+                files.tag: files
+            }  # Grabs by tag because it is File.name by default
 
         # Here files must be a dictionary of File instances
         for k, v in files.items():
