@@ -19,6 +19,8 @@ class File:
         self.name = self.path.stem
         self.directory = self.path.parent
         self.extension = self.path.suffix
+        if tag is None:
+            tag = self.name
         self.tag = tag
         self.exists = self.path.exists()
         self.size = get_size(self.path)
