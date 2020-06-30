@@ -21,9 +21,11 @@ class Program:
         :param cmd: A command string to call the program. Default: build from self.path and self.params.
         :param version: Version of the program.
         """
-        if params is None:
-            params = dict()
         self.name = name
+        if isinstance(params, dict):
+            params = {k: Parameter(k, v, program=self) for k, v in params.items()}
+        elif params is None:
+            params = dict()
         self.params = params
         self.param_str = generate_param_str(self.params)
         self.tag = tag
@@ -56,7 +58,8 @@ class Program:
         :return:
         """
         k, v = parameter.key, parameter.value
-        self.params[k] = v
+        parameter.program = self
+        self.params[k] = parameter
         self.param_str = generate_param_str(self.params)
         self.cmd = self.generate_cmd()
         if _print:
@@ -119,7 +122,9 @@ class Parameter:
         else:
             str_ = f"Parameter {self.key} with value {self.value}."
         if self.description is not None:
-            str_ += " Description: " + f"'{self.description}'"
+            str_ += " Description: " + f"'{self.description}.'"
+        if self.kind is not None:
+            str_ += " Kind: " + f"'{self.kind}."
         return str_
 
     pass
@@ -140,7 +145,7 @@ def generate_param_str(params):
         for k, v in params.items():
             # If is a Parameter class instance, we inherit the corresponding tags.
             if isinstance(v, Parameter):
-                str_ += v.dict + " "
+                str_ += v.cmd_string + " "
             else:
                 str_ += (
                     k + " " + v + " "
