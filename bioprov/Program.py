@@ -22,21 +22,7 @@ class Program:
         :param version: Version of the program.
         """
         self.name = name
-        if isinstance(params, dict):
-            params_ = dict()
-            for k, v in params.items():
-                if isinstance(v, Parameter):
-                    v.program, v.tag = self
-                    params_[k] = v
-                else:
-                    params_[k] = Parameter(k, v, program=self)
-            params = params_
-        elif isinstance(params, Parameter):
-            params.program = self
-            params = {params.key: params}
-        elif params is None:
-            params = dict()
-        self.params = params
+        self.params = parse_params(params)
         self.param_str = generate_param_str(self.params)
         self.tag = tag
         self.path = path
@@ -138,6 +124,58 @@ class Parameter:
         return str_
 
     pass
+
+
+class Run(Program):
+    """
+    Class for holding Run information about a selected Program.
+    """
+
+    def __init__(self, program=None, params=None, sample=None):
+        """
+        :param program: An instance of bioprov.Program.
+        :param sample: An instance of bioprov.Sample
+        """
+        if program is None:
+            self.program = Program.__init__(self, params)
+        else:
+            self.program = program
+        self.params = parse_params(params)
+        self.sample = sample
+        self.start_time = None
+        self.end_time = None
+        self.stdin = None
+        self.stdout = None
+        self.stderr = None
+        self.started = False
+        self.finished = False
+
+    def __repr__(self):
+        return f"Run of Program '{self.name}' with {len(self.params)} parameter(s)."
+
+
+def parse_params(params, program=None):
+    """
+    Function used to parse parameter input.
+    :param params: An instance or iterator of Parameter instances or a dictionary.
+    :param program: an instance of Program, if the case.
+    :return: Parsed parameters to serve as attribute to a Program or Run instance.
+    """
+    if isinstance(params, dict):
+        params_ = dict()
+        for k, v in params.items():
+            if isinstance(v, Parameter):
+                v.program, v.tag = program
+                params_[k] = v
+            else:
+                params_[k] = Parameter(k, v, program=program)
+        params = params_
+    elif isinstance(params, Parameter):
+        params.program = program
+        params = {params.key: params}
+    elif params is None:
+        params = dict()
+    return params
 
 
 # Replace 'params' here with ParameterDict
