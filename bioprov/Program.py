@@ -1,10 +1,12 @@
 """
-Contains the Program class and related functions.
+Contains the Program, Parameter and Run class and related functions.
 
 To-do:
     - implement ParameterDict
 """
-import subprocess
+from datetime import datetime
+from time import time
+from subprocess import Popen, PIPE, getoutput
 
 
 class Program:
@@ -31,7 +33,7 @@ class Program:
         if tag is None:
             self.tag = self.name
         if path is None:
-            self.path = subprocess.getoutput(f"which {self.name}")
+            self.path = getoutput(f"which {self.name}")
         if cmd is None:
             self.cmd = self.generate_cmd()
 
@@ -61,10 +63,15 @@ class Program:
         if _print:
             print(f"Added parameter {k} with value '{v}' to program {self.name}")
 
-    def run(self):
-        pass
-
-    pass
+    def run(self, sample=None):
+        """
+        Runs the process.
+        :param sample: An instance of the Sample class
+        :return: An instance of Run class.
+        """
+        run = Run(self, sample=sample)
+        run.run()
+        return run
 
 
 class Parameter:
@@ -138,20 +145,59 @@ class Run(Program):
         """
         if program is None:
             self.program = Program.__init__(self, params)
+            self.params = parse_params(params)
         else:
             self.program = program
-        self.params = parse_params(params)
+            self.params = program.params
         self.sample = sample
-        self.start_time = None
-        self.end_time = None
+
+        # Process status
+        self.process = None
         self.stdin = None
         self.stdout = None
         self.stderr = None
+
+        # Time status
+        self.start_time = None
+        self.end_time = None
+        self.duration = None
+
+        # Run status
         self.started = False
         self.finished = False
 
     def __repr__(self):
-        return f"Run of Program '{self.name}' with {len(self.params)} parameter(s)."
+        str_ = f"Run of Program '{self.program.name}' with {len(self.params)} parameter(s)."
+        if self.start_time is not None:
+            str_ += f"\nStarted at {self.start_time}."
+        if self.end_time is not None:
+            str_ += f"\nEnded at {self.end_time}."
+        return str_
+
+    def run(self):
+        """
+        Runs process for the Run instance.
+        Will update attributes accordingly.
+        :return: self.stdout
+        """
+        # Declare process and start time
+        p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
+        self.process = p
+        self.started = True
+        start = time()
+        self.start_time = datetime.fromtimestamp(start).strftime("%c")
+
+        # Run process
+        (self.stdout, self.stderr) = p.communicate()
+
+        # Update status
+        end = time()
+        self.end_time = datetime.fromtimestamp(start).strftime("%c")
+        duration = end - start
+        self.duration = str(duration)
+        self.finished = True
+
+        return self.stdout
 
 
 def parse_params(params, program=None):
@@ -178,7 +224,7 @@ def parse_params(params, program=None):
     return params
 
 
-# Replace 'params' here with ParameterDict
+# Replace 'params' here with ParameterDict, but the above parse_params() will do for now.
 def generate_param_str(params):
     """
     To-do: improve this docstring
