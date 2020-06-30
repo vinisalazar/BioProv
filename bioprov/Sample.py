@@ -30,4 +30,27 @@ class Sample:
         self.files = files
         self.attributes = attributes
 
-    pass
+    def add_file(self, files):
+        """
+        Adds file(s) to self.files. Must be a dict or an instance or iterable of bioprov.File.
+        :param file: bioprov.File instance or dict with key, value where value is the file path.
+        :return: Updates self by adding the file to self.files
+        """
+
+        # If it is a dict, we convert to File instances
+        if isinstance(files, dict):
+            files = {k: File(v, tag=k) for k, v in files.items()}
+
+        # If it is an iterable of File instances, transform to a dict
+        elif isinstance(files, list):
+            files = {file.name: file for file in files}
+
+        # If it is a single item, also transform to dict
+        elif isinstance(files, File):
+            files = {files.name: files}
+
+        # Here files must be a dictionary of File instances
+        for k, v in files.items():
+            if k in self.files.keys():
+                print(f"Updating file {k} with value {v}.")
+            self.files[k] = v
