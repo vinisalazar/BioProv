@@ -23,7 +23,7 @@ class Sample:
             for k, v in files.items():
                 if isinstance(v, File):
                     files_[k] = v
-                else:  # if it is not a File instance, create one.
+                else:  # if not a File instance, create one.
                     files_[k] = File(path=v, tag=k)
             files = files_
         self.tag = tag
