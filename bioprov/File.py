@@ -48,10 +48,11 @@ class File:
 
     @property
     def exists(self):
-        return self._exists
+        return self.path.exists()
 
     @exists.setter
     def exists(self, value):
+        value = self.path.exists()
         self._exists = value
 
     pass
