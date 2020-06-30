@@ -31,6 +31,9 @@ class File:
                 f"Path {self.name} in directory {self.directory}. File does not exist."
             )
 
+    def __str__(self):
+        return str(self.path)
+
     @property
     def size(self):
         return self._size
