@@ -30,10 +30,14 @@ class Sample:
         self.files = files
         self.attributes = attributes
 
-    def add_file(self, files):
+    def __repr__(self):
+        str_ = f"Sample {self.name} with {len(self.files)} file(s)."
+        return str_
+
+    def add_files(self, files):
         """
         Adds file(s) to self.files. Must be a dict or an instance or iterable of bioprov.File.
-        :param file: bioprov.File instance or dict with key, value where value is the file path.
+        :param files: bioprov.File list, instance or dict with key, value where value is the file path.
         :return: Updates self by adding the file to self.files
         """
 
