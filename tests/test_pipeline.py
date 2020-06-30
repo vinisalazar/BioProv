@@ -24,7 +24,7 @@ def test_pipeline():
     protein_file = bp.File(
         assembly_file_path.replace(".fna", "_proteins.faa"), "proteins"
     )
-    sample.add_file(protein_file)  # And add another file with the add_file method
+    sample.add_files(protein_file)  # And add another file with the add_file method
     assert assembly_file.exists, sample.files["assembly"].exists
 
     # Build Program with parameters
