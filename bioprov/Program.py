@@ -4,7 +4,7 @@ Contains the Program, Parameter and Run class and related functions.
 To-do:
     - implement ParameterDict
 """
-from datetime import datetime
+import datetime
 from time import time
 from subprocess import Popen, PIPE, getoutput
 
@@ -165,6 +165,7 @@ class Run(Program):
         # Run status
         self.started = False
         self.finished = False
+        self.status = self._finished_to_status(self, self.finished)
 
     def __repr__(self):
         str_ = f"Run of Program '{self.program.name}' with {len(self.params)} parameter(s)."
@@ -172,30 +173,58 @@ class Run(Program):
             str_ += f"\nStarted at {self.start_time}."
         if self.end_time is not None:
             str_ += f"\nEnded at {self.end_time}."
+        str_ += f"\nStatus is {self.status.lower()}."
         return str_
 
-    def run(self):
+    @property
+    def status(self):
+        return self._finished_to_status(self, self.finished)
+
+    @status.setter
+    def status(self, _):
+        value = self._finished_to_status(self, self.finished)
+        self._status = value
+
+    @staticmethod
+    def _finished_to_status(self, finished_status):
+        """
+        :bool finished_status: 
+        :return: String representation of status.
+        """
+        dict_ = {True: "Finished", False: "Pending"}
+        return dict_[finished_status]
+
+    def run(self, print_=True):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
         :return: self.stdout
         """
         # Declare process and start time
+        if print_:
+            str_ = f"Running program '{self.program.name}'"
+            if {self.sample} is not None:
+                str_ += f" for sample {self.sample.name}."
+            else:
+                str_ += "."
+            print(str_)
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
         self.started = True
         start = time()
-        self.start_time = datetime.fromtimestamp(start).strftime("%c")
+        self.start_time = datetime.datetime.fromtimestamp(start).strftime("%c")
 
         # Run process
         (self.stdout, self.stderr) = p.communicate()
 
         # Update status
         end = time()
-        self.end_time = datetime.fromtimestamp(start).strftime("%c")
+        self.end_time = datetime.datetime.fromtimestamp(end).strftime("%c")
         duration = end - start
-        self.duration = str(duration)
+        duration = str(datetime.timedelta(seconds=duration))
+        self.duration = duration
         self.finished = True
+        self.status = self._finished_to_status(self, self.finished)
 
         return self.stdout
 
