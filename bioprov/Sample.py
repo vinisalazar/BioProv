@@ -13,7 +13,7 @@ class Sample:
     def __init__(self, name=None, tag=None, files=None, attributes=None):
         """
         :str name:  Sample name or ID.
-            :str tag: optional tag describing the sample.
+        :str tag: optional tag describing the sample.
         :dict files: Dictionary of files associated with the sample.
         :dict attributes: Dictionary of any other attributes associated with the sample.
         """
