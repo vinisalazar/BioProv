@@ -18,6 +18,7 @@ class Sample:
         :dict attributes: Dictionary of any other attributes associated with the sample.
         """
         self.name = name
+        self.tag = tag
         if isinstance(files, dict):
             files_ = dict()
             for k, v in files.items():
@@ -26,8 +27,11 @@ class Sample:
                 else:  # if not a File instance, create one.
                     files_[k] = File(path=v, tag=k)
             files = files_
-        self.tag = tag
+        elif files is None:
+            files = dict()
         self.files = files
+        if attributes is not None:
+            assert isinstance(attributes, dict)
         self.attributes = attributes
 
     def __repr__(self):
