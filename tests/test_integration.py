@@ -13,7 +13,7 @@ def test_integration(debug=False):
     """
 
     # Build Sample with Files
-    assembly_file_path = str(bp.genomes_dir) + "/GCF_000010065.1_ASM1006v1_genomic.fna"
+    assembly_file_path = bp.data.synechococcus_genome
     name, tag = "Synechococcus elongatus PCC 6301", "GCF_000010065.1"
     assembly_file = bp.SequenceFile(assembly_file_path, "assembly")
     sample = bp.Sample(  # Add one file in the __init__ method

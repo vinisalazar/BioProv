@@ -7,12 +7,7 @@ To-do:
 """
 from bioprov.helper import random_string
 from bioprov.SequenceFile import SequenceFile, seqstats
-from bioprov.Config import config
-from os import path
-
-genome_path = path.join(
-    config.genomes_dir, "GCF_000010065.1_ASM1006v1" + "_genomic.fna"
-)
+from bioprov.data import synechococcus_genome
 
 
 def test_seqstats():
@@ -20,7 +15,7 @@ def test_seqstats():
     Testing for seqstats function.
     :return:
     """
-    genome = SequenceFile(genome_path)
+    genome = SequenceFile(synechococcus_genome)
     seqstats_ = seqstats(str(genome))
     bps, gc = 2696255, 0.55484
     attributes = {
@@ -47,7 +42,7 @@ def test_SequenceFile():
     :return:
     """
     tag = "Synechococcus elongatus PCC 6301"
-    genome = SequenceFile(genome_path, tag)
+    genome = SequenceFile(synechococcus_genome, tag)
     nf_genome, nf_tag = random_string(), random_string(4)
     nf_genome = SequenceFile(nf_genome, nf_tag)
 

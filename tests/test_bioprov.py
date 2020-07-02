@@ -35,6 +35,6 @@ def test_import_data():
     :return: ImportError if not able to import
     """
     try:
-        from bioprov.data import data_dir, genomes_dir
+        from bioprov.data import data_dir, genomes_dir, synechococcus_genome
     except ImportError:
         raise
