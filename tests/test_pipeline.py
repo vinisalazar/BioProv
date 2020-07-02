@@ -1,5 +1,5 @@
 """
-Testing module for drafting new ideas.
+Integration testing for drafting new ideas.
 
 To-do:
     - create classes Sample, Process

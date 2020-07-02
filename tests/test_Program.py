@@ -22,10 +22,7 @@ def test_Program():
     p = Program()
     for attr, v in attributes.items():
         setattr(p, attr, v)
-        if attr != "params":
-            assert getattr(p, attr) == v, f"{attr} attribute is wrong!"
-        else:
-            assert all(isinstance(v_, Parameter) for k, v_ in getattr(p, attr).items())
+        assert getattr(p, attr) == v, f"{attr} attribute is wrong!"
     assert p.cmd == p.generate_cmd()
 
 
@@ -54,17 +51,17 @@ def test_Run():
     :return:
     """
     attributes = {"program": Program("prodigal", {"-h": ""})}
-    run = Run()
+    run_ = Run()
     for attr, v in attributes.items():
-        setattr(run, attr, v)
+        setattr(run_, attr, v)
 
     # Check the status and run
-    assert run.status is "Pending"
-    run.run()
+    assert run_.status is "Pending"
+    run_.run()
 
     # Check status again
-    assert run.finished is True
-    assert run.status is "Finished"
+    assert run_.finished is True
+    assert run_.status is "Finished"
 
 
 def test_parse_params():
