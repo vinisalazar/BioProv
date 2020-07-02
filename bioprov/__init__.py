@@ -1,3 +1,9 @@
+"""
+Init module for package bioprov.
+
+Contains imports of every object of every module.
+"""
+
 from .Config import Config, config
 from .data import data_dir, genomes_dir
 from .File import File

@@ -1,15 +1,12 @@
 """
 Integration testing for drafting new ideas.
-
-To-do:
-    - create classes Sample, Process
 """
 
 import bioprov as bp
 from os import remove
 
 
-def test_pipeline(debug=False):
+def test_integration(debug=False):
     """
     Tests an example pipeline of running Prodigal.
     :return:
