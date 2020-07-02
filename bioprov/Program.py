@@ -14,7 +14,9 @@ class Program:
     Class for holding information about programs.
     """
 
-    def __init__(self, name, params=None, tag=None, path=None, cmd=None, version=None):
+    def __init__(
+        self, name=None, params=None, tag=None, path=None, version=None, cmd=None
+    ):
         """
         :param name: Name of the program being called.
         :param params: Dictionary of parameters.
@@ -28,8 +30,8 @@ class Program:
         self.param_str = generate_param_str(self.params)
         self.tag = tag
         self.path = path
-        self.cmd = cmd
         self.version = version
+        self.cmd = cmd
         if tag is None:
             self.tag = self.name
         if path is None:
@@ -117,18 +119,23 @@ class Parameter:
         if tag is None:
             self.tag = self.key
         if cmd_string is None:
-            self.cmd_string = key + " " + str(value)
+            if self.key is None:
+                self.cmd_string = ""
+            else:
+                self.cmd_string = self.key + " " + self.value
 
     def __repr__(self):
-        if self.value == "":
-            str_ = f"Parameter {self.key} with no value."
-        else:
-            str_ = f"Parameter {self.key} with value {self.value}."
-        if self.description is not None:
-            str_ += " Description: " + f"'{self.description}.'"
-        if self.kind is not None:
-            str_ += " Kind: " + f"'{self.kind}."
-        return str_
+        return self.cmd_string
+        # # I am leaving this commented for now as I may reimplement it later. Still deciding.
+        # if self.value == "":
+        #     str_ = f"Parameter {self.key} with no value."
+        # else:
+        #     str_ = f"Parameter {self.key} with value {self.value}."
+        # if self.description is not None:
+        #     str_ += " Description: " + f"'{self.description}.'"
+        # if self.kind is not None:
+        #     str_ += " Kind: " + f"'{self.kind}."
+        # return str_
 
     pass
 
@@ -203,7 +210,7 @@ class Run(Program):
         # Declare process and start time
         if print_:
             str_ = f"Running program '{self.program.name}'"
-            if {self.sample} is not None:
+            if self.sample is not None:
                 str_ += f" for sample {self.sample.name}."
             else:
                 str_ += "."
@@ -239,7 +246,7 @@ def parse_params(params, program=None):
         params_ = dict()
         for k, v in params.items():
             if isinstance(v, Parameter):
-                v.program, v.tag = program
+                v.program, v.tag = v.program, v.program
                 params_[k] = v
             else:
                 params_[k] = Parameter(k, v, program=program)
