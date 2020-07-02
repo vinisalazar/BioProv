@@ -16,4 +16,5 @@ class Config:
     pass
 
 
+# Default config variable if not instantiating
 config = Config()
