@@ -306,17 +306,16 @@ def from_df(
     type(samples)  # bioprov.Sample.SampleSet.
     '''
     :param df: A pandas DataFrame
-    :param index_col: A column to be used as index
+    :param index_col: A column to be used as index, int or str.
     :param file_cols: Columns containing Files.
     :param sequencefile_cols: Columns containing SequenceFiles.
     :param tag: A tag to describe the SampleSet.
     :return: a SampleSet instance
     """
-    if index_col:
-        assert (
-            index_col in df.columns
-        ), f"Index column '{index_col}' not present in columns!"
-    else:  # Get the first column.
+    assert any(
+        (index_col in df.columns, index_col <= len(df))
+    ), f"Index column '{index_col}' not present in columns!"
+    if isinstance(index_col, int):
         index_col = df.columns[index_col]
     df.set_index(index_col, inplace=True)
 

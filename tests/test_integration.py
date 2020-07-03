@@ -23,7 +23,7 @@ def test_integration(debug=False):
         {"assembly": assembly_file},
         {"description": f"Genome of {name} with RefSeq accession {tag}"},
     )
-    protein_file = bp.File(protein_file, "proteins")
+    protein_file = bp.SequenceFile(protein_file, "proteins")
     sample.add_files(protein_file)  # And add another file with the add_file method
     assert assembly_file.exists, sample.files["assembly"].exists
 

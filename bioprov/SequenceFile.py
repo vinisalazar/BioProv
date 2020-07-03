@@ -14,19 +14,23 @@ class SequenceFile(File):
     Class for holding sequence file and sequence information. Inherits from File.
     """
 
-    def __init__(self, path, tag=None, import_data=True):
+    def __init__(
+        self, path, tag=None, import_data=True, _format="fasta",
+    ):
         """
         :param path: A UNIX-like file path.
         :param tag: optional tag describing the file.
+        :param import_data: Whether to import sequence data as Bio.SeqRecord.SeqRecord
+        :param _format: Input format. Only 'fasta' is supported for now.
         """
         File.__init__(self, path, tag)
         if not self.exists:
             import_data = False
         if import_data:
-            self.records = seqrecordgenerator(self.path)
+            self.records = seqrecordgenerator(self.path, _format)
             self.seqstats = seqstats(self.path)
         else:
-            self.records, self.seqstats = False, False
+            self.records, self.seqstats = (None, None)
 
     def __len__(self):
         return self.seqstats.total_bps
@@ -52,7 +56,7 @@ class SequenceFile(File):
 
     @property
     def seqstats(self):
-        return self._seqstats
+        return seqstats(self.path)
 
     @seqstats.setter
     def seqstats(self, value):
@@ -61,20 +65,21 @@ class SequenceFile(File):
     pass
 
 
-def seqrecordgenerator(path):
+def seqrecordgenerator(path, _format="fasta"):
     """
     :param path: Path to a valid FASTA file.
-    :return: A SeqIO SeqRecords generator.
+    :param _format: format to pass to SeqIO.parse(). Only fasta is supported.
+    :return: A generator of SeqRecords.
     """
     try:
-        records = SeqIO.parse(path, format="fasta")
+        records = SeqIO.parse(path, format=_format)
         return records
     except FileNotFoundError as e:
         print(e)
-        return False
+        return None
 
 
-def seqstats(path, megabases=False, percentage=False, decimals=5):
+def seqstats(path, megabases=False, percentage=False, calculate_gc=True, decimals=5):
     """
     Get sequence statistics from a FASTA file.
     Inspired from the program Seqstats
@@ -83,6 +88,7 @@ def seqstats(path, megabases=False, percentage=False, decimals=5):
     :param megabases: If true, express number of base pairs in megabases.
     :param decimals: Number of decimals in GC content.
     :param percentage: Express GC content in percentage instead of fraction.
+    :param calculate_gc: Whether to calculate GC. Disabled if sequence is aminoacid.
     :return: Number of base pairs,
     """
     if not Path(path).exists:
@@ -106,8 +112,14 @@ def seqstats(path, megabases=False, percentage=False, decimals=5):
 
     seq_bps, gc = [], 0
 
+    aminoacids = "LMFWKQESPVIYHRND"
+
     # Calculate statistics
-    for SeqRecord in sequences:
+    for ix, SeqRecord in enumerate(sequences):
+        if ix == 1:
+            seq = str(SeqRecord.seq)
+            if any(i in aminoacids for i in seq):
+                calculate_gc = False
         seq_bps.append(len(SeqRecord.seq))
         gc += SeqRecord.seq.upper().count("G")
         gc += SeqRecord.seq.upper().count("C")
@@ -121,9 +133,12 @@ def seqstats(path, megabases=False, percentage=False, decimals=5):
     max_bp = max(seq_bps)
 
     # Calculate GC content
-    gc = round(gc / total_bps, decimals)
-    if percentage:
-        gc *= 100
+    if calculate_gc:
+        gc = round(gc / total_bps, decimals)
+        if percentage:
+            gc *= 100
+    else:
+        gc = "NA"
 
     if megabases:
         total_bps /= 10e5
