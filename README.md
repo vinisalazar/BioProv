@@ -3,27 +3,62 @@
 BioProv is a Python library for builiding bioinformatics pipelines and easily extracting provenance data.
 
 ```bibtex
-import bioprov as bp
+>>> import bioprov as bp
 
 # Create samples and file objects
-sample = bp.Sample("mysample")
-genome = bp.SequenceFile("mysample.fasta", "genome")
-sample.add_files(genome)
+>>> sample = bp.Sample("mysample")
+>>> genome = bp.SequenceFile("mysample.fasta", "genome")
+>>> sample.add_files(genome)
 
 # Create programs
-blast = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "mydb.fasta"})
+>>> output = sample.files["blast_out"] = bp.File("mysample.blast.tsv", "blast_out")
+>>> blast = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "mydb.fasta", "-out": output})
 
 # Run programs
-blast.run(sample=sample)  # Or
-sample.run(program=blast)
+>>> blast.run(sample=sample)  # Or sample.run(program=blast)
 ```
+
+BioProv is built with the [Biopython](https://biopython.org/) and [Pandas](http://pandas.pydata.org/) libraries.
+
+You can import data into BioProv using Pandas objects.
+
+```bibtex
+# Read csv straight into BioProv
+>>> samples = bp.read_csv("my_dataframe.tsv", sep="\t", sequencefile_cols="assembly")
+
+# Alternatively, use a pandas DataFrame
+>>> df = pd.read_csv("my_dataframe.tsv", sep="\t")
+
+# [...] manipulate your df
+>>> df["assembly"] = "assembly_directory/" + df["assembly"]
+
+# Now load from your df
+>>> samples = bp.from_df(df, sequencefile_cols="assembly")
+
+# `samples` becomes a SampleSet dict-like object
+>>> sample1 = samples['sample1']
+```
+
+BioProv 'SequenceFile' objects contains records formatted as [BioPython SeqRecords](https://biopython.org/wiki/SeqRecord):
+
+```bibtex
+>>> type(sample1)
+Bio.SeqRecord.SeqRecord
+```
+
+BioProv objects can be imported or exported as JSON objects.
+
+```bibtex
+>>> sample1.to_json(), samples.to_json()
+```
+
 
 ### Installation
 
 ```bibtex
-git clone https://github.com/vinisalazar/bioprov  # clone
-cd bioprov; pip install .                         # install
-pytest                                            # test
+$ git clone https://github.com/vinisalazar/bioprov  # download
+$ cd bioprov; pip install .                         # install
+$ pytest                                            # test
 ```
 
 Contributions are welcome!
