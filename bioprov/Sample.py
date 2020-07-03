@@ -8,6 +8,7 @@ from bioprov.File import File
 from bioprov.SequenceFile import SequenceFile
 from bioprov.utils import random_string
 from types import GeneratorType
+from copy import copy
 from pathlib import Path
 
 
@@ -88,9 +89,13 @@ class Sample:
 
         json_out = dict()
         for key, value in self.__dict__.items():
-            json_out[key] = value
+            key_, value_ = copy(key), copy(value)  # Create copies, not reference
+            if isinstance(value, dict):  # Or we will lose our original values.
+                for k, v in value_.items():
+                    value_[k] = str(v)
+            json_out[key] = value_
 
-        with open(self.files["json"], "w") as f:
+        with open(str(self.files["json"]), "w") as f:
             json.dump(json_out, f, indent=3)
 
         if _print:

@@ -1,6 +1,7 @@
 """
 Testing for the Sample module.
 """
+from os import remove
 from bioprov.Sample import Sample, SampleSet, read_csv
 from bioprov.data import synechococcus_genome, synechococcus_dataset
 
@@ -30,6 +31,9 @@ def test_Sample():
     assert sample.files[
         "assembly"
     ].exists, f"Couldn't find file in path {assembly_path}."
+    sample.to_json()
+    assert sample.files["json"].exists
+    remove(str(sample.files["json"]))
 
 
 def test_SampleSet():
