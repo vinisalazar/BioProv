@@ -83,22 +83,33 @@ class SampleSet:
         :param samples: An iterator of Sample objects.
         :param tag: A tag to describe the SampleSet.
         """
-        samples = self.is_iterator(samples)  # Checks if it
+        samples = self.is_iterator(
+            samples
+        )  # Checks if `samples` is a valid constructor.
         samples = self.build_sample_dict(samples)
-        self.samples = samples
+        self._samples = samples
         self.tag = tag
 
     def __len__(self):
-        return len(self.samples)
+        return len(self._samples)
 
     def __getitem__(self, item):
-        return self.samples[item]
+        return self._samples[item]
 
     def __setitem__(self, key, value):
-        self.samples[key] = value
+        self._samples[key] = value
+
+    def keys(self):
+        return self._samples.keys()
+
+    def values(self):
+        return self._samples.values()
+
+    def items(self):
+        return self._samples.items()
 
     def __repr__(self):
-        return f"SampleSet with {len(self.samples)} samples."
+        return f"SampleSet with {len(self._samples)} samples."
 
     @staticmethod
     def is_sample_and_name(sample):
@@ -158,7 +169,7 @@ class SampleSet:
 
 
 def from_df(
-    df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None, **kwargs
+    df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None,
 ):
     """
     Pandas-like function to build a SampleSet object.
@@ -175,7 +186,6 @@ def from_df(
     :param file_cols: Columns containing Files.
     :param sequencefile_cols: Columns containing SequenceFiles.
     :param tag: A tag to describe the SampleSet.
-    :param kwargs:
     :return: a SampleSet instance
     """
     if index_col:
