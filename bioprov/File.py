@@ -29,15 +29,10 @@ class File:
         self.generated_by = generated_by
 
     def __repr__(self):
-        if self.exists is True:
-            return f"File {self.name} with {self.size} in directory {self.directory}."
-        else:
-            return (
-                f"Path {self.name} in directory {self.directory}. File does not exist."
-            )
+        return str(self.path)
 
     def __str__(self):
-        return str(self.path)
+        return self.__repr__()
 
     @property
     def size(self):
