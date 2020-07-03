@@ -60,7 +60,9 @@ def test_Run():
     run_.run()
 
     # Check status again
-    assert run_.start_time != run_.end_time
+    assert (
+        run_.start_time == run_.end_time
+    )  # This should be the same for the '-h' parameter.
     assert run_.finished is True
     assert run_.status is "Finished"
 

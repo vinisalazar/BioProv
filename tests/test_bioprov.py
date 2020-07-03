@@ -24,7 +24,16 @@ def test_import_classes():
     :return: ImportError if not able to import
     """
     try:
-        from bioprov import Config, File, SequenceFile, get_size
+        from bioprov import (
+            Config,
+            File,
+            Program,
+            Parameter,
+            Run,
+            SequenceFile,
+            cli,
+            data,
+        )
     except ImportError:
         raise
 
@@ -36,5 +45,6 @@ def test_import_data():
     """
     try:
         from bioprov.data import data_dir, genomes_dir, synechococcus_genome
+        from bioprov.cli import CLI
     except ImportError:
         raise
