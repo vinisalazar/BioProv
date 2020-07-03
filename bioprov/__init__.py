@@ -5,7 +5,6 @@ Contains imports of every object of every module.
 """
 
 from .Config import Config, config
-from .data import data_dir, genomes_dir, synechococcus_genome
 from .File import File
 from .Program import Program, Parameter, Run
 from .Sample import Sample, SampleSet, read_csv, from_df
