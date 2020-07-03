@@ -2,11 +2,13 @@
 Contains the Sample and SampleSet classes and related functions.
 """
 
+import json
 import pandas as pd
 from bioprov.File import File
 from bioprov.SequenceFile import SequenceFile
 from bioprov.utils import random_string
 from types import GeneratorType
+from pathlib import Path
 
 
 class Sample:
@@ -70,6 +72,34 @@ class Sample:
             if k in self.files.keys():
                 print(f"Updating file {k} with value {v}.")
             self.files[k] = v
+
+    def to_json(self, out_path=None, _print=True):
+        """
+        Writes representation in JSON format.
+        :param out_path: A path to the .json file.
+        :param _print: Whether to print if the file was successfully created.
+        :return:
+        """
+        if out_path is None:
+            out_path = "./"
+
+        json_filepath = Path.joinpath(Path(out_path), Path(self.name + ".json"))
+        self.add_files(File(json_filepath, "json"))
+
+        json_out = dict()
+        for key, value in self.__dict__.items():
+            json_out[key] = value
+
+        with open(self.files["json"], "w") as f:
+            json.dump(json_out, f, indent=3)
+
+        if _print:
+            if self.files["json"].exists:
+                print(f"Created JSON file at {self.files['json']}.")
+            else:
+                print(f"Could not create JSON file for {self.name}.")
+
+        return
 
 
 class SampleSet:
@@ -234,5 +264,5 @@ def read_csv(df, sep=",", **kwargs):
     :return: A SampleSet instance.
     """
     df = pd.read_csv(df, sep=sep)
-    ss = from_df(df, **kwargs)
-    return ss
+    sampleset = from_df(df, **kwargs)
+    return sampleset
