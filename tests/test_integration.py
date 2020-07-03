@@ -58,4 +58,4 @@ def test_integration(debug=False):
 
 
 # Uncomment this if you want to test locally
-# genome, program, run_ = test_pipeline(debug=True)
+# genome, program, run_ = test_integration(debug=True)
