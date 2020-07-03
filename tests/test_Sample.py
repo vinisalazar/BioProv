@@ -1,7 +1,7 @@
 """
 Testing for the Sample module.
 """
-from os import remove
+from os import remove, path
 from bioprov.SequenceFile import SequenceFile
 from bioprov.Sample import (
     Sample,
@@ -9,7 +9,7 @@ from bioprov.Sample import (
     read_csv,
     dict_to_sample,
     json_to_dict,
-    json_to_sample,
+    from_json,
 )
 from bioprov.data import synechococcus_genome, synechococcus_dataset
 
@@ -69,20 +69,22 @@ def test_from_df():
     assert len(sampleset_) > 0
 
 
-def test_json():
+def test_json_Sample():
     """
-    Testing for JSON methods in the Sample module.
+    Testing for JSON methods for the Sample class.
     :return:
     """
     sample = create_sample(attributes)
 
     # Test json methods
     sample.to_json()
-    assert sample.files["json"].exists
+    assert sample.files[
+        "json"
+    ].exists, f"Did not create JSON output for Sample '{sample.name}'."
 
     # Import JSON
     d = json_to_dict(str(sample.files["json"]))
-    j, j_ = dict_to_sample(d), json_to_sample(str(sample.files["json"]))
+    j, j_ = dict_to_sample(d), from_json(str(sample.files["json"]))
     for (k1, v1), (k2, v2), (k3, v3) in zip(
         sample.__dict__.items(), j.__dict__.items(), j_.__dict__.items()
     ):
@@ -94,4 +96,18 @@ def test_json():
     remove(str(sample.files["json"]))
 
 
-ss = read_csv(synechococcus_dataset, sequencefile_cols="assembly-file")
+def test_json_SampleSet():
+    """
+    Testing for JSON methods in SampleSet class.
+    :return:
+    """
+    ss = read_csv(synechococcus_dataset, sequencefile_cols="assembly-file",)
+    ss.tag = "Synechococcus"
+    ss.to_json()
+    json_out = ss.tag + ".json"
+    assert path.isfile(
+        json_out
+    ), f"Did not create JSON output for SampleSet '{ss.tag}'."
+    ss = from_json(json_out)
+    assert isinstance(ss, SampleSet)
+    remove(json_out)

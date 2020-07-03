@@ -83,39 +83,19 @@ class Sample:
                 print(f"Updating file {k} with value {v}.")
             self.files[k] = v
 
-    def to_json(self, out_path=None, _print=True):
+    def to_json(self, path=None, dict_only=False, _print=True):
         """
-        Writes representation in JSON format.
-        :param out_path: A path to the .json file.
-        :param _print: Whether to print if the file was successfully created.
+        Exports the SampleSet as JSON. Similar to Sample.to_json()
+        :param path: JSON output file path.
+        :param dict_only: Whether to return the dictionary only or write the JSON.
+        :param _print: Whether to print if the file was created correctly.
         :return:
         """
-        if out_path is None:
-            out_path = "./"
+        if path is None:
+            path = Path.joinpath(Path("./"), Path(self.name + ".json"))
+            self.add_files(File(path, "json"))
 
-        json_filepath = Path.joinpath(Path(out_path), Path(self.name + ".json"))
-        self.add_files(File(json_filepath, "json"))
-
-        json_out = dict()
-        for key, value in self.__dict__.items():
-            key_, value_ = copy(key), copy(value)  # Create copies, not reference
-            if isinstance(value, dict):  # Or we will lose our original values.
-                for k, v in value_.items():
-                    value_[k] = str(v)
-            json_out[key] = value_
-        # I may add this later, to facilitate SampleSet and Sample distinction
-        # json_out["Class"] = "Sample"
-
-        with open(str(self.files["json"]), "w") as f:
-            json.dump(json_out, f, indent=3)
-
-        if _print:
-            if self.files["json"].exists:
-                print(f"Created JSON file at {self.files['json']}.")
-            else:
-                print(f"Could not create JSON file for {self.name}.")
-
-        return
+        return to_json(self, path, dict_only=dict_only, _print=_print)
 
 
 class SampleSet:
@@ -220,6 +200,97 @@ class SampleSet:
 
         return samples
 
+    @property
+    def samples(self):
+        return self._samples
+
+    def to_json(self, path=None, dict_only=False, _print=True):
+        """
+        Exports the SampleSet as JSON. Similar to Sample.to_json()
+        :param path: JSON output file path.
+        :param dict_only: Whether to return the dictionary only or write the JSON.
+        :param _print: Whether to print if the file was created correctly.
+        :return:
+        """
+        if path is None:
+            if self.tag is not None:
+                path = f"./{self.tag}.json"
+            else:
+                pass
+        return to_json(self, path, dict_only=dict_only, _print=_print)
+
+
+def to_json(samplelike, path=None, dict_only=False, _print=True):
+    """
+    Exports the Sample or SampleSet as JSON.
+    :param samplelike: Sample or SampleSet instance.
+    :param path: Path to JSON file. Default is current directory.
+    :param dict_only: Whether to return a dictionary only or write the JSON.
+    :param _print: Whether to print if the file was created correctly.
+    :return:
+    """
+    json_out = dict()
+
+    assert isinstance(
+        samplelike, (SampleSet, Sample)
+    ), f"{samplelike} must be a Sample or SampleSet object!"
+
+    # Build SampleSet JSON dict
+    if isinstance(samplelike, SampleSet):
+        sampleset = samplelike
+        if path is None:
+            path = f"./SampleSet_{random_string()}.json"
+        for name, sample in sampleset.items():
+            json_out[name] = sample.to_json(dict_only=True, _print=False)
+
+    # Build Sample JSON dict
+    elif isinstance(samplelike, Sample):
+        sample = samplelike
+        if path is None:
+            path = Path.joinpath(Path("./"), Path(sample.name + ".json"))
+            sample.add_files(File(path, "json"))
+
+        for key, value in sample.__dict__.items():
+            key_, value_ = copy(key), copy(value)  # Create copies, not reference
+            if isinstance(value, dict):  # Or we will lose our original values.
+                for k, v in value_.items():
+                    value_[k] = str(v)
+            json_out[key] = value_
+
+    if dict_only:
+        return json_out
+
+    write_json(json_out, path)
+
+    if dict_only:
+        return json_out
+    write_json(json_out, path, _print)
+    return
+
+
+def from_json(json_file, kind="Sample"):
+    """
+    Imports Sample or SampleSet from JSON file.
+    :param json_file: A JSON file created by Sample.to_json()
+    :param kind: Whether to create a Sample or SampleSet instance.
+    :return: a Sample or SampleSet instance.
+    """
+    assert kind in ("Sample", "SampleSet"), "Must specify 'Sample' or 'Sampleset'."
+    d = json_to_dict(json_file)
+    if "name" in d.keys():  # This checks whether the file is a Sample or SampleSet
+        kind = "Sample"  # To-do: must be improved.
+    else:
+        kind = "SampleSet"
+    if kind == "Sample":
+        sample_ = dict_to_sample(d)
+        return sample_
+    elif kind == "SampleSet":
+        samples = dict()
+        for k, v in d.items():
+            samples[k] = dict_to_sample(v)
+        sampleset = SampleSet(samples=samples)
+        return sampleset
+
 
 def from_df(
     df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None,
@@ -319,12 +390,19 @@ def dict_to_sample(json_dict):
     return sample_
 
 
-def json_to_sample(json_file):
+def write_json(dict_, path, _print=True):
     """
-    Imports Sample from JSON file.
-    :param json_file: A JSON file created by Sample.to_json()
-    :return: a Sample instance.
+    Writes dictionary to JSON file.
+    :param dict_: JSON dictionary.
+    :param path: String with path to JSON file.
+    :param _print: Whether to print if the file was successfully created.
+    :return: Writes JSON file
     """
-    d = json_to_dict(json_file)
-    sample_ = dict_to_sample(d)
-    return sample_
+    with open(path, "w") as f:
+        json.dump(dict_, f, indent=3)
+
+    if _print:
+        if Path(path).exists():
+            print(f"Created JSON file at {path}.")
+        else:
+            print(f"Could not create JSON file for {path}.")
