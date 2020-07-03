@@ -47,8 +47,8 @@ class SequenceFile(File):
         try:
             self._records = SeqIO.to_dict(value)
         except TypeError:  # in case the file does not exist
-            print(not_exist)
-            self._records = value
+            not_exist(self.path)
+            self._records = False
 
     @property
     def seqstats(self):
@@ -86,7 +86,7 @@ def seqstats(path, megabases=False, percentage=False, decimals=5):
     :return: Number of base pairs,
     """
     if not Path(path).exists:
-        print(not_exist)
+        not_exist(path)
         return False
 
     sequences = seqrecordgenerator(path)
@@ -156,4 +156,6 @@ def calculate_n50(numlist):
         return newlist[medianpos]
 
 
-not_exist = "File does not exist!"
+def not_exist(x):  # To-do: refactor this, maybe as static method?
+    print(f"File {x} does not exist!")
+    return
