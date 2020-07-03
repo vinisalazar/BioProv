@@ -17,3 +17,15 @@ blast = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "m
 blast.run(sample=sample)  # Or
 sample.run(program=blast)
 ```
+
+### Installation
+
+```bibtex
+git clone https://github.com/vinisalazar/bioprov  # clone
+cd bioprov; pip install .                         # install
+pytest                                            # test
+```
+
+Contributions are welcome!
+
+**BioProv is in active development and no warranties are provided (please see the License).**
