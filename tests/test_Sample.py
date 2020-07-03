@@ -53,3 +53,6 @@ def test_from_df():
     """
     ss = read_csv(synechococcus_dataset, sequencefile_cols="assembly-file")
     assert len(ss) > 0
+
+
+ss = read_csv(synechococcus_dataset, sequencefile_cols="assembly-file")

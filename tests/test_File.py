@@ -27,17 +27,15 @@ def test_File():
         "extension": f.extension == f.path.suffix,
         "tag": f.tag == tag,
         "exists": f.exists is True,
+        "repr": f.__repr__() == str(f.path),
         # Non existing file
         "non_existing": nf.exists is False,
         "no_size": nf.size is 0,
-        "nf_repr": nf.__repr__()
-        == f"Path {nf.name} in directory {nf.directory}. File does not exist.",
+        "nf_repr": nf.__repr__() == str(nf.path),
         # get_size() function
         "get_size": f.size == bp.get_size(f.path),
         "raw_get_size": f.raw_size
         == bp.get_size(f.path, convert=False),  # get_size(convert=False)
-        "repr": f.__repr__()
-        == f"File {f.name} with {f.size} in directory {f.directory}.",
         # Convert bytes function
         "convert_bytes": bp.convert_bytes(2 ** 10) == "1.0 KB",
     }
