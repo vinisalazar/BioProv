@@ -47,6 +47,15 @@ class Sample:
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
         return str_
 
+    def __getitem__(self, item):
+        return self.files[item]
+
+    def __setitem__(self, key, value):
+        assert isinstance(
+            value, (File, SequenceFile)
+        ), f"To create file in sample, must be either a bioprov.File or bioprov.SequenceFile instance."
+        self.files[key] = value
+
     def add_files(self, files):
         """
         Adds file(s) to self.files. Must be a dict or an instance or iterable of bioprov.File.
@@ -95,6 +104,8 @@ class Sample:
                     value_[k] = str(v)
             json_out[key] = value_
 
+        json_out["class"] = "Sample"
+
         with open(str(self.files["json"]), "w") as f:
             json.dump(json_out, f, indent=3)
 
@@ -129,7 +140,16 @@ class SampleSet:
         return len(self._samples)
 
     def __getitem__(self, item):
-        return self._samples[item]
+        try:
+            value = self._samples[item]
+            return value
+        except KeyError:
+            keys = self.keys()
+            print(
+                f"Sample {item} not in SampleSet.\n",
+                "Check the following keys:\n",
+                "\n".join(keys),
+            )
 
     def __setitem__(self, key, value):
         self._samples[key] = value
@@ -200,8 +220,6 @@ class SampleSet:
 
         return samples
 
-    pass
-
 
 def from_df(
     df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None,
@@ -271,3 +289,31 @@ def read_csv(df, sep=",", **kwargs):
     df = pd.read_csv(df, sep=sep)
     sampleset = from_df(df, **kwargs)
     return sampleset
+
+
+def json_to_dict(json_file):
+    """
+    Reads Sample from a JSON file.
+    :param json_file: A JSON file created by Sample.to_json()
+    :return:
+    """
+    with open(json_file) as f:
+        dict_ = json.load(f)
+    return dict_
+
+
+def dict_to_sample(json_dict):
+    """
+    Converts a JSON dictionary to a sample instance.
+    :param json_dict: output of sample_from_json.
+    :return: Sample instance.
+    """
+    sample_ = Sample()
+    for attr, value in json_dict.items():
+        # Create File instances
+        if attr == "files":
+            for tag, path in attr.items():
+                attr[tag] = File(path, tag)
+
+        setattr(sample_, attr, value)
+    return sample_
