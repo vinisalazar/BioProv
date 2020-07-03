@@ -103,8 +103,8 @@ class Sample:
                 for k, v in value_.items():
                     value_[k] = str(v)
             json_out[key] = value_
-
-        json_out["class"] = "Sample"
+        # I may add this later, to facilitate SampleSet and Sample distinction
+        # json_out["Class"] = "Sample"
 
         with open(str(self.files["json"]), "w") as f:
             json.dump(json_out, f, indent=3)
@@ -312,8 +312,8 @@ def dict_to_sample(json_dict):
     for attr, value in json_dict.items():
         # Create File instances
         if attr == "files":
-            for tag, path in attr.items():
-                attr[tag] = File(path, tag)
+            for tag, path in value.items():
+                value[tag] = File(path, tag)
 
         setattr(sample_, attr, value)
     return sample_
