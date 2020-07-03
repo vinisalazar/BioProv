@@ -1,8 +1,12 @@
 """
-Contains the Sample class and related functions.
+Contains the Sample and SampleSet classes and related functions.
 """
 
-from bioprov import File
+import pandas as pd
+from bioprov.File import File
+from bioprov.SequenceFile import SequenceFile
+from bioprov.helper import random_string
+from types import GeneratorType
 
 
 class Sample:
@@ -32,6 +36,8 @@ class Sample:
         self.files = files
         if attributes is not None:
             assert isinstance(attributes, dict)
+        else:
+            attributes = dict()
         self.attributes = attributes
 
     def __repr__(self):
@@ -64,3 +70,159 @@ class Sample:
             if k in self.files.keys():
                 print(f"Updating file {k} with value {v}.")
             self.files[k] = v
+
+
+class SampleSet:
+    """
+    Class which holds a dictionary of Sample instances, where each key is the sample name.
+    """
+
+    def __init__(self, samples=None, tag=None):
+        """
+        Initiates the object by creating a sample dictionary.
+        :param samples: An iterator of Sample objects.
+        :param tag: A tag to describe the SampleSet.
+        """
+        samples = self.is_iterator(samples)  # Checks if it
+        samples = self.build_sample_dict(samples)
+        self.samples = samples
+        self.tag = tag
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, item):
+        return self.samples[item]
+
+    def __setitem__(self, key, value):
+        self.samples[key] = value
+
+    def __repr__(self):
+        return f"SampleSet with {len(self.samples)} samples."
+
+    @staticmethod
+    def is_sample_and_name(sample):
+        """
+        Checks if an object is of the Sample class.
+        Name the sample if it isn't named.
+        :param sample: an object of the Sample class.
+        :return:
+        """
+        # Check class
+        assert isinstance(sample, Sample), f"{sample} is not a valid Sample object!"
+
+        # Name
+        if sample.name is None:
+            sample.name = random_string()
+
+        return sample
+
+    @staticmethod
+    def is_iterator(constructor):
+        """
+        Checks if the constructor passed is a valid iterable, or None.
+        :param constructor: constructor object used to build a SampleSet instance.
+        :return:.
+        """
+        assert type(constructor) in (
+            list,
+            dict,
+            tuple,
+            GeneratorType,
+            type(None),
+        ), f"'samples' must be an iterator of Sample instances."
+
+        return constructor
+
+    @staticmethod
+    def build_sample_dict(constructor):
+        """
+        Build sample dictionary from passed constructor.
+        :param constructor: Iterable or NoneType
+        :return: dictionary of sample instances.
+        """
+        samples = dict()
+        if constructor is None:
+            return samples
+
+        if isinstance(constructor, dict):
+            constructor = list(constructor.values())
+
+        for sample in constructor:
+            sample = SampleSet.is_sample_and_name(sample)
+            samples[sample.name] = sample
+
+        return samples
+
+    pass
+
+
+def from_df(
+    df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None, **kwargs
+):
+    """
+    Pandas-like function to build a SampleSet object.
+
+    By default, assumes the sample names or ids are in the first column,
+        else they should be specified by 'index_col' arg.
+    '''
+    samples = from_df('sample.tsv', sep="\t")
+
+    type(samples)  # bioprov.Sample.SampleSet.
+    '''
+    :param df: A pandas DataFrame
+    :param index_col: A column to be used as index
+    :param file_cols: Columns containing Files.
+    :param sequencefile_cols: Columns containing SequenceFiles.
+    :param tag: A tag to describe the SampleSet.
+    :param kwargs:
+    :return: a SampleSet instance
+    """
+    if index_col:
+        assert (
+            index_col in df.columns
+        ), f"Index column '{index_col}' not present in columns!"
+    else:  # Get the first column.
+        index_col = df.columns[index_col]
+    df.set_index(index_col, inplace=True)
+
+    samples = dict()
+    attribute_cols = [
+        i for i in df.columns if i not in (file_cols, sequencefile_cols, index_col)
+    ]
+    for ix, row in df.iterrows():
+        sample = Sample(name=ix)
+
+        for arg, type_ in zip((file_cols, sequencefile_cols), ("file", "sequencefile")):
+            if arg is not None:
+                if isinstance(arg, str):  # If a string is passed,
+                    arg = (arg,)  # we must make a list/tuple so we can iterate.
+                for column in arg:
+                    if type_ == "file":
+                        sample.add_files(File(path=row[column], tag=column))
+                    elif type_ == "sequencefile":
+                        sample.add_files(SequenceFile(path=row[column], tag=column))
+        if (
+            len(attribute_cols) > 0
+        ):  # Here we check by len() instead of none because it is a list.
+            for attr_ in attribute_cols:
+                sample.attributes[attr_] = row[attr_]
+        samples[ix] = sample
+
+    samples = SampleSet(samples, tag=tag)
+
+    return samples
+
+    pass
+
+
+def read_csv(df, sep=",", **kwargs):
+    """
+    :param df: Path of dataframe.
+    :param sep: Separator of dataframe.
+    :param kwargs: Any kwargs to be passed to from_df()
+    :return: A SampleSet instance.
+    """
+    df = pd.read_csv(df, sep=sep)
+    ss = from_df(df, **kwargs)
+    return ss
