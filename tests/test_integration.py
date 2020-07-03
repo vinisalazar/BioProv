@@ -13,18 +13,17 @@ def test_integration(debug=False):
     """
 
     # Build Sample with Files
-    assembly_file_path = bp.data.synechococcus_genome
+    assembly_file = bp.data.synechococcus_genome
+    protein_file = str(assembly_file).replace("fna", "faa")
     name, tag = "Synechococcus elongatus PCC 6301", "GCF_000010065.1"
-    assembly_file = bp.SequenceFile(assembly_file_path, "assembly")
+    assembly_file = bp.SequenceFile(assembly_file, "assembly")
     sample = bp.Sample(  # Add one file in the __init__ method
         name,
         tag,
         {"assembly": assembly_file},
         {"description": f"Genome of {name} with RefSeq accession {tag}"},
     )
-    protein_file = bp.File(
-        assembly_file_path.replace(".fna", "_proteins.faa"), "proteins"
-    )
+    protein_file = bp.File(protein_file, "proteins")
     sample.add_files(protein_file)  # And add another file with the add_file method
     assert assembly_file.exists, sample.files["assembly"].exists
 
