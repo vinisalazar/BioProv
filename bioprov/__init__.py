@@ -10,6 +10,6 @@ from .File import File
 from .Program import Program, Parameter, Run
 from .Sample import Sample
 from .SequenceFile import SequenceFile, seqrecordgenerator
-from .helper import random_string, convert_bytes, get_size
+from .utils import random_string, convert_bytes, get_size
 
 name = "bioprov"

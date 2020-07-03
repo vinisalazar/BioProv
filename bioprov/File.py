@@ -2,7 +2,7 @@
 Contains the File class and related functions.
 """
 from pathlib import Path
-from bioprov.helper import get_size
+from bioprov.utils import get_size
 
 
 class File:

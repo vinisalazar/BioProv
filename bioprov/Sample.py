@@ -5,7 +5,7 @@ Contains the Sample and SampleSet classes and related functions.
 import pandas as pd
 from bioprov.File import File
 from bioprov.SequenceFile import SequenceFile
-from bioprov.helper import random_string
+from bioprov.utils import random_string
 from types import GeneratorType
 
 
