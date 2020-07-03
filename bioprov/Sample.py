@@ -293,9 +293,9 @@ def read_csv(df, sep=",", **kwargs):
 
 def json_to_dict(json_file):
     """
-    Reads Sample from a JSON file.
+    Reads dict from a JSON file.
     :param json_file: A JSON file created by Sample.to_json()
-    :return:
+    :return: a dictionary (input to dict_to_sample())
     """
     with open(json_file) as f:
         dict_ = json.load(f)
@@ -306,7 +306,7 @@ def dict_to_sample(json_dict):
     """
     Converts a JSON dictionary to a sample instance.
     :param json_dict: output of sample_from_json.
-    :return: Sample instance.
+    :return: a Sample instance.
     """
     sample_ = Sample()
     for attr, value in json_dict.items():
@@ -316,4 +316,15 @@ def dict_to_sample(json_dict):
                 value[tag] = File(path, tag)
 
         setattr(sample_, attr, value)
+    return sample_
+
+
+def json_to_sample(json_file):
+    """
+    Imports Sample from JSON file.
+    :param json_file: A JSON file created by Sample.to_json()
+    :return: a Sample instance.
+    """
+    d = json_to_dict(json_file)
+    sample_ = dict_to_sample(d)
     return sample_

@@ -3,7 +3,14 @@ Testing for the Sample module.
 """
 from os import remove
 from bioprov.SequenceFile import SequenceFile
-from bioprov.Sample import Sample, SampleSet, read_csv, dict_to_sample, json_to_dict
+from bioprov.Sample import (
+    Sample,
+    SampleSet,
+    read_csv,
+    dict_to_sample,
+    json_to_dict,
+    json_to_sample,
+)
 from bioprov.data import synechococcus_genome, synechococcus_dataset
 
 # Sample attributes for testing
@@ -75,13 +82,15 @@ def test_json():
 
     # Import JSON
     d = json_to_dict(str(sample.files["json"]))
-    j = dict_to_sample(d)
-    for (k1, v1), (k2, v2) in zip(sample.__dict__.items(), j.__dict__.items()):
-        if k1 or k2 == "files":
+    j, j_ = dict_to_sample(d), json_to_sample(str(sample.files["json"]))
+    for (k1, v1), (k2, v2), (k3, v3) in zip(
+        sample.__dict__.items(), j.__dict__.items(), j_.__dict__.items()
+    ):
+        if any(k == "files" for k in (k1, k2, k3)):
             pass
         else:
-            assert k1 == k2
-            assert v1 == v2, f"Values \n'{v1}'\n and '\n{v2}\n' differ"
+            assert k1 == k2 == k3
+            assert v1 == v2 == v3, f"Values \n'{v1}'\n'{v2}'\n'{v3}'\n differ"
     remove(str(sample.files["json"]))
 
 
