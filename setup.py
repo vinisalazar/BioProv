@@ -19,5 +19,5 @@ setuptools.setup(
     scripts=[],
     include_package_data=True,
     python_requires=">=3.6",
-    install_requires=["pytest", "biopython"],
+    install_requires=["pytest", "biopython", "pandas"],
 )
