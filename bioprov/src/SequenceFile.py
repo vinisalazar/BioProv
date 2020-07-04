@@ -15,7 +15,7 @@ class SequenceFile(File):
     """
 
     def __init__(
-        self, path, tag=None, import_data=True, _format="fasta",
+        self, path, tag=None, import_data=False, _format="fasta",
     ):
         """
         :param path: A UNIX-like file path.
@@ -27,8 +27,7 @@ class SequenceFile(File):
         if not self.exists:
             import_data = False
         if import_data:
-            self.records = seqrecordgenerator(self.path, _format)
-            self.seqstats = seqstats(self.path)
+            self.import_data(_format=_format)
         else:
             self.records, self.seqstats = (None, None)
 
@@ -61,6 +60,10 @@ class SequenceFile(File):
     @seqstats.setter
     def seqstats(self, value):
         self._seqstats = value
+
+    def import_data(self, _format="fasta"):
+        self.records = seqrecordgenerator(self.path, _format)
+        self.seqstats = seqstats(self.path)
 
     pass
 
