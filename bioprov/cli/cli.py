@@ -2,7 +2,6 @@
 Module containing the class CLI and related functions.
 """
 import argparse
-import sys
 
 
 class CLI:
@@ -11,8 +10,10 @@ class CLI:
     """
 
     def __init__(self):
-        self.parser = argparse.ArgumentParser(
-            prog="BioProv command-line application.",
+        parser = argparse.ArgumentParser(
             description="Run workflows and other tasks using BioProv.",
         )
+        args = parser.parse_args()
+        self.parser = parser
+        self.args = args
         pass
