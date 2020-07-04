@@ -16,7 +16,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
     ],
     packages=setuptools.find_packages(),
-    scripts=[],
+    scripts=["bioprov/cli/bioprov"],
     include_package_data=True,
     python_requires=">=3.6",
     install_requires=["pytest", "biopython", "pandas"],
