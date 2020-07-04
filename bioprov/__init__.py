@@ -1,13 +1,13 @@
 """
 Init module for package bioprov.
 
-Contains imports of every object of every module.
+Inherits objects from the src/ package.
 """
 
-from .Config import Config, config
-from .File import File
-from .Program import Program, Parameter, Run
-from .Sample import Sample, SampleSet, read_csv, from_df
-from .SequenceFile import SequenceFile, seqrecordgenerator
+from src.Config import Config, config
+from src.File import File
+from src.Program import Program, Parameter, Run
+from src.Sample import Sample, SampleSet, read_csv, from_df
+from src.SequenceFile import SequenceFile, seqrecordgenerator
 
 name = "bioprov"
