@@ -3,6 +3,7 @@ Helper functions.
 """
 import random
 import string
+import sys
 from pathlib import Path
 
 
@@ -45,3 +46,16 @@ def get_size(path, convert=True):
             return size
     else:
         return 0
+
+
+def parser_help(parser):
+    """
+    Shows help if no arguments are passed for parser.
+    :param parser: An instance of argparse.ArgumentParser
+    :return:
+    """
+    if not len(sys.argv) > 1:
+        parser.print_help()
+        return sys.exit(0)
+    else:
+        return parser
