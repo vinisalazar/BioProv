@@ -2,7 +2,7 @@
 Testing for the Config module.
 """
 
-from bioprov.Config import Config
+from bioprov import Config
 
 
 def test_Config():

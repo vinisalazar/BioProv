@@ -31,6 +31,7 @@ def test_import_classes():
             Parameter,
             Run,
             SequenceFile,
+            src,
             cli,
             data,
         )

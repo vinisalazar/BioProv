@@ -2,7 +2,7 @@
 Contains the SequenceFile class and related functions.
 """
 
-from bioprov import File
+from .File import File
 from Bio import SeqIO
 from collections import namedtuple
 from statistics import mean, median

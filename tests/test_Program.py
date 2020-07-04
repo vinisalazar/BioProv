@@ -5,7 +5,8 @@ Testing for Program module
     - Run class
 """
 
-from bioprov.Program import Program, Run, Parameter, parse_params, generate_param_str
+from bioprov import Program, Run, Parameter
+from bioprov.src import parse_params, generate_param_str
 
 
 def test_Program():

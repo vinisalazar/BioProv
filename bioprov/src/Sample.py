@@ -4,9 +4,9 @@ Contains the Sample and SampleSet classes and related functions.
 
 import json
 import pandas as pd
-from bioprov.File import File
-from bioprov.SequenceFile import SequenceFile
-from bioprov.utils import random_string
+from .File import File
+from .SequenceFile import SequenceFile
+from .utils import random_string
 from types import GeneratorType
 from copy import copy
 from pathlib import Path
