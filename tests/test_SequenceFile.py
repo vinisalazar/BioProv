@@ -6,7 +6,7 @@ To-do:
     - add test for seqrecordgenerator function
 """
 from bioprov import SequenceFile, seqstats
-from bioprov.src.utils import random_string
+from bioprov.utils import random_string
 from bioprov.data import synechococcus_genome
 
 

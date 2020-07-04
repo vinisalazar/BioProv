@@ -6,7 +6,7 @@ import json
 import pandas as pd
 from .File import File
 from .SequenceFile import SequenceFile
-from .utils import random_string
+from bioprov.utils import random_string
 from types import GeneratorType
 from copy import copy
 from pathlib import Path
