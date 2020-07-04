@@ -2,24 +2,11 @@
 """
 BioProv command-line application. This module holds the main executable.
 """
-import argparse
-import sys
 from bioprov.cli import CLI
-
-
-def main():
-    """
-    Imports an instance of CLI and returns it.
-    :return: parser object.
-    """
-    cli = CLI()
-    parser_ = cli.parser
-    return parser_
-
+from bioprov.utils import parser_help
 
 if __name__ == "__main__":
-    parser = main()
-    if len(sys.argv) == 0:
-        parser.print_help()
-        sys.exit(0)
+    cli = CLI()
+    parser = cli.parser
+    parser_help(parser)
     args = parser.parse_args()
