@@ -43,15 +43,12 @@ class SequenceFile(File):
 
     @property
     def records(self):
+        self.import_data()
         return self._records
 
     @records.setter
     def records(self, value):
-        try:
-            self._records = SeqIO.to_dict(value)
-        except TypeError:  # in case the file does not exist
-            not_exist(self.path)
-            self._records = False
+        self._records = value
 
     @property
     def seqstats(self):
@@ -62,8 +59,11 @@ class SequenceFile(File):
         self._seqstats = value
 
     def import_data(self, _format="fasta"):
-        self.records = seqrecordgenerator(self.path, _format)
-        self.seqstats = seqstats(self.path)
+        if self.exists:
+            self.records = SeqIO.to_dict(seqrecordgenerator(self.path, _format))
+            self.seqstats = seqstats(self.path)
+        else:
+            self.records, self.seqstats = (None, None)
 
     pass
 

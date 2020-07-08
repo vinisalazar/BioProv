@@ -293,7 +293,7 @@ def from_json(json_file, kind="Sample"):
 
 
 def from_df(
-    df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None,
+    df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None, import_data=False
 ):
     """
     Pandas-like function to build a SampleSet object.
@@ -306,24 +306,26 @@ def from_df(
     type(samples)  # bioprov.Sample.SampleSet.
     '''
     :param df: A pandas DataFrame
-    :param index_col: A column to be used as index, int or str.
+    :param index_col: A column to be used as index. Must be in df.columns. If int is passed, will get it from columns.
     :param file_cols: Columns containing Files.
     :param sequencefile_cols: Columns containing SequenceFiles.
     :param tag: A tag to describe the SampleSet.
+    :param import_data: Whether to import data when importing SequenceFiles
     :return: a SampleSet instance
     """
-    assert any(
-        (index_col in df.columns, index_col <= len(df))
-    ), f"Index column '{index_col}' not present in columns!"
+    df_ = df.copy()
     if isinstance(index_col, int):
-        index_col = df.columns[index_col]
-    df.set_index(index_col, inplace=True)
+        index_col = df_.columns[index_col]
+    assert (
+        index_col in df_.columns
+    ), f"Index column '{index_col}' not present in columns!"
+    df_.set_index(index_col, inplace=True)
 
     samples = dict()
     attribute_cols = [
-        i for i in df.columns if i not in (file_cols, sequencefile_cols, index_col)
+        i for i in df_.columns if i not in (file_cols, sequencefile_cols, index_col)
     ]
-    for ix, row in df.iterrows():
+    for ix, row in df_.iterrows():
         sample = Sample(name=ix)
 
         for arg, type_ in zip((file_cols, sequencefile_cols), ("file", "sequencefile")):
@@ -334,7 +336,11 @@ def from_df(
                     if type_ == "file":
                         sample.add_files(File(path=row[column], tag=column))
                     elif type_ == "sequencefile":
-                        sample.add_files(SequenceFile(path=row[column], tag=column))
+                        sample.add_files(
+                            SequenceFile(
+                                path=row[column], tag=column, import_data=import_data
+                            )
+                        )
         if (
             len(attribute_cols) > 0
         ):  # Here we check by len() instead of none because it is a list.

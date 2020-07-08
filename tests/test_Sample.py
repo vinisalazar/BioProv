@@ -58,7 +58,9 @@ def test_from_df():
     Testing for the from and read_csv functions.
     :return:
     """
-    sampleset_ = read_csv(synechococcus_dataset, sequencefile_cols="assembly-file")
+    sampleset_ = read_csv(
+        synechococcus_dataset, index_col="sample-id", sequencefile_cols="assembly-file",
+    )
     assert len(sampleset_) > 0
 
 

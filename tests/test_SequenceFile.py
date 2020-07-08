@@ -66,7 +66,7 @@ def test_SequenceFile():
         "tag": nf_genome.tag == nf_tag,
         "class": type(nf_genome) == SequenceFile,
         "records": nf_genome.records
-        is False,  # To-do: implement more exceptions to __getitem__
+        is None,  # To-do: implement more exceptions to __getitem__
     }
     for dict_ in (existing_instance, non_existing_instance):
         for k, statement in dict_.items():
