@@ -39,13 +39,14 @@ def test_import_classes():
         raise
 
 
-def test_import_data():
+def test_import_packages():
     """
-    Test if data can be imported correctly
+    Test if supplementary packages can be imported correctly
     :return: ImportError if not able to import
     """
     try:
         from bioprov.data import data_dir, genomes_dir, synechococcus_genome
         from bioprov.cli import CLI
+        from bioprov.programs import prodigal
     except ImportError:
         raise

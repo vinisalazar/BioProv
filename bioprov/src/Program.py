@@ -242,21 +242,23 @@ def parse_params(params, program=None):
     :param program: an instance of Program, if the case.
     :return: Parsed parameters to serve as attribute to a Program or Run instance.
     """
+    params_ = dict()
     if isinstance(params, dict):
-        params_ = dict()
         for k, v in params.items():
             if isinstance(v, Parameter):
                 v.program, v.tag = v.program, v.program
                 params_[k] = v
             else:
                 params_[k] = Parameter(k, v, program=program)
-        params = params_
+    elif isinstance(params, list):
+        for param in params:
+            params_[param.key] = param
     elif isinstance(params, Parameter):
         params.program = program
-        params = {params.key: params}
+        params_ = {params.key: params}
     elif params is None:
-        params = dict()
-    return params
+        pass
+    return params_
 
 
 # Replace 'params' here with ParameterDict, but the above parse_params() will do for now.
