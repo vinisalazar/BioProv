@@ -219,6 +219,8 @@ class Run(Program):
         :return: self.stdout
         """
         # Declare process and start time
+        program_exists = "command not found" not in getoutput(self.program.name)
+        assert program_exists, "Cannot find program. Make sure it is on your $PATH."
         if print_:
             str_ = f"Running program '{self.program.name}'"
             if self.sample is not None:
