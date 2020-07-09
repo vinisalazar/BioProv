@@ -18,11 +18,14 @@ def test_Program():
         "name": "prodigal",
         "params": {"-h": ""},
         "tag": "gene annotation",
-        "version": "v2.6.2",
+        "version": "Prodigal V2.6.3: February, 2016",
     }
-    p = Program()
+    p = Program(name="prodigal")
     for attr, v in attributes.items():
-        setattr(p, attr, v)
+        if (
+            attr != "version"
+        ):  # check if it gets the version automatically (won't see version attribute).
+            setattr(p, attr, v)
         assert getattr(p, attr) == v, f"{attr} attribute is wrong!"
     assert p.cmd == p.generate_cmd()
 
