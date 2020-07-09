@@ -38,6 +38,9 @@ class Program:
             self.path = getoutput(f"which {self.name}")
         if cmd is None:
             self.cmd = self.generate_cmd()
+        if version is None:
+            if name is not None:
+                self.version = getoutput(self.name + " -v").strip()
 
     def __repr__(self):
         return f"Program '{self.name}' with {len(self.params)} parameter(s)."
