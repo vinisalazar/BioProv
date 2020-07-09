@@ -1,1 +1,1 @@
-from .programs import prodigal
+from .programs import prodigal, prokka
