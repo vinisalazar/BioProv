@@ -15,9 +15,11 @@ import bioprov as bp
 from bioprov.programs import prodigal
 
 
-def main(dataframe, labels):
+def main(dataframe, labels, tag):
     """
-    Perform genome annotation steps on SampleSet.
+    :param dataframe: A tab delimited file where assembly files are the first column
+    :param labels: Name of the column containing the labels.
+    :param tag: Tag to name the dataframe.
     :return:
     """
     # Read input and initial error checking.
@@ -41,16 +43,20 @@ def main(dataframe, labels):
         )
 
     ss = bp.from_df(dataframe, index_col="label", sequencefile_cols="assembly-file")
+    ss.tag = tag
 
-    ix = 0
+    ix, success = 1, 0
 
     for k, sample in ss.items():
         print(f"Processing sample {ix}/{len(dataframe)}.")
-        if prodigal(sample) == 0:
-            ix += 1
+        p = prodigal(sample)
+        _run = p.run(sample)
+        if all(file_.exists for _, file_ in sample.files.items()):
+            success += 1
+        ix += 1
 
     ss.to_json()
-    print(f"Ran successfully for {ix-1}/{len(dataframe)} samples.")
+    print(f"Ran successfully for {success}/{len(dataframe)} samples.")
 
 
 if __name__ == "__main__":
@@ -81,8 +87,14 @@ if __name__ == "__main__":
         default=False,
         action="store_true",
     )
+    parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
     args = parser.parse_args()
-    input_path, labels_path, directory_input = args.input, args.labels, args.directory
+    input_path, labels_path, directory_input, tag = (
+        args.input,
+        args.labels,
+        args.directory,
+        args.tag,
+    )
     if not path.exists(input_path):
         parser.print_help()
         print(f"Input path '{input_path}' does not exist!")
@@ -91,4 +103,4 @@ if __name__ == "__main__":
         df = pd.DataFrame(listdir(input_path))
     else:
         df = pd.read_csv(input_path, sep="\t")
-    main(df, labels_path)
+    main(df, labels_path, tag)
