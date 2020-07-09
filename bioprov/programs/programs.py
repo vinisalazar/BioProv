@@ -2,7 +2,7 @@
 Module for holding preset instances of the Program class.
 """
 
-from os import listdir, path
+from os import path
 from bioprov import Program, Parameter, File
 from bioprov import config
 
@@ -24,7 +24,7 @@ def prodigal(
     :param write_scores: bool Whether to write the scores file. Default is False because they are BIG.
     :return:
     """
-    file_preffix = str(_sample.files[assembly].path)
+    file_preffix, _ = path.splitext(str(_sample.files[assembly].path))
     _sample.add_files(
         {
             proteins: file_preffix + "_proteins.faa",
@@ -89,46 +89,51 @@ def prokka(
     """
 
     # Default output is assembly file directory.
+    prefix = _sample.name.replace(" ", "_")
     if output_path is None:
         output_path = path.join(
-            str(_sample.files[assembly].directory), "{}_prokka".format(_sample.name)
+            str(_sample.files[assembly].directory), "{}_prokka".format(prefix)
         )
 
     prokka_ = Program("prokka",)
     params = (
-        Parameter(key="--prefix", value=_sample.name, kind="misc"),
-        Parameter(key="--output", value=output_path, kind="output"),
+        Parameter(key="--prefix", value=prefix, kind="misc"),
+        Parameter(key="--outdir", value=output_path, kind="output"),
         Parameter(key="--cpus", value=threads, kind="misc"),
     )
 
     for param in params:
         prokka_.add_parameter(param, _print=False)
 
-    # Add files according to their extension
+    if path.isdir(output_path):
+        print("Warning: {} directory exists. Will overwrite.".format(output_path))
+        prokka_.add_parameter(Parameter(key="--force", value="", kind="misc"))
+
+    # Add files according to their extension # To-do: add support for SequenceFile
     extensions_parser = {
-        ".faa": lambda file: _sample.add_file(File(file, tag=proteins)),
-        ".fna": lambda file: _sample.add_file(File(file, tag=contigs)),
-        ".ffn": lambda file: _sample.add_file(File(file, tag=genes)),
-        ".fsa": lambda file: _sample.add_file(File(file, tag=submit_contigs)),
-        ".tbl": lambda file: _sample.add_file(File(file, tag=feature_table)),
-        ".sqn": lambda file: _sample.add_file(File(file, tag=sequin)),
-        ".gbk": lambda file: _sample.add_file(File(file, tag=genbank)),
-        ".gff": lambda file: _sample.add_file(File(file, tag=gff)),
-        ".log": lambda file: _sample.add_file(File(file, tag=log)),
-        ".txt": lambda file: _sample.add_file(File(file, tag=stats)),
+        ".faa": lambda file: _sample.add_files(File(file, tag=proteins)),
+        ".fna": lambda file: _sample.add_files(File(file, tag=contigs)),
+        ".ffn": lambda file: _sample.add_files(File(file, tag=genes)),
+        ".fsa": lambda file: _sample.add_files(File(file, tag=submit_contigs)),
+        ".tbl": lambda file: _sample.add_files(File(file, tag=feature_table)),
+        ".sqn": lambda file: _sample.add_files(File(file, tag=sequin)),
+        ".gbk": lambda file: _sample.add_files(File(file, tag=genbank)),
+        ".gff": lambda file: _sample.add_files(File(file, tag=gff)),
+        ".log": lambda file: _sample.add_files(File(file, tag=log)),
+        ".txt": lambda file: _sample.add_files(File(file, tag=stats)),
     }
 
-    for file_ in listdir(output_path):
-        file_ = path.join(path.abspath(output_path), file_)
-        _, ext = path.splitext(file_)
-        _ = extensions_parser[ext]  # Add file based on extension
+    for ext, func in extensions_parser.items():
+        file_ = path.join(path.abspath(output_path), _sample.name + ext)
+        _ = func(file_)  # Add file based on extension
 
     if add_param_str:  # Any additional parameters are added here.
         prokka_.cmd += " {}".format(add_param_str)
 
     # Input goes here, must be last positionally.
     prokka_.add_parameter(
-        Parameter(key="", value=_sample.files[assembly], kind="input")
+        Parameter(key="", value=str(_sample.files[assembly]), kind="input"),
+        _print=False,
     )
 
     return prokka_

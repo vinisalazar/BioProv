@@ -12,15 +12,21 @@ import sys
 from os import path, listdir
 import pandas as pd
 import bioprov as bp
-from bioprov.programs import prodigal
+from bioprov.programs import prodigal, prokka
 
 
-def main(dataframe, labels, files, _tag):
+def main(
+    dataframe, labels, files, _tag, run_prokka, _skip_prodigal, _verbose, _threads
+):
     """
     :param dataframe: A tab delimited file where assembly files are the first column
     :param labels: Name of the column containing the labels.
     :param files: Name of the column containing the files.
     :param _tag: Tag to name the dataframe.
+    :param run_prokka: Whether to run Prokka or not.
+    :param _skip_prodigal: Whether to skip running Prodigal or not.
+    :param _verbose: More verbose output.
+    :param _threads: Number of threads.
     :return:
     """
     # Read input and initial error checking.
@@ -52,8 +58,20 @@ def main(dataframe, labels, files, _tag):
 
     for k, sample in ss.items():
         print(f"Processing sample {ix}/{len(dataframe)}.")
-        p = prodigal(sample)
-        _run = p.run(sample)
+
+        # Prodigal block
+        prodigal_ = prodigal(sample)
+        if not _skip_prodigal:
+            prodigal_run = prodigal_.run(sample)
+            if _verbose:
+                print(prodigal_run)
+
+        # Prokka block
+        if run_prokka:
+            prokka_ = prokka(sample, threads=_threads)
+            prokka_run_ = prokka_.run(sample)
+            if _verbose:
+                print(prokka_run_)
         if all(file_.exists for _, file_ in sample.files.items()):
             success += 1
         ix += 1
@@ -104,14 +122,56 @@ if __name__ == "__main__":
         default=False,
         action="store_true",
     )
+    parser.add_argument(
+        "--run_prokka",
+        help="Whether to run Prokka.",
+        default=False,
+        required=False,
+        action="store_true",
+    )
+    parser.add_argument(
+        "--skip_prodigal",
+        help="Whether to skip running Prodigal.",
+        default=False,
+        required=False,
+        action="store_true",
+    )
     parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="More verbose output",
+        action="store_true",
+        default=False,
+        required=False,
+    )
+    parser.add_argument(
+        "-p",
+        "--threads",
+        help="Number of threads. Default is set in BioProv config (half of the threads).",
+        default=bp.config.threads,
+    )
     args = parser.parse_args()
-    input_path, labels_column, directory_input, file_column, tag = (
+    (
+        input_path,
+        labels_column,
+        directory_input,
+        file_column,
+        tag,
+        prokka_run,
+        skip_prodigal,
+        verbose,
+        threads,
+    ) = (
         args.input,
         args.labels,
         args.directory,
         args.files,
         args.tag,
+        args.run_prokka,
+        args.skip_prodigal,
+        args.verbose,
+        args.threads,
     )
     if not path.exists(input_path):
         parser.print_help()
@@ -121,4 +181,4 @@ if __name__ == "__main__":
         df = pd.DataFrame(listdir(input_path))
     else:
         df = pd.read_csv(input_path, sep="\t")
-    main(df, labels_column, file_column, tag)
+    main(df, labels_column, file_column, tag, prokka, skip_prodigal, verbose, threads)

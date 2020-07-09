@@ -14,7 +14,7 @@ class Config:
         self.data_dir = data_dir
         self.genomes_dir = genomes_dir
         if not threads:  # By default, use half of processors.
-            self.threads = int(os.cpu_count() / 2)
+            self.threads = str(int(os.cpu_count() / 2))
 
     pass
 
