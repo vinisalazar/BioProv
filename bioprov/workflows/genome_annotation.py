@@ -15,19 +15,18 @@ import bioprov as bp
 from bioprov.programs import prodigal
 
 
-def main(dataframe, labels, _tag):
+def main(dataframe, labels, files, _tag):
     """
     :param dataframe: A tab delimited file where assembly files are the first column
     :param labels: Name of the column containing the labels.
+    :param files: Name of the column containing the files.
     :param _tag: Tag to name the dataframe.
     :return:
     """
     # Read input and initial error checking.
-    dataframe.columns = ("assembly-file", *df.columns[1:])
-    dataframe["assembly-file"] = dataframe["assembly-file"].apply(
-        lambda s: path.abspath(s)
-    )
-    for file in dataframe["assembly-file"]:
+    dataframe.columns = (files, *df.columns[1:])
+    dataframe[files] = dataframe[files].apply(lambda s: path.abspath(s))
+    for file in dataframe[files]:
         assert path.isfile(
             file
         ), f"{file} was not found! Please check the correct path."
@@ -38,11 +37,11 @@ def main(dataframe, labels, _tag):
         assert labels in df.columns
         dataframe["label"] = dataframe[labels]
     else:  # Get automatically from filenames.
-        dataframe["label"] = dataframe["assembly-file"].apply(
+        dataframe["label"] = dataframe[files].apply(
             lambda s: path.splitext(path.basename(s))[0]
         )
 
-    ss = bp.from_df(dataframe, index_col="label", sequencefile_cols="assembly-file")
+    ss = bp.from_df(dataframe, index_col="label", sequencefile_cols=files)
     ss.tag = _tag
 
     ix, success = 1, 0
@@ -67,15 +66,29 @@ if __name__ == "__main__":
     parser.add_argument(
         "-i",
         "--input",
-        help="Input, may be a tab-delimited file where the first column is the path to each assembly,"
-        "or a directory (if the -d option is on).",
+        help=(
+            "Input, may be a tab-delimited file where the first column is the path to"
+            " each assembly,or a directory (if the -d option is on)."
+        ),
         required=True,
         type=str,
     )
     parser.add_argument(
+        "-f",
+        "--files",
+        help=(
+            "Column in input file containing paths to each assembly file. Default is"
+            " 'assembly'."
+        ),
+        default="assembly",
+    )
+    parser.add_argument(
         "-l",
         "--labels",
-        help="Column in input file to assign labels. If input is a directory, will get automatically.",
+        help=(
+            "Column in input file to assign labels. If input is a directory, will get"
+            " automatically."
+        ),
         required=False,
         type=str,
     )
@@ -89,10 +102,11 @@ if __name__ == "__main__":
     )
     parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
     args = parser.parse_args()
-    input_path, labels_path, directory_input, tag = (
+    input_path, labels_column, directory_input, file_column, tag = (
         args.input,
         args.labels,
         args.directory,
+        args.files,
         args.tag,
     )
     if not path.exists(input_path):
@@ -103,4 +117,4 @@ if __name__ == "__main__":
         df = pd.DataFrame(listdir(input_path))
     else:
         df = pd.read_csv(input_path, sep="\t")
-    main(df, labels_path, tag)
+    main(df, labels_column, file_column, tag)

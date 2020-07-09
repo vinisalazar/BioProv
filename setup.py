@@ -6,7 +6,10 @@ setuptools.setup(
     author="Vini Salazar",
     author_email="viniws@gmail.com",
     description="BioProv - Provenance capture for bioinformatics workflows",
-    long_description="BioProv is a toolkit for capturing and extracting provenance data from bioinformatics workflows.",
+    long_description=(
+        "BioProv is a toolkit for capturing and extracting provenance data from"
+        " bioinformatics workflows."
+    ),
     url="https://github.com/vinisalazar/BioProv",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -16,7 +19,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
     ],
     packages=setuptools.find_packages(),
-    scripts=["bioprov/cli/bioprov"],
+    scripts=["bioprov/cli/bioprov", "bioprov/workflows/genome_annotation.py"],
     include_package_data=True,
     python_requires=">=3.6",
     install_requires=["pytest", "biopython", "pandas"],
