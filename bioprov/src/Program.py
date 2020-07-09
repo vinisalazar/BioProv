@@ -15,7 +15,14 @@ class Program:
     """
 
     def __init__(
-        self, name=None, params=None, tag=None, path=None, version=None, cmd=None
+        self,
+        name=None,
+        params=None,
+        tag=None,
+        path=None,
+        version=None,
+        cmd=None,
+        version_param=" -v",
     ):
         """
         :param name: Name of the program being called.
@@ -24,6 +31,7 @@ class Program:
         :param path: A full path to the program's binary. Default: get from self.name.
         :param cmd: A command string to call the program. Default: build from self.path and self.params.
         :param version: Version of the program.
+        :param version_param: the parameter passed to the program to return the version.
         """
         self.name = name
         self.params = parse_params(params)
@@ -40,7 +48,7 @@ class Program:
             self.cmd = self.generate_cmd()
         if version is None:
             if name is not None:
-                self.version = getoutput(self.name + " -v").strip()
+                self.version = getoutput(self.name + version_param).strip()
 
     def __repr__(self):
         return f"Program '{self.name}' with {len(self.params)} parameter(s)."
