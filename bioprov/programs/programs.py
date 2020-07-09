@@ -5,29 +5,33 @@ Module for holding preset instances of the Program class.
 from bioprov import Program, Parameter
 
 
-def prodigal(_sample):
+def prodigal(
+    _sample, assembly="assembly", genes="genes", proteins="proteins", scores="scores",
+):
     """
-    Program Prodigal.
-    :param _sample: Instance of BioProv Sample.
+    :param _sample: An instance of BioProv Sample.
+    :param assembly: Name of assembly file.
+    :param genes: Name of genes file.
+    :param proteins: Name of proteins file.
+    :param scores: Name of scores file.
     :return:
     """
-    file_preffix = str(_sample.files["assembly-file"]).replace(".fna", "")
+    file_preffix = _sample.files[assembly].name
     _sample.add_files(
         {
-            "proteins": file_preffix + "_proteins.faa",
-            "genes": file_preffix + "_genes.fna",
-            "scores": file_preffix + "_score.cds",
+            proteins: file_preffix + "_proteins.faa",
+            genes: file_preffix + "_genes.fna",
+            scores: file_preffix + "_score.cds",
         }
     )
     p = Program(
         "prodigal",
         params=(
-            Parameter(key="-i", value=str(_sample.files["assembly"]), kind="input"),
-            Parameter(key="-a", value=str(_sample.files["proteins"]), kind="output"),
-            Parameter(key="-d", value=str(_sample.files["genes"]), kind="output"),
+            Parameter(key="-i", value=str(_sample.files[assembly]), kind="input"),
+            Parameter(key="-a", value=str(_sample.files[proteins]), kind="output"),
+            Parameter(key="-d", value=str(_sample.files[genes]), kind="output"),
+            Parameter(key="-s", value=str(_sample.files[scores]), kind="output"),
         ),
     )
 
-    p.run(sample=_sample)
-    if all(file_.exists for k, file_ in _sample.files.items()):
-        return 0
+    return p
