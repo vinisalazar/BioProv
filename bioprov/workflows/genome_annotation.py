@@ -42,6 +42,10 @@ def main(dataframe, labels, files, _tag):
         )
 
     ss = bp.from_df(dataframe, index_col="label", sequencefile_cols=files)
+    for k, sample in ss.items():
+        sample.files["assembly"] = sample.files.pop(
+            files
+        )  # rename whatever the files column was called.
     ss.tag = _tag
 
     ix, success = 1, 0

@@ -16,7 +16,7 @@ def prodigal(
     :param scores: Name of scores file.
     :return:
     """
-    file_preffix = _sample.files[assembly].name
+    file_preffix = str(_sample.files[assembly].path)
     _sample.add_files(
         {
             proteins: file_preffix + "_proteins.faa",
@@ -24,14 +24,14 @@ def prodigal(
             scores: file_preffix + "_score.cds",
         }
     )
-    p = Program(
-        "prodigal",
-        params=(
-            Parameter(key="-i", value=str(_sample.files[assembly]), kind="input"),
-            Parameter(key="-a", value=str(_sample.files[proteins]), kind="output"),
-            Parameter(key="-d", value=str(_sample.files[genes]), kind="output"),
-            Parameter(key="-s", value=str(_sample.files[scores]), kind="output"),
-        ),
+    prodigal_ = Program("prodigal",)
+    params = (
+        Parameter(key="-i", value=str(_sample.files[assembly]), kind="input"),
+        Parameter(key="-a", value=str(_sample.files[proteins]), kind="output"),
+        Parameter(key="-d", value=str(_sample.files[genes]), kind="output"),
+        Parameter(key="-s", value=str(_sample.files[scores]), kind="output"),
     )
+    for param in params:
+        prodigal_.add_parameter(param, _print=False)
 
-    return p
+    return prodigal_

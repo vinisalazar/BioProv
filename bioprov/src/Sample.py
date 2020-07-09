@@ -262,9 +262,6 @@ def to_json(samplelike, path=None, dict_only=False, _print=True):
 
     write_json(json_out, path)
 
-    if dict_only:
-        return json_out
-    write_json(json_out, path, _print)
     return
 
 

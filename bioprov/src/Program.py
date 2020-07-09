@@ -261,7 +261,7 @@ def parse_params(params, program=None):
                 params_[k] = v
             else:
                 params_[k] = Parameter(k, v, program=program)
-    elif isinstance(params, list):
+    elif isinstance(params, (list, tuple)):
         for param in params:
             params_[param.key] = param
     elif isinstance(params, Parameter):
