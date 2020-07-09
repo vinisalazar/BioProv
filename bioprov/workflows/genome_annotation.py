@@ -15,11 +15,11 @@ import bioprov as bp
 from bioprov.programs import prodigal
 
 
-def main(dataframe, labels, tag):
+def main(dataframe, labels, _tag):
     """
     :param dataframe: A tab delimited file where assembly files are the first column
     :param labels: Name of the column containing the labels.
-    :param tag: Tag to name the dataframe.
+    :param _tag: Tag to name the dataframe.
     :return:
     """
     # Read input and initial error checking.
@@ -43,7 +43,7 @@ def main(dataframe, labels, tag):
         )
 
     ss = bp.from_df(dataframe, index_col="label", sequencefile_cols="assembly-file")
-    ss.tag = tag
+    ss.tag = _tag
 
     ix, success = 1, 0
 
