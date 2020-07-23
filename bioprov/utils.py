@@ -54,8 +54,5 @@ def parser_help(parser):
     :param parser: An instance of argparse.ArgumentParser
     :return:
     """
-    if not len(sys.argv) > 1:
-        parser.print_help()
-        return sys.exit(0)
-    else:
-        return parser
+    parser.print_help()
+    return sys.exit(0)
