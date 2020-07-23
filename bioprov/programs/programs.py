@@ -137,3 +137,25 @@ def prokka(
     )
 
     return prokka_
+
+
+def kaiju(
+    _sample,
+    output_path=None,
+    nodes=None,
+    threads=config.threads,
+    r1="R1",
+    r2="R2",
+    add_param_str="",
+):
+    """
+    Run Kaiju on paired-end metagenomic data
+    :param _sample: An instance of BioProv sample.
+    :param output_path: Output directory of Kaiju.
+    :param nodes: Nodes file to use with Kaiju.
+    :param threads: Threads to use with Kaiju.
+    :param r1: Tag of forward reads.
+    :param r2: Tag of reverse reads.
+    :param add_param_str: Add any paremeters to Kaiju.
+    :return: An instance of Program, containing Kaiju.
+    """
