@@ -46,7 +46,7 @@ def test_import_packages():
     """
     try:
         from bioprov.data import data_dir, genomes_dir, synechococcus_genome
-        from bioprov.cli import CLI
         from bioprov.programs import prodigal
+        from bioprov.cli import WorkflowOptionsParser
     except ImportError:
         raise
