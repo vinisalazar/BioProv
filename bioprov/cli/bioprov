@@ -2,11 +2,20 @@
 """
 BioProv command-line application. This module holds the main executable.
 """
-from bioprov.cli import CLI
+import argparse
+import sys
+from bioprov.cli import BioProvParser
 from bioprov.utils import parser_help
 
+
 if __name__ == "__main__":
-    cli = CLI()
-    parser = cli.parser
-    parser_help(parser)
-    args = parser.parse_args()
+    parser = BioProvParser()
+
+    # Refactoring to subparsers
+    args = None
+    if len(sys.argv) == 1 or sys.argv[1] == "-h" or sys.argv == "--help":
+        parser_help(parser)
+    else:
+        args = parser.parse_args()
+
+    parser.parse_options(args)
