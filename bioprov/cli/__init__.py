@@ -1,1 +1,1 @@
-from .cli import WorkflowParser, BioProvParser
+from .cli import WorkflowOptionsParser

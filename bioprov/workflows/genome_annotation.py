@@ -17,10 +17,18 @@ Genome annotation with Prodigal, Prokka and the COG database.
 
     @staticmethod
     def main(
-        dataframe, labels, files, _tag, run_prokka, _skip_prodigal, _verbose, _threads,
+        _input_path,
+        labels,
+        files,
+        _tag,
+        run_prokka,
+        _skip_prodigal,
+        _verbose,
+        _threads,
+        _directory_input=False,
     ):
         """
-        :param dataframe: A tab delimited file where assembly files are the first column
+        :param _input_path: A tab delimited file where assembly files are the first column
         :param labels: Name of the column containing the labels.
         :param files: Name of the column containing the files.
         :param _tag: Tag to name the dataframe.
@@ -28,10 +36,16 @@ Genome annotation with Prodigal, Prokka and the COG database.
         :param _skip_prodigal: Whether to skip running Prodigal or not.
         :param _verbose: More verbose output.
         :param _threads: Number of threads.
+        :param _directory_input: Provide a directory instead of file as input (default is False)
         :return:
         """
+        if _directory_input:
+            dataframe = pd.DataFrame(listdir(_input_path))
+        else:
+            dataframe = pd.read_csv(_input_path, sep="\t")
+
         # Read input and initial error checking.
-        dataframe.columns = (files, *df.columns[1:])
+        dataframe.columns = (files, *dataframe.columns[1:])
         dataframe[files] = dataframe[files].apply(lambda s: path.abspath(s))
         for file in dataframe[files]:
             assert path.isfile(
@@ -41,7 +55,7 @@ Genome annotation with Prodigal, Prokka and the COG database.
 
         # Parse labels
         if labels is not None:
-            assert labels in df.columns
+            assert labels in dataframe.columns
             dataframe["label"] = dataframe[labels]
         else:  # Get automatically from filenames.
             dataframe["label"] = dataframe[files].apply(
@@ -184,10 +198,14 @@ if __name__ == "__main__":
         parser.print_help()
         print(f"Input path '{input_path}' does not exist!")
         sys.exit(0)
-    if directory_input:
-        df = pd.DataFrame(listdir(input_path))
-    else:
-        df = pd.read_csv(input_path, sep="\t")
     GenomeAnnotation.main(
-        df, labels_column, file_column, tag, prokka, skip_prodigal, verbose, threads
+        input_path,
+        labels_column,
+        file_column,
+        tag,
+        prokka,
+        skip_prodigal,
+        verbose,
+        threads,
+        directory_input,
     )

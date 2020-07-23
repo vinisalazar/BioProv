@@ -4,18 +4,25 @@ BioProv command-line application. This module holds the main executable.
 """
 import argparse
 import sys
-from bioprov.cli import BioProvParser
+from bioprov.cli import WorkflowOptionsParser
+from bioprov.workflows import GenomeAnnotation
 from bioprov.utils import parser_help
 
 
 if __name__ == "__main__":
-    parser = BioProvParser()
+    bioprov_parser = argparse.ArgumentParser(
+        description="BioProv command-line application. Choose a workflow to begin.",
+    )
+    subparsers = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
+    _ = subparsers.add_parser("genome_annotation")
+    subparsers.choices["genome_annotation"] = GenomeAnnotation.parser()
 
     # Refactoring to subparsers
     args = None
     if len(sys.argv) == 1 or sys.argv[1] == "-h" or sys.argv == "--help":
-        parser_help(parser)
+        parser_help(bioprov_parser)
     else:
-        args = parser.parse_args()
+        args = bioprov_parser.parse_args()
 
+    parser = WorkflowOptionsParser()
     parser.parse_options(args)
