@@ -5,6 +5,7 @@ from os import path, listdir
 import pandas as pd
 import bioprov as bp
 from bioprov.programs import prodigal, prokka
+from tqdm import tqdm
 
 
 class GenomeAnnotation:
@@ -71,7 +72,7 @@ Genome annotation with Prodigal, Prokka and the COG database.
 
         ix, success = 1, 0
 
-        for k, sample in ss.items():
+        for k, sample in tqdm(ss.items()):
             print(f"Processing sample {ix}/{len(dataframe)}.")
 
             # Prodigal block
