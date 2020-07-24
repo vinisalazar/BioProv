@@ -7,6 +7,7 @@ from Bio import SeqIO
 from collections import namedtuple
 from statistics import mean, median
 from pathlib import Path
+from bioprov.utils import warnings
 
 
 class SequenceFile(File):
@@ -95,7 +96,7 @@ def seqstats(path, megabases=False, percentage=False, calculate_gc=True, decimal
     :return: Number of base pairs,
     """
     if not Path(path).exists:
-        not_exist(path)
+        warnings["not_exist"](path)
         return False
 
     sequences = seqrecordgenerator(path)
@@ -172,8 +173,3 @@ def calculate_n50(numlist):
         medianpos = int((len(newlist) / 2) - 0.5)
         # noinspection PyTypeChecker
         return newlist[medianpos]
-
-
-def not_exist(x):  # To-do: refactor this, maybe as static method?
-    print(f"File {x} does not exist!")
-    return

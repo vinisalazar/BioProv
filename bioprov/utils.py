@@ -56,3 +56,6 @@ def parser_help(parser):
     """
     parser.print_help()
     return sys.exit(0)
+
+
+warnings = {"not_exist": lambda x: "File '{}' does not exist!".format(x)}
