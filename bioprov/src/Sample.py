@@ -24,6 +24,9 @@ class Sample:
         :param files: Dictionary of files associated with the sample.
         :param attributes: Dictionary of any other attributes associated with the sample.
         """
+        if isinstance(name, str):
+            name = name.replace(" ", "_")  # No space, will use it for filenames.
+
         self.name = name
         self.tag = tag
         if isinstance(files, dict):
