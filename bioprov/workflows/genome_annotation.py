@@ -73,7 +73,6 @@ Genome annotation with Prodigal, Prokka and the COG database.
         ix, success = 1, 0
 
         for k, sample in tqdm(ss.items()):
-            print(f"Processing sample {ix}/{len(dataframe)}.")
 
             # Prodigal block
             prodigal_ = prodigal(sample)
@@ -93,7 +92,9 @@ Genome annotation with Prodigal, Prokka and the COG database.
             ix += 1
 
         ss.to_json()
-        print(f"Ran successfully for {success}/{len(dataframe)} samples.")
+        print(
+            f"Ran successfully for {success}/{len(dataframe)} samples. Saved SampleSet to JSON."
+        )
 
     @classmethod
     def parser(cls):
