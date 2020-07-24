@@ -150,7 +150,7 @@ def kaiju(
     add_param_str="",
 ):
     """
-    Run Kaiju on paired-end metagenomic data
+    Run Kaiju on paired-end metagenomic data.
     :param _sample: An instance of BioProv sample.
     :param output_path: Output file of Kaiju.
     :param kaijudb: Path to Kaiju database.
@@ -161,13 +161,14 @@ def kaiju(
     :param add_param_str: Add any paremeters to Kaiju.
     :return: An instance of Program, containing Kaiju.
     """
-    kaiju_ = Program("kaiju")
-
+    kaiju_out_name = _sample.name = "_kaiju.out"
     if output_path is None:
-        output_path = path.join(
-            _sample.files[r1].directory, _sample.name + "_kaiju.out",
-        )
+        output_path = path.join(_sample.files[r1].directory, kaiju_out_name,)
+    else:
+        output_path = path.join(output_path, kaiju_out_name)
     _sample.add_files(File(output_path, tag="kaiju_output"))
+
+    kaiju_ = Program("kaiju")
     kaiju_.add_parameter(Parameter(key="-t", value=nodes, kind="misc"))
     kaiju_.add_parameter(
         Parameter(key="-i", value=str(_sample.files[r1]), kind="input")
@@ -183,3 +184,51 @@ def kaiju(
         kaiju_.cmd += " {}".format(add_param_str)
 
     return kaiju_
+
+
+def kaiju2table(
+    _sample,
+    output_path=None,
+    rank="phylum",
+    nodes="",
+    names="",
+    kaiju_output="kaiju_output",
+    add_param_str="",
+):
+    """
+    Run kaiju2table to create Kaiju reports.
+    :param _sample: An instance of BioProv sample.
+    :param output_path: Output file of kaiju2table.
+    :param rank: Taxonomic rank to create report of.
+    :param nodes: Nodes file to use with kaiju2table.
+    :param names: Names file to use with kaiju2table.
+    :param kaiju_output: Tag of Kaiju output file.
+    :param add_param_str: Parameter string to add.
+    :return: Instance of Program containing kaiju2table.
+    """
+    # Assert correct rank
+    ranks = "phylum class order family genus species".split()
+    assert rank in ranks, "Rank '{}' not in ranks, choose from:\n{}".format(rank, ranks)
+
+    kaiju_report_out = "_kaiju_report_{}".format(rank)
+
+    # Format output_path
+    if output_path is None:
+        output_path = _sample.files[kaiju_output].name + kaiju_report_out + ".tsv"
+    _sample.add_files(File(output_path, tag=kaiju_report_out))
+
+    kaiju2table_ = Program("kaiju2table")
+    params = (
+        Parameter("-o", str(_sample.files[kaiju_report_out]), kind="output"),
+        Parameter("-t", nodes, kind="misc"),
+        Parameter("-n", names, kind="misc"),
+        Parameter("-r", rank, kind="misc"),
+    )
+
+    for p in params:
+        kaiju2table_.add_parameter(p)
+
+    if add_param_str:
+        kaiju2table_.cmd += " {}".format(add_param_str)
+
+    return kaiju2table_
