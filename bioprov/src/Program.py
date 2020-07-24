@@ -220,7 +220,9 @@ class Run(Program):
         """
         # Declare process and start time
         program_exists = "command not found" not in getoutput(self.program.name)
-        assert program_exists, "Cannot find program. Make sure it is on your $PATH."
+        assert (
+            program_exists
+        ), "Cannot find program {}. Make sure it is on your $PATH.".format(self.name)
         if print_:
             str_ = f"Running program '{self.program.name}'"
             if self.sample is not None:
