@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+
+"""
+Genome annotation workflow module.
+
+'Genome annotation with Prodigal, Prokka and the COG database.'
+
+This can be run by itself as a script or called
+with the BioProv CLI application (recommended).
+"""
+
 import argparse
 import sys
 from os import path, listdir
@@ -9,9 +19,11 @@ from tqdm import tqdm
 
 
 class GenomeAnnotation:
-    description = """
-Genome annotation with Prodigal, Prokka and the COG database.
-"""
+    """
+    Class holding the GenomeAnnotation main function and parser.
+    """
+
+    description = "Genome annotation with Prodigal, Prokka and the COG database."
 
     def __init__(self):
         pass
@@ -29,6 +41,8 @@ Genome annotation with Prodigal, Prokka and the COG database.
         _directory_input=False,
     ):
         """
+        Main function to run the GenomeAnnotation workflow.
+
         :param _input_path: A tab delimited file where assembly files are the first column
         :param labels: Name of the column containing the labels.
         :param files: Name of the column containing the files.
@@ -98,6 +112,10 @@ Genome annotation with Prodigal, Prokka and the COG database.
 
     @classmethod
     def parser(cls):
+        """
+        Parser for the GenomeAnnotation workflow.
+        :return: instance of argparse.ArgumentParser.
+        """
         _parser = argparse.ArgumentParser(
             "genome_annotation", description=GenomeAnnotation.description,
         )
