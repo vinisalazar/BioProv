@@ -159,3 +159,5 @@ def kaiju(
     :param add_param_str: Add any paremeters to Kaiju.
     :return: An instance of Program, containing Kaiju.
     """
+
+    kaiju = Program("kaiju")
