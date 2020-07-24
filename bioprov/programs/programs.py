@@ -142,7 +142,8 @@ def prokka(
 def kaiju(
     _sample,
     output_path=None,
-    nodes=None,
+    kaijudb="",
+    nodes="",
     threads=config.threads,
     r1="R1",
     r2="R2",
@@ -151,7 +152,8 @@ def kaiju(
     """
     Run Kaiju on paired-end metagenomic data
     :param _sample: An instance of BioProv sample.
-    :param output_path: Output directory of Kaiju.
+    :param output_path: Output file of Kaiju.
+    :param kaijudb: Path to Kaiju database.
     :param nodes: Nodes file to use with Kaiju.
     :param threads: Threads to use with Kaiju.
     :param r1: Tag of forward reads.
@@ -159,5 +161,25 @@ def kaiju(
     :param add_param_str: Add any paremeters to Kaiju.
     :return: An instance of Program, containing Kaiju.
     """
+    kaiju_ = Program("kaiju")
 
-    kaiju = Program("kaiju")
+    if output_path is None:
+        output_path = path.join(
+            _sample.files[r1].directory, _sample.name + "_kaiju.out",
+        )
+    _sample.add_files(File(output_path, tag="kaiju_output"))
+    kaiju_.add_parameter(Parameter(key="-t", value=nodes, kind="misc"))
+    kaiju_.add_parameter(
+        Parameter(key="-i", value=str(_sample.files[r1]), kind="input")
+    )
+    kaiju_.add_parameter(
+        Parameter(key="-j", value=str(_sample.files[r2]), kind="input")
+    )
+    kaiju_.add_parameter(Parameter(key="-f", value=kaijudb, kind="input"))
+    kaiju_.add_parameter(Parameter(key="-z", value=threads, kind="misc"))
+    kaiju_.add_parameter(Parameter(key="-o", value=output_path, kind="output"))
+
+    if add_param_str:
+        kaiju_.cmd += " {}".format(add_param_str)
+
+    return kaiju_

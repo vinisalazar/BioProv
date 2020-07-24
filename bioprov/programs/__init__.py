@@ -1,1 +1,1 @@
-from .programs import prodigal, prokka
+from .programs import prodigal, prokka, kaiju
