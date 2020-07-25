@@ -230,7 +230,7 @@ class Run(Program):
                 str_ += f" for sample {self.sample.name}."
             else:
                 str_ += "."
-            str_ += "\nCommand is:\n{}".format(self.cmd)
+            str_ += "\nCommand is:\n{}".format(self.program.cmd)
             print(str_)
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
