@@ -7,7 +7,7 @@ This can be run by itself as a script or called
 with the BioProv CLI application (recommended).
 """
 
-from os import path, getcwd
+from os import path, getcwd, mkdir
 from bioprov import config, from_df
 from bioprov.programs import kaiju, kaiju2table
 from bioprov.utils import warnings, tax_ranks
@@ -92,10 +92,7 @@ class KaijuWorkflow:
                 skip += 1
                 continue
 
-            import pdb
-
-            pdb.set_trace()
-            kaiju_run = kaiju_.run(sample)
+            kaiju_run = kaiju_.run(sample, _print=verbose)
             if verbose:
                 print(kaiju_run)
 
@@ -206,6 +203,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.output_directory is None:
         args.output_directory = getcwd()
+
+    if not path.isdir(args.output_directory):
+        mkdir(args.output_directory)
+
     KaijuWorkflow.main(
         input_file=args.input,
         output_path=args.output_directory,

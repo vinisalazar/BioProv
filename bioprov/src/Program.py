@@ -228,6 +228,7 @@ class Run(Program):
             if self.sample is not None:
                 str_ += f" for sample {self.sample.name}."
             else:
+                str_ += "\nCommand is:\n{}".format(self.cmd)
                 str_ += "."
             print(str_)
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
