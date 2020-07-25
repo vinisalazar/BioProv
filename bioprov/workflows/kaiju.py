@@ -84,6 +84,7 @@ class KaijuWorkflow:
                 nodes=nodes,
                 threads=threads,
                 add_param_str=kaiju_params,
+                verbose=verbose,
             )
 
             # If resume is 'on', will check for existing files and skip if needed.
@@ -91,6 +92,9 @@ class KaijuWorkflow:
                 skip += 1
                 continue
 
+            import pdb
+
+            pdb.set_trace()
             kaiju_run = kaiju_.run(sample)
             if verbose:
                 print(kaiju_run)

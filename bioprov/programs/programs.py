@@ -149,6 +149,7 @@ def kaiju(
     r1="R1",
     r2="R2",
     add_param_str="",
+    verbose=False,
 ):
     """
     Run Kaiju on paired-end metagenomic data.
@@ -160,6 +161,7 @@ def kaiju(
     :param r1: Tag of forward reads.
     :param r2: Tag of reverse reads.
     :param add_param_str: Add any paremeters to Kaiju.
+    :param verbose: Verbose output of parameter
     :return: An instance of Program, containing Kaiju.
     """
     kaiju_out_name = _sample.name = "_kaiju.out"
@@ -170,16 +172,22 @@ def kaiju(
     _sample.add_files(File(output_path, tag="kaiju_output"))
 
     kaiju_ = Program("kaiju")
-    kaiju_.add_parameter(Parameter(key="-t", value=nodes, kind="misc"))
+    kaiju_.add_parameter(Parameter(key="-t", value=nodes, kind="misc"), _print=verbose)
     kaiju_.add_parameter(
-        Parameter(key="-i", value=str(_sample.files[r1]), kind="input")
+        Parameter(key="-i", value=str(_sample.files[r1]), kind="input"), _print=verbose
     )
     kaiju_.add_parameter(
-        Parameter(key="-j", value=str(_sample.files[r2]), kind="input")
+        Parameter(key="-j", value=str(_sample.files[r2]), kind="input"), _print=verbose
     )
-    kaiju_.add_parameter(Parameter(key="-f", value=kaijudb, kind="input"))
-    kaiju_.add_parameter(Parameter(key="-z", value=threads, kind="misc"))
-    kaiju_.add_parameter(Parameter(key="-o", value=output_path, kind="output"))
+    kaiju_.add_parameter(
+        Parameter(key="-f", value=kaijudb, kind="input"), _print=verbose
+    )
+    kaiju_.add_parameter(
+        Parameter(key="-z", value=threads, kind="misc"), _print=verbose
+    )
+    kaiju_.add_parameter(
+        Parameter(key="-o", value=output_path, kind="output"), _print=verbose
+    )
 
     if add_param_str:
         kaiju_.cmd += " {}".format(add_param_str)
