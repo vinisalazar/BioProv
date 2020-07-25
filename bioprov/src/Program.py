@@ -76,14 +76,15 @@ class Program:
         if _print:
             print(f"Added parameter {k} with value '{v}' to program {self.name}")
 
-    def run(self, sample=None):
+    def run(self, sample=None, _print=True):
         """
         Runs the process.
         :param sample: An instance of the Sample class
+        :param _print: Argument to pass to Run.run()
         :return: An instance of Run class.
         """
         run = Run(self, sample=sample)
-        run.run()
+        run.run(_print=_print)
         return run
 
 
