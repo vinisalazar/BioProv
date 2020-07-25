@@ -83,8 +83,6 @@ class KaijuWorkflow:
                 kaijudb=kaijudb,
                 nodes=nodes,
                 threads=threads,
-                r1=str(sample.files["R1"]),
-                r2=str(sample.files["R2"]),
                 add_param_str=kaiju_params,
             )
 
