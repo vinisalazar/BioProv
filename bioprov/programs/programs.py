@@ -229,6 +229,9 @@ def kaiju2table(
     for p in params:
         kaiju2table_.add_parameter(p)
 
+    # Add final parameter:
+    kaiju2table_.cmd += " {}".format(str(_sample.files[kaiju_output]))
+
     if add_param_str:
         kaiju2table_.cmd += " {}".format(add_param_str)
 

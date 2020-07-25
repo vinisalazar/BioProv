@@ -13,7 +13,8 @@ import argparse
 import sys
 from os import path, listdir
 import pandas as pd
-import bioprov as bp
+from bioprov import from_df, config
+from bioprov.utils import warnings
 from bioprov.programs import prodigal, prokka
 from tqdm import tqdm
 
@@ -63,9 +64,9 @@ class GenomeAnnotation:
         dataframe.columns = (files, *dataframe.columns[1:])
         dataframe[files] = dataframe[files].apply(lambda s: path.abspath(s))
         for file in dataframe[files]:
-            assert path.isfile(file), bp.utils.warnings["not_exist"](file)
+            assert path.isfile(file), warnings["not_exist"](file)
 
-        print(bp.utils.warnings["sample_loading"](len(dataframe)))
+        print(warnings["sample_loading"](len(dataframe)))
 
         # Parse labels
         if labels is not None:
@@ -77,7 +78,7 @@ class GenomeAnnotation:
             )
 
         # Create BioProv SampleSet
-        ss = bp.from_df(dataframe, index_col="label", sequencefile_cols=files)
+        ss = from_df(dataframe, index_col="label", sequencefile_cols=files)
         for k, sample in ss.items():
             sample.files["assembly"] = sample.files.pop(
                 files
@@ -104,7 +105,7 @@ class GenomeAnnotation:
             if all(file_.exists for _, file_ in sample.files.items()):
                 success += 1
 
-        print(bp.utils.warnings["number_success"](success, len(dataframe)))
+        print(warnings["number_success"](success, len(dataframe)))
 
         ss.to_json()
 
@@ -183,7 +184,7 @@ class GenomeAnnotation:
             "-p",
             "--threads",
             help="Number of threads. Default is set in BioProv config (half of the threads).",
-            default=bp.config.threads,
+            default=config.threads,
         )
         return _parser
 
