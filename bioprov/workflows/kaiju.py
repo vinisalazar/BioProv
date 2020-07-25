@@ -76,6 +76,16 @@ class KaijuWorkflow:
                 column, input_file
             )
 
+        # Assert all files exist
+        for ix, row in df[["R1", "R2"]].iterrows():
+            for column in ("R1", "R2"):
+                file_ = row[column]
+                assert path.isfile(
+                    file_
+                ), "File {} was not found! Make sure all file paths are correct in input file.".format(
+                    file_
+                )
+
         print(warnings["sample_loading"](len(df)))
 
         # Create BioProv SampleSet
@@ -116,7 +126,7 @@ class KaijuWorkflow:
                     names,
                     add_param_str=kaiju2table_params,
                 )
-                k2t_run = kaiju2table_.run(sample)
+                k2t_run = kaiju2table_.run(sample, _print=False)
 
             all_files_exist = False
             for k_, v in sample.files.items():
