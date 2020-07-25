@@ -82,7 +82,7 @@ class KaijuWorkflow:
                 file_ = row[column]
                 assert path.isfile(
                     file_
-                ), "File {} was not found! Make sure all file paths are correct in input file.".format(
+                ), "File '{}' was not found! Make sure all file paths are correct in input file.".format(
                     file_
                 )
 
