@@ -218,11 +218,11 @@ def kaiju2table(
     # Assertion statement for rank argument.
     assert_tax_rank(rank), warnings["invalid_tax_rank"](rank)
 
-    kaiju_report_out = "_kaiju_report_{}".format(rank)
+    kaiju_report_out = "{}_kaiju_report_{}".format(_sample.name, rank)
 
     # Format output_path
     if output_path is None:
-        output_path = _sample.files[kaiju_output].name + kaiju_report_out + ".tsv"
+        output_path = _sample.files[kaiju_output].directory + kaiju_report_out + ".tsv"
     _sample.add_files(File(output_path, tag=kaiju_report_out))
 
     kaiju2table_ = Program("kaiju2table")

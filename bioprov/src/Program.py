@@ -220,13 +220,17 @@ class Run(Program):
         dict_ = {True: "Finished", False: "Pending"}
         return dict_[finished_status]
 
-    def run(self, _print=True):
+    def run(self, _sample=None, _print=True):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
         :type _print: bool
+        :param _sample: self.sample
         :return: self.stdout
         """
+        if _sample is None:
+            _sample = self.sample
+
         # Declare process and start time
         program_exists = "command not found" not in getoutput(self.program.name)
         assert (
@@ -234,8 +238,8 @@ class Run(Program):
         ), "Cannot find program {}. Make sure it is on your $PATH.".format(self.name)
         if _print:
             str_ = f"Running program '{self.program.name}'"
-            if self.sample is not None:
-                str_ += f" for sample {self.sample.name}."
+            if _sample is not None:
+                str_ += f" for sample {_sample.name}."
             else:
                 str_ += "."
             str_ += "\nCommand is:\n{}".format(self.program.cmd)
