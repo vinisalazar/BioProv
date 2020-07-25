@@ -103,7 +103,11 @@ class KaijuWorkflow:
                 print(kaiju_run)
 
             # Create reports for each rank (this is much faster than running Kaiju)
+            if not verbose:
+                print("Creating Kaiju reports.")
             for rank in tax_ranks:
+                if verbose:
+                    print("Creating Kaiju report for {} rank.".format(rank))
                 kaiju2table_ = kaiju2table(
                     sample,
                     output_path,
@@ -113,8 +117,6 @@ class KaijuWorkflow:
                     add_param_str=kaiju2table_params,
                 )
                 k2t_run = kaiju2table_.run(sample)
-                if verbose:
-                    print(k2t_run)
 
             all_files_exist = False
             for k_, v in sample.files.items():
