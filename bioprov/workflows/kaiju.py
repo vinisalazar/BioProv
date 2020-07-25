@@ -84,7 +84,6 @@ class KaijuWorkflow:
                 nodes=nodes,
                 threads=threads,
                 add_param_str=kaiju_params,
-                verbose=verbose,
             )
 
             # If resume is 'on', will check for existing files and skip if needed.
