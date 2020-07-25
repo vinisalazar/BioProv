@@ -1,7 +1,7 @@
 """
 Module containing the class CLI and related functions.
 """
-from bioprov.workflows import GenomeAnnotation
+from bioprov.workflows import GenomeAnnotation, KaijuWorkflow
 
 
 class WorkflowOptionsParser:
@@ -30,11 +30,35 @@ class WorkflowOptionsParser:
             _directory_input=options.directory,
         )
 
+    @staticmethod
+    def _kaiju_workflow(options):
+        """
+        Runs Kaiju workflow
+        :return:
+        """
+        KaijuWorkflow.main(
+            input_file=options.input,
+            output_path=options.output_directory,
+            kaijudb=options.kaiju_db,
+            nodes=options.nodes,
+            names=options.names,
+            threads=options.threads,
+            _tag=options.tag,
+            verbose=options.verbose,
+            kaiju_params=options.kaiju_params,
+            kaiju2table_params=options.kaiju2table_params,
+        )
+
     def parse_options(self, options):
         """
         Parses options and returns correct workflow.
         :param options:
         :return:
         """
-        if options.subparser_name == "genome_annotation":
-            self._genome_annotation(options)
+        subparsers = {
+            "genome_annotation": lambda _options: self._genome_annotation(_options),
+            "kaiju": lambda _options: self._kaiju_workflow(_options),
+        }
+
+        # Run desired subparser
+        subparsers[options.subparser_name](options)

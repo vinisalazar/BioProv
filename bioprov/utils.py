@@ -58,4 +58,26 @@ def parser_help(parser):
     return sys.exit(0)
 
 
-warnings = {"not_exist": lambda x: "File '{}' does not exist!".format(x)}
+tax_ranks = "phylum class order family genus species".split()
+
+
+def assert_tax_rank(tax_rank):
+    """
+    Tests if a string is a valid taxonomic rank.
+    :param tax_rank: String to be evaluated.
+    :return: True or False.
+    """
+    return tax_rank in tax_ranks
+
+
+warnings = {
+    "not_exist": lambda x: "File '{}' does not exist!".format(x),
+    "sample_loading": lambda n: "Loading {} samples.".format(str(n)),
+    "invalid_tax_rank": lambda tax_rank: "Rank '{}' not in ranks, choose from:\n{}".format(
+        tax_rank, tax_ranks
+    ),
+    "number_success": lambda success, total: "Ran successfully for {}/{} samples.".format(
+        str(success), str(total),
+    ),
+    "number_skip": lambda skip: "Skipped {} samples.".format(str(skip)),
+}

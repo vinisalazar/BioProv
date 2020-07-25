@@ -63,10 +63,9 @@ class GenomeAnnotation:
         dataframe.columns = (files, *dataframe.columns[1:])
         dataframe[files] = dataframe[files].apply(lambda s: path.abspath(s))
         for file in dataframe[files]:
-            assert path.isfile(
-                file
-            ), f"{file} was not found! Please check the correct path."
-        print(f"Loading {len(dataframe)} samples.")
+            assert path.isfile(file), bp.utils.warnings["not_exist"](file)
+
+        bp.utils.warnings["sample_loading"](len(dataframe))
 
         # Parse labels
         if labels is not None:
@@ -77,6 +76,7 @@ class GenomeAnnotation:
                 lambda s: path.splitext(path.basename(s))[0]
             )
 
+        # Create BioProv SampleSet
         ss = bp.from_df(dataframe, index_col="label", sequencefile_cols=files)
         for k, sample in ss.items():
             sample.files["assembly"] = sample.files.pop(
@@ -84,7 +84,7 @@ class GenomeAnnotation:
             )  # rename whatever the files column was called.
         ss.tag = _tag
 
-        ix, success = 1, 0
+        success = 0
 
         for k, sample in tqdm(ss.items()):
 
@@ -103,12 +103,10 @@ class GenomeAnnotation:
                     print(prokka_run_)
             if all(file_.exists for _, file_ in sample.files.items()):
                 success += 1
-            ix += 1
+
+        bp.utils.warnings["number_success"](success, len(dataframe))
 
         ss.to_json()
-        print(
-            f"Ran successfully for {success}/{len(dataframe)} samples. Saved SampleSet to JSON."
-        )
 
     @classmethod
     def parser(cls):

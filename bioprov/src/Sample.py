@@ -304,6 +304,8 @@ def from_df(
     samples = from_df('sample.tsv', sep="\t")
 
     type(samples)  # bioprov.Sample.SampleSet.
+
+    You can select columns to be added as Files or SequenceFile instances.
     '''
     :param df: A pandas DataFrame
     :param index_col: A column to be used as index. Must be in df.columns. If int is passed, will get it from columns.

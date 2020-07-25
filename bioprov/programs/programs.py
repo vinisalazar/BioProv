@@ -5,6 +5,7 @@ Module for holding preset instances of the Program class.
 from os import path
 from bioprov import Program, Parameter, File
 from bioprov import config
+from bioprov.utils import assert_tax_rank, warnings
 
 
 def prodigal(
@@ -206,9 +207,8 @@ def kaiju2table(
     :param add_param_str: Parameter string to add.
     :return: Instance of Program containing kaiju2table.
     """
-    # Assert correct rank
-    ranks = "phylum class order family genus species".split()
-    assert rank in ranks, "Rank '{}' not in ranks, choose from:\n{}".format(rank, ranks)
+    # Assertion statement for rank argument.
+    assert_tax_rank(rank), warnings["invalid_tax_rank"](rank)
 
     kaiju_report_out = "_kaiju_report_{}".format(rank)
 
