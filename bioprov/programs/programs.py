@@ -149,7 +149,6 @@ def kaiju(
     r1="R1",
     r2="R2",
     add_param_str="",
-    verbose=False,
 ):
     """
     Run Kaiju on paired-end metagenomic data.
@@ -160,7 +159,6 @@ def kaiju(
     :param r1: Tag of forward reads.
     :param r2: Tag of reverse reads.
     :param add_param_str: Add any paremeters to Kaiju.
-    :param verbose: Verbose output of parameter
     :return: An instance of Program, containing Kaiju.
     """
     kaiju_out_name = _sample.name + "_kaiju.out"
