@@ -117,7 +117,7 @@ class KaijuWorkflow:
                 print("Creating Kaiju reports.")
             for rank in tax_ranks:
                 if verbose:
-                    print("Creating Kaiju report for {} rank.".format(rank))
+                    print("Creating report for {} rank.".format(rank))
                 kaiju2table_ = kaiju2table(
                     _sample=sample,
                     rank=rank,
