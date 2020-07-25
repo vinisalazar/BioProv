@@ -1,0 +1,6 @@
+# Configuration file for Coverage.py
+
+# Ignore header lines
+[report]
+exclude_lines =
+    $__

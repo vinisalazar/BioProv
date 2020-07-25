@@ -13,6 +13,7 @@ from argparse import Namespace
 from bioprov.data import genome_annotation_dataset
 from bioprov.workflows import GenomeAnnotation
 from bioprov import config
+from os import remove
 
 
 def test_GenomeAnnotation():
@@ -37,3 +38,4 @@ def test_GenomeAnnotation():
         _verbose=args.verbose,
         _threads=args.threads,
     )
+    remove(args.tag + ".json")
