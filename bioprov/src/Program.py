@@ -213,7 +213,7 @@ class Run(Program):
         dict_ = {True: "Finished", False: "Pending"}
         return dict_[finished_status]
 
-    def run(self, print_=True):
+    def run(self, _print=True):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
@@ -224,7 +224,7 @@ class Run(Program):
         assert (
             program_exists
         ), "Cannot find program {}. Make sure it is on your $PATH.".format(self.name)
-        if print_:
+        if _print:
             str_ = f"Running program '{self.program.name}'"
             if self.sample is not None:
                 str_ += f" for sample {self.sample.name}."
