@@ -119,11 +119,10 @@ class KaijuWorkflow:
                 if verbose:
                     print("Creating Kaiju report for {} rank.".format(rank))
                 kaiju2table_ = kaiju2table(
-                    sample,
-                    output_path,
-                    rank,
-                    nodes,
-                    names,
+                    _sample=sample,
+                    rank=rank,
+                    nodes=nodes,
+                    names=names,
                     add_param_str=kaiju2table_params,
                 )
                 k2t_run = kaiju2table_.run(sample, _print=False)
