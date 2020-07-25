@@ -69,7 +69,7 @@ class KaijuWorkflow:
                 column, input_file
             )
 
-        warnings("sample_loading")(len(df))
+        warnings["sample_loading"](len(df))
 
         # Create BioProv SampleSet
         ss = from_df(df, index_col="sample-id", file_cols=("R1", "R2"), tag=_tag)
