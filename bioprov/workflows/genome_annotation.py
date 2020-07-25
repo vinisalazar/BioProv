@@ -65,7 +65,7 @@ class GenomeAnnotation:
         for file in dataframe[files]:
             assert path.isfile(file), bp.utils.warnings["not_exist"](file)
 
-        bp.utils.warnings["sample_loading"](len(dataframe))
+        print(bp.utils.warnings["sample_loading"](len(dataframe)))
 
         # Parse labels
         if labels is not None:
@@ -104,7 +104,7 @@ class GenomeAnnotation:
             if all(file_.exists for _, file_ in sample.files.items()):
                 success += 1
 
-        bp.utils.warnings["number_success"](success, len(dataframe))
+        print(bp.utils.warnings["number_success"](success, len(dataframe)))
 
         ss.to_json()
 

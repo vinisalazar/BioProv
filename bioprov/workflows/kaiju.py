@@ -69,7 +69,7 @@ class KaijuWorkflow:
                 column, input_file
             )
 
-        warnings["sample_loading"](len(df))
+        print(warnings["sample_loading"](len(df)))
 
         # Create BioProv SampleSet
         ss = from_df(df, index_col="sample-id", file_cols=("R1", "R2"), tag=_tag)
@@ -121,8 +121,8 @@ class KaijuWorkflow:
                 success += 1
 
         ss.to_json()
-        warnings["number_success"](success, len(df))
-        warnings["number_skip"](skip)
+        print(warnings["number_success"](success, len(df)))
+        print(warnings["number_skip"](skip))
 
     @classmethod
     def parser(cls):
