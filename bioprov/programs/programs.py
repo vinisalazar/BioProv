@@ -156,8 +156,7 @@ def kaiju(
     :param _sample: An instance of BioProv sample.
     :param output_path: Output file of Kaiju.
     :param kaijudb: Path to Kaiju database.
-    :param nodes: Nodes file to use with Kaiju.
-    :param threads: Threads to use with Kaiju.
+    :param nodes: Nodes file to use with Kaiju.False    :param threads: Threads to use with Kaiju.
     :param r1: Tag of forward reads.
     :param r2: Tag of reverse reads.
     :param add_param_str: Add any paremeters to Kaiju.
@@ -172,21 +171,17 @@ def kaiju(
     _sample.add_files(File(output_path, tag="kaiju_output"))
 
     kaiju_ = Program("kaiju")
-    kaiju_.add_parameter(Parameter(key="-t", value=nodes, kind="misc"), _print=verbose)
+    kaiju_.add_parameter(Parameter(key="-t", value=nodes, kind="misc"), _print=False)
     kaiju_.add_parameter(
-        Parameter(key="-i", value=str(_sample.files[r1]), kind="input"), _print=verbose
+        Parameter(key="-i", value=str(_sample.files[r1]), kind="input"), _print=False
     )
     kaiju_.add_parameter(
-        Parameter(key="-j", value=str(_sample.files[r2]), kind="input"), _print=verbose
+        Parameter(key="-j", value=str(_sample.files[r2]), kind="input"), _print=False
     )
+    kaiju_.add_parameter(Parameter(key="-f", value=kaijudb, kind="input"), _print=False)
+    kaiju_.add_parameter(Parameter(key="-z", value=threads, kind="misc"), _print=False)
     kaiju_.add_parameter(
-        Parameter(key="-f", value=kaijudb, kind="input"), _print=verbose
-    )
-    kaiju_.add_parameter(
-        Parameter(key="-z", value=threads, kind="misc"), _print=verbose
-    )
-    kaiju_.add_parameter(
-        Parameter(key="-o", value=output_path, kind="output"), _print=verbose
+        Parameter(key="-o", value=output_path, kind="output"), _print=False
     )
 
     if add_param_str:
