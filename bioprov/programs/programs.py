@@ -224,7 +224,7 @@ def kaiju2table(
     # Format output_path
     if output_path is None:
         output_path = path.join(
-            _sample.files[kaiju_output].directory + kaiju_report_out + ".tsv"
+            _sample.files[kaiju_output].directory, kaiju_report_out + ".tsv"
         )
     _sample.add_files(File(output_path, tag=kaiju_report_suffix))
 
