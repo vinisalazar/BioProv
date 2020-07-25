@@ -163,7 +163,7 @@ def kaiju(
     :param verbose: Verbose output of parameter
     :return: An instance of Program, containing Kaiju.
     """
-    kaiju_out_name = _sample.name = "_kaiju.out"
+    kaiju_out_name = _sample.name + "_kaiju.out"
     if output_path is None:
         output_path = path.join(_sample.files[r1].directory, kaiju_out_name,)
     else:
