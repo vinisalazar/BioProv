@@ -224,6 +224,7 @@ class Run(Program):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
+        :type _print: bool
         :return: self.stdout
         """
         # Declare process and start time
