@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
