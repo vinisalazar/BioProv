@@ -13,7 +13,7 @@ import argparse
 import pandas as pd
 from os import path
 from bioprov.utils import warnings
-from bioprov import from_df
+from bioprov import from_df, config, Program
 from glob import glob
 
 
@@ -33,7 +33,7 @@ class Workflow:
         index_col="sample-id",
         file_columns=None,
         file_extensions=None,
-        steps=None,
+        steps=dict(),
         parser=None,
         tag=None,
         verbose=None,
@@ -45,12 +45,12 @@ class Workflow:
         :param name: Name of the workflow, with no spaces.
         :param description: A brief (one sentence) description of the workflows.
         :param input_: Input of workflow. May be a directory or a tab-delimited file.
-        :param input_type: Input type of the workflow. Choose from ('directory', 'dataframe')
+        :param input_type: Input type of the workflow. Choose from ('directory', 'dataframe', 'both')
         :param index_col: Name of index column which will define sample names if input_type is 'dataframe'.
         :param file_columns: Name of columns containing files if input_type is 'dataframe'.
                              Name of file tag if input_type is 'directory'.
         :param file_extensions: Extension of files if input_type is 'directory'.
-        :param steps: Iterator of instances of bioprov.Program to run on each sample.
+        :param steps: Dictionary mapping step name to a boolean value of whether it runs by default or not.
         :param parser: argparse.ArgumentParser object used to construct the workflow's command-line application.
         :param tag: Tag of the SampleSet being run.
         :param verbose: Verbose output of workflow.
@@ -76,8 +76,14 @@ class Workflow:
         self.sampleset = None
         self.parser = None
 
-        # Only generate sampleset if there is an input.
-        if self.input is not None:
+        # Only generate sampleset if there is an input and input type
+        if self.input and self.input_type:
+            _input_types = ("directory", "dataframe")
+            assert (
+                self.input_type in _input_types
+            ), "Input type '{}' is invalid, choose from {}".format(
+                self.input_type, _input_types
+            )
             self.generate_sampleset()
 
         # Only generate parser if there is a name, description, and steps.
@@ -111,7 +117,51 @@ class Workflow:
                 self.index_col, self.file_columns
             ),
         )
-        parser.add_argument()
+        parser.add_argument(
+            "-t",
+            "--threads",
+            help="Number of threads. Default is set in BioProv config (half of the threads).",
+            default=config.threads,
+        )
+        parser.add_argument(
+            "--verbose",
+            help="More verbose output",
+            action="store_true",
+            default=False,
+            required=False,
+        )
+        parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
+        return parser
+
+    def add_step(self, parser, step):
+        """
+        Adds a step to the workflow parser and to the steps attribute.
+        :param parser: self.parser
+        :param step: A tuple consisting of (str, function, bool), where default is a boolean value.
+                     Which defines if the step is by default included in the workflow.
+        :return: Updated self.steps and returns parser.
+        """
+        # Big assert block
+        assert (
+            len(step) == 3
+        ), "Step must be an iterator with only three values, (str, function, bool)"
+        name, function, default = (*step,)  # Unpack tuple
+        assert isinstance(default, bool), "'default"
+
+        # Construct argument name
+        arg_name = "--skip_" + name
+        arg_help = "Whether to skip program '{}' . Default is {}".format(
+            name, not default
+        )
+        actions = {False: "store_true", True: "store_false"}
+        arg_action = actions[default]
+
+        # Add argument to parser
+        parser.add_argument(
+            arg_name, help=arg_help, action=arg_action, default=default, required=False
+        )
+
+        self.steps[name] = {"function": function, "default": default}
         return parser
 
     def _sampleset_from_dataframe(self, df):
@@ -136,7 +186,10 @@ class Workflow:
         file_extensions = self.file_extensions
         file_columns = self.file_columns
 
-        assert path.isdir(directory), "Input directory '{}' not found.".format(
+        # Make sure directory exists
+        assert path.isdir(
+            directory
+        ), "Input directory '{}' not found. Make sure directory exists.".format(
             directory
         )
 
@@ -147,6 +200,13 @@ class Workflow:
         files = []
         for ext in file_extensions:
             files += glob(path.join(directory, "*." + ext))
+
+        # Make sure we got files
+        assert (
+            len(files) > 0
+        ), "No files found in directory '{}' with extensions: {}".format(
+            directory, file_extensions
+        )
 
         # Build dataframe from files
         df = pd.DataFrame(files)
