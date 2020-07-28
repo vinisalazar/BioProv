@@ -323,13 +323,15 @@ class PresetProgram(Program):
             output_files = dict()
         self.input_files = input_files
         self.output_files = output_files
+        self.preffix_tag = preffix_tag
         self.generic_cmd = None
+        self.ready = False
 
         if generate_cmd:
             self.generate_cmd()
 
         if self.sample is not None:
-            self.create_func(preffix_tag)
+            self.create_func(self.preffix_tag)
 
     def __repr__(self):
         str_ = "PresetProgram '{0}'".format(self.program.name)
@@ -362,23 +364,22 @@ class PresetProgram(Program):
             param = Parameter(key=k, value=str(self.sample.files[tag]), kind="input")
             self.program.add_parameter(param)
 
-    def _parse_output_files(self, preffix_tag=None):
+    def _parse_output_files(self):
         """
         Adds output files to self.sample and self.program.
-        :param preffix_tag: A tag of an input file which will be used as preffix to specify output files.0
         :return: Updates self.program with the output files as parameters and0
                  updates the 'files' attribute of self.sample.files.
         """
-        if preffix_tag is None:
+        if self.preffix_tag is None:
             preffix = path.join("./", self.sample.name)
         else:
             # Check if it is in sample
             try:
-                preffix, _ = path.splitext(str(self.sample.files[preffix_tag]))
+                preffix, _ = path.splitext(str(self.sample.files[self.preffix_tag]))
             except KeyError:
                 raise Exception(
                     "Key '{}' not found in files dictionary of sample '{}':\n'{}'".format(
-                        preffix_tag, self.sample.name, self.sample.files
+                        self.preffix_tag, self.sample.name, self.sample.files
                     )
                 )
         try:
@@ -403,13 +404,20 @@ class PresetProgram(Program):
         # Set new sample
         self.sample = sample
 
+        #
+        if preffix_tag is not None:
+            self.preffix_tag = preffix_tag
+
         # Validate current state
         self.validate_sample()
         self.validate_program()
 
         # Parse files
         self._parse_input_files()
-        self._parse_output_files(preffix_tag)
+        self._parse_output_files(self.preffix_tag)
+
+        # Set ready state
+        self.ready = True
 
     def validate_sample(self):
         """
@@ -448,6 +456,17 @@ class PresetProgram(Program):
             generic_cmd += " {} 'sample.files['{}'].path'".format(k, tag)
 
         self.generic_cmd = generic_cmd
+
+    def run(self, sample=None, preffix_tag=None):
+        if sample is None:
+            sample = self.sample
+        if preffix_tag is None:
+            preffix_tag = self.preffix_tag
+        if not self.ready:
+            self.create_func(sample, preffix_tag)
+            self.run(sample, preffix_tag)
+        else:
+            self.run(sample, preffix_tag)
 
 
 def parse_params(params, program=None):
