@@ -98,7 +98,7 @@ class GenomeAnnotation:
             # Prodigal block
             prodigal_ = prodigal(sample)
             if not _skip_prodigal:
-                prodigal_run = prodigal_.run(sample)
+                prodigal_run = prodigal_.run()
                 if _verbose:
                     print(prodigal_run)
 
