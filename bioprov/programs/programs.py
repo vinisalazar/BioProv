@@ -10,8 +10,7 @@ Module for holding preset instances of the Program class.
 """
 
 from os import path
-from bioprov import Program, Parameter, File
-from bioprov import config
+from bioprov import default_config, Program, Parameter, File
 from bioprov.utils import assert_tax_rank, warnings
 
 
@@ -59,7 +58,7 @@ def prodigal(
 def prokka(
     _sample,
     output_path=None,
-    threads=config.threads,
+    threads=default_config.threads,
     add_param_str="",
     assembly="assembly",
     contigs="prokka_contigs",
@@ -152,7 +151,7 @@ def kaiju(
     output_path=None,
     kaijudb="",
     nodes="",
-    threads=config.threads,
+    threads=default_config.threads,
     r1="R1",
     r2="R2",
     add_param_str="",

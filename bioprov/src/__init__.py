@@ -6,19 +6,7 @@ __version__ = "0.1.0"
 
 
 """
-Init file for the src/ package. Contains the main modules.
-"""
+Init file for the src/ package.
 
-from .Config import Config, config
-from .File import File
-from .Program import Program, Parameter, Run, parse_params, generate_param_str
-from .Sample import (
-    Sample,
-    SampleSet,
-    read_csv,
-    from_df,
-    from_json,
-    dict_to_sample,
-    json_to_dict,
-)
-from .SequenceFile import SequenceFile, seqrecordgenerator, seqstats
+I removed all modules from here, preferring to import them directly from bioprov/__init__.py
+"""

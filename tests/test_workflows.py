@@ -12,7 +12,7 @@ Testing for the workflows package.
 from argparse import Namespace
 from bioprov.data import genome_annotation_dataset
 from bioprov.workflows import GenomeAnnotation
-from bioprov import config
+from bioprov import default_config
 from os import remove
 
 
@@ -27,7 +27,7 @@ def test_GenomeAnnotation():
     args.run_prokka = False
     args.skip_prodigal = False
     args.verbose = True
-    args.threads = config.threads
+    args.threads = default_config.threads
     _ = genome_annotation.main(
         _input_path=args.input,
         labels=args.label,

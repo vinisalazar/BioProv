@@ -19,7 +19,7 @@ import argparse
 import sys
 from os import path, listdir
 import pandas as pd
-from bioprov import from_df, config
+from bioprov import from_df, default_config
 from bioprov.utils import warnings
 from bioprov.programs import prodigal, prokka
 from tqdm import tqdm
@@ -190,7 +190,7 @@ class GenomeAnnotation:
             "-p",
             "--threads",
             help="Number of threads. Default is set in BioProv config (half of the threads).",
-            default=config.threads,
+            default=default_config.threads,
         )
         return _parser
 

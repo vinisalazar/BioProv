@@ -10,7 +10,7 @@ Testing for the Sample module.
 """
 from os import remove, path
 from bioprov import Sample, SampleSet, SequenceFile, read_csv, from_json
-from bioprov.src import dict_to_sample, json_to_dict
+from bioprov.src.Sample import dict_to_sample, json_to_dict
 from bioprov.data import synechococcus_genome, synechococcus_dataset
 
 # Sample attributes for testing

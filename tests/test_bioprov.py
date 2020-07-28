@@ -25,22 +25,25 @@ def test_import_bioprov():
         raise
 
 
-def test_import_classes():
+def test_import_classes_and_functions():
     """
-    Test if all classes can be imported correctly.
+    Test if all classes and functions can be imported correctly.
     :return: ImportError if not able to import
     """
     try:
         from bioprov import (
             Config,
+            default_config,
             File,
             Program,
             Parameter,
             Run,
+            Sample,
+            SampleSet,
+            read_csv,
+            from_df,
+            from_json,
             SequenceFile,
-            src,
-            cli,
-            data,
         )
     except ImportError:
         raise
@@ -48,10 +51,11 @@ def test_import_classes():
 
 def test_import_packages():
     """
-    Test if supplementary packages can be imported correctly
+    Test if supplementary packages can be imported correctly.
     :return: ImportError if not able to import
     """
     try:
+        from bioprov import src, data, programs, cli, workflows
         from bioprov.data import data_dir, genomes_dir, synechococcus_genome
         from bioprov.programs import prodigal, prokka, kaiju, kaiju2table
         from bioprov.cli import WorkflowOptionsParser

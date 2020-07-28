@@ -12,8 +12,13 @@ Testing for Program module
     - Run class
 """
 
-from bioprov import Program, Run, Parameter
-from bioprov.src import parse_params, generate_param_str
+from bioprov.src.Program import (
+    generate_param_str,
+    Parameter,
+    parse_params,
+    Program,
+    Run,
+)
 
 
 def test_Program():
