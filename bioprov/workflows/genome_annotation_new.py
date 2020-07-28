@@ -26,9 +26,10 @@ def genome_annotation(**kwargs):
     )
 
     # Create steps from preset programs.
-    prodigal_preset, prokka_preset = prodigal(), None
+    prodigal_preset, prokka_preset = prodigal(), prodigal()
     steps = [
         Step(prodigal_preset, default=True, run=True),
+        Step(prokka_preset, default=False),
     ]
 
     # Add steps to parser
@@ -44,12 +45,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     workflow.input = args.input
     workflow.input_type = args.input_type
-
-    # Change behaviour of steps based on command line arguments.
-    for k, step in workflow.steps.items():
-        if step.default:
-            step.run = eval("args.skip_{}".format(step.name))
-        else:
-            step.run = eval("args.run_{}".format(step.name))
+    workflow.steps = args.steps
 
     workflow.run_steps()
