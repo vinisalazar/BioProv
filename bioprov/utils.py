@@ -87,4 +87,7 @@ warnings = {
         str(success), str(total),
     ),
     "number_skip": lambda skip: "Skipped {} samples.".format(str(skip)),
+    "incorrect_type": lambda x, type_: "'{}' is of type '{}'; it must be an instance of '{}'".format(
+        x, type(x), type_
+    ),
 }
