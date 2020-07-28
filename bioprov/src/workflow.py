@@ -15,6 +15,7 @@ from bioprov import from_df, default_config
 from bioprov.utils import warnings
 from bioprov.src.program import PresetProgram
 from os import path
+from tqdm import tqdm
 
 
 class Workflow:
@@ -85,7 +86,6 @@ class Workflow:
         self.verbose = verbose
         self.threads = threads
         self.sep = sep
-        self.success = 0
         self.kwargs = kwargs
         self.sampleset = None
         self.parser = None
@@ -132,9 +132,9 @@ class Workflow:
             ),
         )
         parser.add_argument(
-            "-t",
-            "--threads",
-            help="Number of threads. Default is set in BioProv config (half of the threads).",
+            "-c",
+            "--cpus",
+            help="Number of CPUs. Default is set in BioProv config (half of the CPUs).",
             default=default_config.threads,
         )
         parser.add_argument(
@@ -156,8 +156,21 @@ class Workflow:
         assert isinstance(step, Step), warnings["incorrect_type"](step, Step)
         self.steps[step.name] = step
 
-    def run_steps(self, steps):
-        pass
+    def run_steps(self, steps_to_run):
+        """
+        Runs steps for each sample.
+        :return:
+        """
+        for k, step in self.steps.items():
+            if k in steps_to_run:
+                for _, sample in tqdm(self.sampleset.items()):
+                    p = step.program(sample=sample)
+                    _run = p.run(_print=self.verbose)
+                    if not _run.stderr:  # Add to successes if no standard error.
+                        step.successes += 1
+            else:
+                if self.verbose:
+                    print("Skipping step '{}'".format(step.name))
 
     def _sampleset_from_dataframe(self, df):
         """
@@ -251,6 +264,18 @@ class Workflow:
         sampleset = self._sampleset_from_dataframe(df)
         return sampleset
 
+    def main(self):
+        """
+        Parses command-line arguments and runs the workflow.
+        :return:
+        """
+        parser = self.parser
+        args = parser.parse_args()
+        self.input = args.input
+        self.input_type = args.input_type
+        steps = args.steps
+        self.run_steps(steps)
+
 
 class Step(PresetProgram):
     """
@@ -283,3 +308,4 @@ class Step(PresetProgram):
         self.name = program.name
         self.default = default
         self.description = description
+        self.successes = 0
