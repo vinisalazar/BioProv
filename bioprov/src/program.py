@@ -286,16 +286,15 @@ class PresetProgram(Program):
         program=None,
         params=None,
         sample=None,
-        default=True,
         input_files=None,
         output_files=None,
         preffix_tag=None,
+        generate_cmd=False,
     ):
         """
         :param program: Instance of bioprov.Program
         :param params: Dictionary of parameters.
         :param sample: An instance of Sample or SampleSet.
-        :param default: Whether to run the step by default.
         :param input_files: A dictionary consisting of Parameter keys as keys and a File.tag
                             as value, where File.tag is a string that must be a key in
                             self.sample.files with a corresponding existing file.
@@ -306,6 +305,7 @@ class PresetProgram(Program):
         :param preffix_tag: A value in the input_files argument, which corresponds
                             to a key in self.sample.files. All file names of output
                             files will be stemmed from this file, hence 'preffix'.
+        :param generate_cmd: Generates generic command, independent of sample.
         """
         if program is None:
             self.program = Program.__init__(self, params)
@@ -317,16 +317,27 @@ class PresetProgram(Program):
             self.program = program
             self.params = program.params
         self.sample = sample
-        self.default = default
         if input_files is None:
             input_files = dict()
         if output_files is None:
             output_files = dict()
         self.input_files = input_files
         self.output_files = output_files
+        self.generic_cmd = None
+
+        if generate_cmd:
+            self.generate_cmd()
 
         if self.sample is not None:
             self.create_func(preffix_tag)
+
+    def __repr__(self):
+        str_ = "PresetProgram '{0}'".format(self.program.name)
+        if self.generic_cmd:
+            str_ += " with the following command for each sample:\n'{0}'".format(
+                self.generic_cmd
+            )
+        return str_
 
     def _parse_input_files(self):
         """
@@ -383,20 +394,60 @@ class PresetProgram(Program):
                 "It must have the following structure: key: (tag, suffix)."
             )
 
-    def create_func(self, preffix_tag=None):
+    def create_func(self, sample, preffix_tag=None):
         """
+        :param sample: Instance of Sample to create the function for.
         :param preffix_tag: Argument to be passed to self._parse_output_files()
         :return: Creates Program function for Sample.
+        """
+        # Set new sample
+        self.sample = sample
+
+        # Validate current state
+        self.validate_sample()
+        self.validate_program()
+
+        # Parse files
+        self._parse_input_files()
+        self._parse_output_files(preffix_tag)
+
+    def validate_sample(self):
+        """
+        Checks type of self.sample.
+        :return:
         """
         assert isinstance(self.sample, Sample), warnings["incorrect_type"](
             self.sample, Sample
         )
+
+    def validate_program(self):
+        """
+        Checks type of self.program
+        :return:
+        """
         assert isinstance(self.program, Program), warnings["incorrect_type"](
             self.program, Program
         )
 
-        self._parse_input_files()
-        self._parse_output_files(preffix_tag)
+    def generate_cmd(self):
+        """
+        Generates a wildcard command string, independent of samples.
+        :return: Updates self.generic_cmd.
+        """
+        self.validate_program()
+        generic_cmd = (
+            self.program.cmd
+        )  # Misc parameters will be inherited from self.program
+
+        # Add input files
+        for k, tag in self.input_files.items():
+            generic_cmd += " {} 'sample.files['{}'].path'".format(k, tag)
+
+        # Add output files
+        for k, (tag, _) in self.output_files.items():
+            generic_cmd += " {} 'sample.files['{}'].path'".format(k, tag)
+
+        self.generic_cmd = generic_cmd
 
 
 def parse_params(params, program=None):
