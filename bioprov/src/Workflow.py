@@ -11,10 +11,11 @@ Contains the Workflow class and related functions.
 
 import argparse
 import pandas as pd
-from os import path
-from bioprov.utils import warnings
-from bioprov import from_df, config, Program
 from glob import glob
+from bioprov import from_df, config, Sample, Program, Parameter
+from bioprov.src.Program import parse_params
+from bioprov.utils import warnings
+from os import path
 
 
 class Workflow:
@@ -33,7 +34,7 @@ class Workflow:
         index_col="sample-id",
         file_columns=None,
         file_extensions=None,
-        steps=dict(),
+        steps=None,
         parser=None,
         tag=None,
         verbose=None,
@@ -65,6 +66,8 @@ class Workflow:
         self.index_col = index_col
         self.file_columns = file_columns
         self.file_extensions = file_extensions
+        if not steps:
+            steps = dict()
         self.steps = steps
         self.parser = parser
         self.tag = tag
@@ -145,7 +148,7 @@ class Workflow:
         assert (
             len(step) == 3
         ), "Step must be an iterator with only three values, (str, function, bool)"
-        name, function, default = (*step,)  # Unpack tuple
+        name, function, default = step[0], step[1], step[2]
         assert isinstance(default, bool), "'default"
 
         # Construct argument name
@@ -255,3 +258,151 @@ class Workflow:
 
         sampleset = self._sampleset_from_dataframe(df)
         return sampleset
+
+
+class WorkflowStep(Program):
+    """
+    Class for holding a workflow step and related function.
+
+    A WorkflowStep instance inherits from Program and consists of an instance
+    of Program with an associated instance of Sample or SampleSet.
+
+    It also possess an attribute 'func' which is used to construct the Program,
+    based on the Sample or SampleSet.
+    """
+
+    def __init__(
+        self,
+        program=None,
+        params=None,
+        sample=None,
+        default=True,
+        input_files=None,
+        output_files=None,
+        preffix_tag=None,
+    ):
+        """
+        :param program: Instance of bioprov.Program
+        :param params: Dictionary of parameters.
+        :param sample: An instance of Sample or SampleSet.
+        :param default: Whether to run the step by default.
+        :param input_files: A dictionary consisting of Parameter keys as keys and a File.tag
+                            as value, where File.tag is a string that must be a key in
+                            self.sample.files with a corresponding existing file.
+        :param output_files: A dictionary consisting of Parameter keys as keys and a tuple
+                             consisting of (File.tag, suffix) as value.
+                             File.tag will become a key in self.sample.files and the its value
+                             will be the sample_name + suffix.
+        :param preffix_tag: A value in the input_files argument, which corresponds
+                            to a key in self.sample.files. All file names of output
+                            files will be stemmed from this file, hence 'preffix'.
+        """
+        if program is None:
+            self.program = Program.__init__(self, params)
+            self.params = parse_params(params)
+        else:
+            assert isinstance(program, Program), warnings["incorrect_type"](
+                program, Program
+            )
+            self.program = program
+            self.params = program.params
+        self.sample = sample
+        self.default = default
+        if input_files is None:
+            input_files = dict()
+        if output_files is None:
+            output_files = dict()
+        self.input_files = input_files
+        self.output_files = output_files
+
+        if self.sample is not None:
+            self.create_func(preffix_tag)
+
+    def _parse_input_files(self):
+        """
+        Checks if input files exist and adds them to self.program.
+        :return: Updates self.program with the input files as parameters.
+        """
+        for k, tag in self.input_files.items():
+            # Check if it is in sample
+            try:
+                file_ = self.sample.files[tag]
+            except KeyError:
+                raise Exception(
+                    "Key '{}' not found in files dictionary of sample '{}':\n'{}'".format(
+                        tag, self.sample.name, self.sample.files
+                    )
+                )
+
+            # If in sample, check if it exists
+            assert file_.exists, warnings["not_exist"](file_)
+
+            # Finally, add file to program as a parameter.
+            param = Parameter(key=k, value=str(self.sample.files[tag]), kind="input")
+            self.program.add_parameter(param)
+
+    def _parse_output_files(self, preffix_tag=None):
+        """
+        Adds output files to self.sample and self.program.
+        :param preffix_tag: A tag of an input file which will be used as preffix to specify output files.0
+        :return: Updates self.program with the output files as parameters and0
+                 updates the 'files' attribute of self.sample.files.
+        """
+        if preffix_tag is None:
+            preffix = path.join("./", self.sample.name)
+        else:
+            # Check if it is in sample
+            try:
+                preffix, _ = path.splitext(str(self.sample.files[preffix_tag]))
+            except KeyError:
+                raise Exception(
+                    "Key '{}' not found in files dictionary of sample '{}':\n'{}'".format(
+                        preffix_tag, self.sample.name, self.sample.files
+                    )
+                )
+        try:
+            for key, (tag, suffix) in self.output_files.items():
+                self.sample.add_files({tag: preffix + suffix})
+                param = Parameter(
+                    key=key, value=str(self.sample.files[tag]), kind="output"
+                )
+                self.program.add_parameter(param)
+        except ValueError:
+            raise Exception(
+                "Please check the output files dictionary:\n'{}'\n"
+                "It must have the following structure: key: (tag, suffix)."
+            )
+
+    def create_func(self, preffix_tag=None):
+        """
+        :param preffix_tag: Argument to be passed to self._parse_output_files()
+        :return: Creates Program function for Sample.
+        """
+        assert isinstance(self.sample, Sample), warnings["incorrect_type"](
+            self.sample, Sample
+        )
+        assert isinstance(self.program, Program), warnings["incorrect_type"](
+            self.program, Program
+        )
+
+        self._parse_input_files()
+        self._parse_output_files(preffix_tag)
+
+
+def prodigal(sample):
+    _prodigal = WorkflowStep(
+        program=Program("prodigal"),
+        params=None,
+        sample=sample,
+        default=True,
+        input_files={"-i": "assembly"},
+        output_files={
+            "-a": ("proteins", "_proteins.faa"),
+            "-d": ("genes", "_genes.fna"),
+            "-s": ("scores", "_scores.fna"),
+        },
+        preffix_tag="assembly",
+    )
+    _prodigal.create_func()
+
+    return _prodigal
