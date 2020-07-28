@@ -28,7 +28,7 @@ def genome_annotation(**kwargs):
     # Create steps from preset programs.
     prodigal_preset, prokka_preset = prodigal(), prodigal()
     steps = [
-        Step(prodigal_preset, default=True, run=True),
+        Step(prodigal_preset, default=True),
         Step(prokka_preset, default=False),
     ]
 
@@ -41,9 +41,4 @@ def genome_annotation(**kwargs):
 
 if __name__ == "__main__":
     workflow = genome_annotation()
-    parser = workflow.parser
-    args = parser.parse_args()
-    workflow.input = args.input
-    workflow.input_type = args.input_type
-    steps = args.steps
-    workflow.run_steps(steps)
+    workflow.main()
