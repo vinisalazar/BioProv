@@ -45,6 +45,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     workflow.input = args.input
     workflow.input_type = args.input_type
-    workflow.steps = args.steps
-
-    workflow.run_steps()
+    steps = args.steps
+    workflow.run_steps(steps)

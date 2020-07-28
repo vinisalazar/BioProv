@@ -154,25 +154,10 @@ class Workflow:
         :return:
         """
         assert isinstance(step, Step), warnings["incorrect_type"](step, Step)
+        self.steps[step.name] = step
 
-        # Construct argument name and action
-        # for parser based on whether it's a default step
-        # If default is True, store_false and use '--skip'
-        # If default is False, store_true and use '--run'
-        arg_action = {False: "store_true", True: "store_false"}
-        action = {False: "run", True: "skip"}
-        arg_suffix = "--{}_".format(action)
-
-        # Get name and default state from step
-        name, default = step.name, step.default
-        arg_name = arg_suffix[default] + name
-        arg_help = "Whether to {} program '{}'. Default is {}".format(
-            action, name, default
-        )
-        self.parser.add_argument(
-            arg_name, help=arg_help, action=arg_action, default=default, required=False,
-        )
-        self.steps[name] = step
+    def run_steps(self, steps):
+        pass
 
     def _sampleset_from_dataframe(self, df):
         """
