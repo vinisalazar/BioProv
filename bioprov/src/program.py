@@ -100,6 +100,7 @@ class Program:
         self.run_ = run_
         run_.run(_print=_print)
         self.run_ = run_
+        return run_
 
 
 class Parameter:
@@ -404,7 +405,7 @@ class PresetProgram(Program):
         # Set new sample
         self.sample = sample
 
-        #
+        # Set preffix tag
         if preffix_tag is not None:
             self.preffix_tag = preffix_tag
 
@@ -414,7 +415,7 @@ class PresetProgram(Program):
 
         # Parse files
         self._parse_input_files()
-        self._parse_output_files(self.preffix_tag)
+        self._parse_output_files()
 
         # Set ready state
         self.ready = True
