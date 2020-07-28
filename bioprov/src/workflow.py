@@ -4,7 +4,6 @@ __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.0"
 
-
 """
 Contains the Workflow class and related functions.
 """
@@ -51,7 +50,7 @@ class Workflow:
         :param file_columns: Name of columns containing files if input_type is 'dataframe'.
                              Name of file tag if input_type is 'directory'.
         :param file_extensions: Extension of files if input_type is 'directory'.
-        :param steps: Dictionary mapping step name to a boolean value of whether it runs by default or not.
+        :param steps: Dictionary of steps. May also receive a list, tuple or None.
         :param parser: argparse.ArgumentParser object used to construct the workflow's command-line application.
         :param tag: Tag of the SampleSet being run.
         :param verbose: Verbose output of workflow.
@@ -66,9 +65,21 @@ class Workflow:
         self.index_col = index_col
         self.file_columns = file_columns
         self.file_extensions = file_extensions
-        if not steps:
-            steps = dict()
-        self.steps = steps
+        self.steps = (
+            dict()
+        )  # Will only update if isinstance(steps, (list, dict, tuple):
+
+        # Parse steps arg - dict
+        if isinstance(steps, dict):
+            for _, step in steps.items():
+                self.add_step(step)
+
+        # Parse steps arg - list
+        elif isinstance(steps, (list, tuple)):
+            self.steps = dict()
+            for step in steps:
+                self.add_step(step)
+
         self.parser = parser
         self.tag = tag
         self.verbose = verbose
@@ -93,7 +104,7 @@ class Workflow:
         if all(
             (item is not None for item in (self.name, self.description, self.steps))
         ):
-            self.parser = self.generate_parser()
+            self.generate_parser()
 
     def generate_sampleset(self):
         """
@@ -134,37 +145,7 @@ class Workflow:
             required=False,
         )
         parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
-        return parser
-
-    def add_step_to_parser(self, parser, step):
-        """
-        Adds a step to the workflow parser and to the steps attribute.
-        :param parser: self.parser
-        :param step: An instance of Step
-        :return: Updated self.steps and returns parser.
-        """
-        # Big assert block
-        assert (
-            len(step) == 3
-        ), "Step must be an iterator with only three values, (str, function, bool)"
-        name, function, default = step[0], step[1], step[2]
-        assert isinstance(default, bool), "'default"
-
-        # Construct argument name
-        arg_name = "--skip_" + name
-        arg_help = "Whether to skip program '{}' . Default is {}".format(
-            name, not default
-        )
-        actions = {False: "store_true", True: "store_false"}
-        arg_action = actions[default]
-
-        # Add argument to parser
-        parser.add_argument(
-            arg_name, help=arg_help, action=arg_action, default=default, required=False
-        )
-
-        self.steps[name] = {"function": function, "default": default}
-        return parser
+        self.parser = parser
 
     def add_step(self, step):
         """
@@ -179,8 +160,19 @@ class Workflow:
         # If default is True, store_false and use '--skip'
         # If default is False, store_true and use '--run'
         arg_action = {False: "store_true", True: "store_false"}
-        arg_suffix = {False: "--run_", True: "--skip_"}
-        arg_name = arg_suffix[step.default] + step.program.name
+        action = {False: "run", True: "skip"}
+        arg_suffix = "--{}_".format(action)
+
+        # Get name and default state from step
+        name, default = step.name, step.default
+        arg_name = arg_suffix[default] + name
+        arg_help = "Whether to {} program '{}'. Default is {}".format(
+            action, name, default
+        )
+        self.parser.add_argument(
+            arg_name, help=arg_help, action=arg_action, default=default, required=False,
+        )
+        self.steps[name] = step
 
     def _sampleset_from_dataframe(self, df):
         """
@@ -303,5 +295,6 @@ class Step(PresetProgram):
             preffix_tag=preffix_tag,
             generate_cmd=True,
         )
+        self.name = program.name
         self.default = default
         self.description = description
