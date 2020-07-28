@@ -13,7 +13,7 @@ import argparse
 import pandas as pd
 from glob import glob
 from bioprov import from_df, default_config, Program
-from bioprov.src.Program import PresetProgram
+from bioprov.src.program import PresetProgram
 from bioprov.utils import warnings
 from os import path
 

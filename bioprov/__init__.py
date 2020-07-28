@@ -11,16 +11,16 @@ Init module for package bioprov.
 Inherits objects from the src/ package.
 """
 
-from .src.Config import Config, default_config
-from .src.File import File
-from .src.Program import Program, Parameter, Run
-from .src.Sample import (
+from .src.config import Config, default_config
+from .src.file import File
+from .src.program import Program, Parameter, Run
+from .src.sample import (
     Sample,
     SampleSet,
     read_csv,
     from_df,
     from_json,
 )
-from .src.SequenceFile import SequenceFile
+from .src.sequencefile import SequenceFile
 
 name = "bioprov"

@@ -12,7 +12,7 @@ To-do:
     - implement ParameterDict
 """
 import datetime
-from bioprov.src.Sample import Sample
+from bioprov.src.sample import Sample
 from bioprov.utils import warnings
 from os import path
 from subprocess import Popen, PIPE, getoutput
