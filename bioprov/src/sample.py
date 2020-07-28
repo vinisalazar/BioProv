@@ -88,6 +88,15 @@ class Sample:
 
         return to_json(self, path, dict_only=dict_only, _print=_print)
 
+    def run(self, program, _print=True):
+        """
+        Run a Program or PresetProgram on Sample.
+        :param program: An instance of bioprov.Program or PresetProgram
+        :param _print: Whether to print output of Program.
+        :return: Runs the program for Sample.
+        """
+        program.run(sample=self, _print=print)
+
 
 class SampleSet:
     """

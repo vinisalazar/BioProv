@@ -458,6 +458,12 @@ class PresetProgram(Program):
         self.generic_cmd = generic_cmd
 
     def run(self, sample=None, preffix_tag=None):
+        """
+        Runs PresetProgram for sample.
+        :param sample: Instance of bioprov.Sample.
+        :param preffix_tag: Preffix tag to self.create_func()
+        :return:
+        """
         if sample is None:
             sample = self.sample
         if preffix_tag is None:
