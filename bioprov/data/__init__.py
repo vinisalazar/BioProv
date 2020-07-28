@@ -10,12 +10,18 @@ Contains example and test data.
 """
 
 from pathlib import Path
+from bioprov.src.Sample import Sample
 
 data_dir = Path(__file__).parent
 genomes_dir = Path.joinpath(data_dir, "genomes")
 datasets_dir = Path.joinpath(data_dir, "datasets")
 synechococcus_genome = Path.joinpath(
     genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna"
+)
+synechococcus_sample = Sample(
+    "GCF_000010065.1_ASM1006v1",
+    files={"assembly": synechococcus_genome},
+    tag="Synechococcus_elongatus_PCC_6301",
 )
 
 # To-do: Join these two as the same
