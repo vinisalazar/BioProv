@@ -10,49 +10,29 @@ Module for holding preset instances of the Program class.
 """
 
 from os import path
-from bioprov import default_config, Program, Parameter, File
+from bioprov import default_config, File
+from bioprov.src.program import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, warnings
 
 
-def prodigal(
-    _sample,
-    assembly="assembly",
-    genes="genes",
-    proteins="proteins",
-    scores="scores",
-    write_scores=False,
-):
+def prodigal():
     """
-    :param _sample: An instance of BioProv Sample.
-    :param assembly: Name of assembly file.
-    :param genes: Name of genes file.
-    :param proteins: Name of proteins file.
-    :param scores: Name of scores file.
-    :param write_scores: bool Whether to write the scores file. Default is False because they are BIG.
-    :return:
+    :return: Instance of PresetProgram containing Prodigal.
     """
-    file_preffix, _ = path.splitext(str(_sample.files[assembly].path))
-    _sample.add_files(
-        {
-            proteins: file_preffix + "_proteins.faa",
-            genes: file_preffix + "_genes.fna",
-            scores: file_preffix + "_score.cds",
-        }
+    _prodigal = PresetProgram(
+        program=Program("prodigal"),
+        input_files={"-i": "assembly"},
+        output_files={
+            "-a": ("proteins", "_proteins.faa"),
+            "-d": ("genes", "_genes.fna"),
+            "-s": ("scores", "_scores.fna"),
+        },
+        preffix_tag="assembly",
     )
-    prodigal_ = Program("prodigal",)
-    params = (
-        Parameter(key="-i", value=str(_sample.files[assembly]), kind="input"),
-        Parameter(key="-a", value=str(_sample.files[proteins]), kind="output"),
-        Parameter(key="-d", value=str(_sample.files[genes]), kind="output"),
-        Parameter(key="-s", value=str(_sample.files[scores]), kind="output"),
-    )
-    for param in params:
-        if param.key == "-s":
-            if not write_scores:
-                pass
-        prodigal_.add_parameter(param, _print=False)
 
-    return prodigal_
+    _prodigal.generate_cmd()
+
+    return _prodigal
 
 
 def prokka(
