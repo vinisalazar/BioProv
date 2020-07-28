@@ -12,9 +12,9 @@ Contains the Workflow class and related functions.
 import argparse
 import pandas as pd
 from glob import glob
-from bioprov import from_df, default_config, Program
-from bioprov.src.program import PresetProgram
+from bioprov import from_df, default_config
 from bioprov.utils import warnings
+from bioprov.src.program import PresetProgram
 from os import path
 
 
@@ -136,12 +136,11 @@ class Workflow:
         parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
         return parser
 
-    def add_step(self, parser, step):
+    def add_step_to_parser(self, parser, step):
         """
         Adds a step to the workflow parser and to the steps attribute.
         :param parser: self.parser
-        :param step: A tuple consisting of (str, function, bool), where default is a boolean value.
-                     Which defines if the step is by default included in the workflow.
+        :param step: An instance of Step
         :return: Updated self.steps and returns parser.
         """
         # Big assert block
@@ -166,6 +165,22 @@ class Workflow:
 
         self.steps[name] = {"function": function, "default": default}
         return parser
+
+    def add_step(self, step):
+        """
+        Updates self.parser and self.steps with an instance of Step.
+        :param step: An instance of Step containing a PresetProgram.
+        :return:
+        """
+        assert isinstance(step, Step), warnings["incorrect_type"](step, Step)
+
+        # Construct argument name and action
+        # for parser based on whether it's a default step
+        # If default is True, store_false and use '--skip'
+        # If default is False, store_true and use '--run'
+        arg_action = {False: "store_true", True: "store_false"}
+        arg_suffix = {False: "--run_", True: "--skip_"}
+        arg_name = arg_suffix[step.default] + step.program.name
 
     def _sampleset_from_dataframe(self, df):
         """
@@ -260,25 +275,33 @@ class Workflow:
         return sampleset
 
 
-def prodigal(sample):
+class Step(PresetProgram):
     """
-    Creates an instance of Prodigal for a sample.
-    :param sample: Instance of bioprov.Sample
-    :return: An instance of WorkflowStep associated with sample.
-    """
-    _prodigal = PresetProgram(
-        program=Program("prodigal"),
-        params=None,
-        sample=sample,
-        default=True,
-        input_files={"-i": "assembly"},
-        output_files={
-            "-a": ("proteins", "_proteins.faa"),
-            "-d": ("genes", "_genes.fna"),
-            "-s": ("scores", "_scores.fna"),
-        },
-        preffix_tag="assembly",
-    )
-    _prodigal.create_func()
+    Class for holding workflow steps.
 
-    return _prodigal
+    Steps are basically PresetProgram instances but they do not have
+    any Sample associated with them, and alawys generate command strings.
+
+    They have two extra attributes:
+    """
+
+    def __init__(
+        self,
+        program,
+        params,
+        input_files,
+        output_files,
+        preffix_tag,
+        default=False,
+        description="",
+    ):
+        super().__init__(
+            program=program,
+            params=params,
+            input_files=input_files,
+            output_files=output_files,
+            preffix_tag=preffix_tag,
+            generate_cmd=True,
+        )
+        self.default = default
+        self.description = description
