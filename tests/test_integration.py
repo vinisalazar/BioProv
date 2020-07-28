@@ -50,7 +50,8 @@ def test_integration(debug=False):
     )  # And another with add_file()
 
     # Run Program on sample
-    run = program_.run(sample=sample)
+    _ = program_.run(sample=sample)
+    run = program_.run_
 
     # Assert block
     assert protein_file.exists

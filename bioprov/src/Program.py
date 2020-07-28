@@ -47,6 +47,7 @@ class Program:
         self.path = path
         self.version = version
         self.cmd = cmd
+        self.run_ = Run(self)
         if tag is None:
             self.tag = self.name
         if path is None:
@@ -90,9 +91,12 @@ class Program:
         :param _print: Argument to pass to Run.run()
         :return: An instance of Run class.
         """
-        run = Run(self, sample=sample)
-        run.run(_print=_print)
-        return run
+
+        # Update self._run, run self.run() and update self._run again.
+        run_ = Run(self, sample=sample)
+        self.run_ = run_
+        run_.run(_print=_print)
+        self.run_ = run_
 
 
 class Parameter:
@@ -141,6 +145,8 @@ class Parameter:
             if self.key is None:
                 self.cmd_string = ""
             else:
+                if not isinstance(self.value, str):
+                    self.value = str(self.value)
                 self.cmd_string = self.key + " " + self.value
 
     def __repr__(self):
