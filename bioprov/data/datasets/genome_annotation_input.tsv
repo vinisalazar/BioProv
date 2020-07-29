@@ -1,2 +1,2 @@
-path	label
-/Users/vini/Bio/BioProv/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna	Synechococcus elongatus PCC 6301
+sample-id	assembly
+GCF_000010065.1_ASM1006v1_genomic.fna	/Users/vini/Bio/BioProv/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna
