@@ -25,7 +25,7 @@ def prodigal():
         output_files={
             "-a": ("proteins", "_proteins.faa"),
             "-d": ("genes", "_genes.fna"),
-            "-s": ("scores", "_scores.fna"),
+            "-s": ("scores", "_scores.cds"),
         },
         preffix_tag="assembly",
     )
