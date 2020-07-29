@@ -66,6 +66,7 @@ class Workflow:
         self.index_col = index_col
         self.file_columns = file_columns
         self.file_extensions = file_extensions
+        self.default_steps = []  # Must be added by add_step()
         self.steps = (
             dict()
         )  # Will only update if isinstance(steps, (list, dict, tuple):
@@ -119,7 +120,11 @@ class Workflow:
         self.sampleset = _generate_sampleset[self.input_type]
 
     def generate_parser(self):
-        parser = argparse.ArgumentParser(self.name, description=self.description)
+        parser = argparse.ArgumentParser(
+            self.name,
+            description=self.description,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        )
         parser.add_argument(
             "-i",
             "--input",
@@ -134,7 +139,7 @@ class Workflow:
         parser.add_argument(
             "-c",
             "--cpus",
-            help="Number of CPUs. Default is set in BioProv config (half of the CPUs).",
+            help="Default is set in BioProv config (half of the CPUs).",
             default=default_config.threads,
         )
         parser.add_argument(
@@ -145,6 +150,14 @@ class Workflow:
             required=False,
         )
         parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
+        parser.add_argument(
+            "--steps",
+            help="A comma-delimited string of which steps will be run in the workflow.\nPossible steps:\n{}".format(
+                list(self.steps.keys())
+            ),
+            default=self.default_steps,
+        ),
+
         self.parser = parser
 
     def add_step(self, step):
@@ -154,13 +167,24 @@ class Workflow:
         :return:
         """
         assert isinstance(step, Step), warnings["incorrect_type"](step, Step)
+        if step.default:
+            self.default_steps.append(step.name)
         self.steps[step.name] = step
+        # Update parser:
+        self.generate_parser()
 
     def run_steps(self, steps_to_run):
         """
         Runs steps for each sample.
+        :param steps_to_run: Comma-delimited string of steps to run.
         :return:
         """
+        steps_to_run = steps_to_run.split(",")
+        assert len(
+            steps_to_run
+        ), "Invalid steps to run:\n'{}'\nPlease provide a comma-delimited string.".format(
+            steps_to_run
+        )
         for k, step in self.steps.items():
             if k in steps_to_run:
                 for _, sample in tqdm(self.sampleset.items()):
@@ -269,8 +293,8 @@ class Workflow:
         Parses command-line arguments and runs the workflow.
         :return:
         """
-        parser = self.parser
-        args = parser.parse_args()
+        self.generate_parser()
+        args = self.parser.parse_args()
         self.input = args.input
         self.input_type = args.input_type
         steps = args.steps
@@ -288,24 +312,18 @@ class Step(PresetProgram):
     """
 
     def __init__(
-        self,
-        program,
-        params,
-        input_files,
-        output_files,
-        preffix_tag,
-        default=False,
-        description="",
+        self, preset_program, default=False, description="",
     ):
-        super().__init__(
-            program=program,
-            params=params,
-            input_files=input_files,
-            output_files=output_files,
-            preffix_tag=preffix_tag,
-            generate_cmd=True,
+        super(Step, self).__init__(
+            preset_program.program,
+            preset_program.params,
+            preset_program.sample,
+            preset_program.input_files,
+            preset_program.output_files,
+            preset_program.preffix_tag,
+            preset_program.generate_cmd,
         )
-        self.name = program.name
+        self.name = self.program.name
         self.default = default
         self.description = description
         self.successes = 0
