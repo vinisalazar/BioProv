@@ -51,10 +51,14 @@ class Program:
         self.version = version
         self.cmd = cmd
         self.run_ = Run(self)
+        self._getoutput = getoutput("which {}".format(self.name))
+        self.found = (
+            "command not found" not in self._getoutput and self._getoutput != ""
+        )
         if tag is None:
             self.tag = self.name
         if path_to_bin is None:
-            self.path = getoutput(f"which {self.name}")
+            self.path = self._getoutput
         if cmd is None:
             self.cmd = self.generate_cmd()
         if version is None:
@@ -116,6 +120,8 @@ class Parameter:
         cmd_string=None,
         description=None,
         kind=None,
+        keyword_argument=True,
+        position=-1,
     ):
         """
         :param key: Key of the parameter, e.g. '-h' for help command.
@@ -125,6 +131,12 @@ class Parameter:
         :param cmd_string: String representation of the parameter in a command.
         :param description: description of the parameter.
         :param kind: Kind of parameter. May be 'input', 'output', 'misc', or None.
+        :param keyword_argument: Whether the parameter is a keyword argument.
+                                 Keyword arguments have a key, which is used to build
+                                 the program's command. If this is false, it is assumed
+                                 that the parameter is a positional argument, and 'position'
+                                 will indicate it's index if the command line was split as a list.
+        :param position: Index of insertion of parameter in command-line if it is a positional argument.
         """
         self.key = key
         self.program = program
@@ -134,6 +146,8 @@ class Parameter:
         self.description = description
         self.kind = kind
         self.dict = {key: value}
+        self.keyword_argument = keyword_argument
+        self.position = position
 
         assert kind in {
             "input",
@@ -150,7 +164,10 @@ class Parameter:
             else:
                 if not isinstance(self.value, str):
                     self.value = str(self.value)
-                self.cmd_string = self.key + " " + self.value
+                if keyword_argument:
+                    self.cmd_string = self.key + " " + self.value
+                else:
+                    self.cmd_string = self.value
 
     def __repr__(self):
         return self.cmd_string
@@ -241,9 +258,8 @@ class Run(Program):
             _sample = self.sample
 
         # Declare process and start time
-        program_exists = "command not found" not in getoutput(self.program.name)
         assert (
-            program_exists
+            self.program.found
         ), "Cannot find program {}. Make sure it is on your $PATH.".format(self.name)
         if _print:
             str_ = f"Running program '{self.program.name}'"
@@ -316,6 +332,7 @@ class PresetProgram(Program):
             )
             self.program = program
             self.params = program.params
+        self.name = self.program.name
         self.sample = sample
         if input_files is None:
             input_files = dict()
@@ -361,7 +378,9 @@ class PresetProgram(Program):
             assert file_.exists, warnings["not_exist"](file_)
 
             # Finally, add file to program as a parameter.
-            param = Parameter(key=k, value=str(self.sample.files[tag]), kind="input")
+            param = Parameter(
+                key=k, value=str(self.sample.files[tag]), kind="input", tag=tag
+            )
             self.program.add_parameter(param)
 
     def _parse_output_files(self):
@@ -386,7 +405,7 @@ class PresetProgram(Program):
             for key, (tag, suffix) in self.output_files.items():
                 self.sample.add_files({tag: preffix + suffix})
                 param = Parameter(
-                    key=key, value=str(self.sample.files[tag]), kind="output"
+                    key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
                 self.program.add_parameter(param)
         except ValueError:
@@ -437,24 +456,28 @@ class PresetProgram(Program):
             self.program, Program
         )
 
-    def generate_cmd(self):
+    def generate_cmd(self, from_files=True):
         """
         Generates a wildcard command string, independent of samples.
+        :param from_files: Generate command from self.input_files and
+                                                 self.output_files (recommended)
+                           If False, will generate from parameter dictionary instead.
         :return: Updates self.generic_cmd.
         """
         self.validate_program()
-        generic_cmd = (
-            self.program.cmd
-        )  # Misc parameters will be inherited from self.program
 
-        # Add input files
-        for k, tag in self.input_files.items():
-            generic_cmd += " {} 'sample.files['{}'].path'".format(k, tag)
+        # Add parameters to command
+        params_ = self.params
+        for k, parameter in params_.items():
+            # Replace file names with place holders.
+            if parameter.kind in ("input", "output"):
+                parameter.value = "sample.files['{}']".format(parameter.tag)
+            else:
+                pass
+        # Now parse resulting output
+        generic_cmd = generate_param_str(params_)
 
-        # Add output files
-        for k, (tag, _) in self.output_files.items():
-            generic_cmd += " {} 'sample.files['{}'].path'".format(k, tag)
-
+        # Update self
         self.generic_cmd = generic_cmd
 
     def run(self, sample=None, _print=True, preffix_tag=None):
@@ -509,14 +532,17 @@ def generate_param_str(params):
     :param params: Dictionary of parameters.
     :return:
     """
-    str_ = ""
+    str_, pos_args = "", []  # Positional arguments are added in the last bit
     if not params:
         return str_
     elif params:
         for k, v in params.items():
             # If is a Parameter class instance, we inherit the corresponding tags.
             if isinstance(v, Parameter):
-                str_ += v.cmd_string + " "
+                if v.keyword_argument:
+                    str_ += v.cmd_string + " "
+                else:
+                    pos_args.append(v)
             else:
                 str_ += (
                     k + " " + v + " "
@@ -526,4 +552,10 @@ def generate_param_str(params):
         # To-do: add more parameters options. List of tuples, List of Parameter instances, etc.
         print("Must provide either a string or a dictionary for the parameters!")
         raise TypeError
+    # Add positional arguments
+    split_str = param_str.split()
+    for arg in pos_args:
+        split_str.insert(arg.position, arg.value)
+    param_str = " ".join(split_str).strip()
+
     return param_str
