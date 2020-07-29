@@ -113,11 +113,10 @@ class Workflow:
         :return: SampleSet instance.
         """
         _generate_sampleset = {
-            "dataframe": self._load_dataframe_input(),
-            "directory": self._load_directory_input(),
+            "dataframe": self._load_dataframe_input,
+            "directory": self._load_directory_input,
         }
-
-        self.sampleset = _generate_sampleset[self.input_type]
+        self.sampleset = _generate_sampleset[self.input_type]()
 
     def generate_parser(self):
         parser = argparse.ArgumentParser(
@@ -179,17 +178,19 @@ class Workflow:
         :param steps_to_run: Comma-delimited string of steps to run.
         :return:
         """
-        steps_to_run = steps_to_run.split(",")
+        if isinstance(steps_to_run, str):
+            steps_to_run = steps_to_run.split(",")
         assert len(
             steps_to_run
         ), "Invalid steps to run:\n'{}'\nPlease provide a comma-delimited string.".format(
             steps_to_run
         )
+        if self.sampleset is None:
+            self.generate_sampleset()
         for k, step in self.steps.items():
             if k in steps_to_run:
                 for _, sample in tqdm(self.sampleset.items()):
-                    p = step.program(sample=sample)
-                    _run = p.run(_print=self.verbose)
+                    _run = step.run(sample, _print=self.verbose)
                     if not _run.stderr:  # Add to successes if no standard error.
                         step.successes += 1
             else:
@@ -260,10 +261,13 @@ class Workflow:
         input_ = self.input
         file_columns = self.file_columns
 
-        # Assert block
+        # Assert input file exists
         assert path.isfile(input_), warnings["not_exist"]
 
+        # Read input
         df = pd.read_csv(input_, sep=self.sep)
+
+        # Assert index_col exists in df.columns
         assert (
             index_col in df.columns
         ), "Column '{}' is not in input file '{}'. Please check file.".format(
@@ -271,9 +275,21 @@ class Workflow:
         )
 
         # Processing files
-        if isinstance(file_columns, str):  # Make sure is iterator
-            file_columns = (file_columns,)
-            self.file_columns = file_columns
+        if isinstance(file_columns, str):  # Make sure is a LIST
+            file_columns = [
+                file_columns,
+            ]
+        elif isinstance(file_columns, tuple):
+            file_columns = list(file_columns)
+        self.file_columns = file_columns
+
+        # Assert all file columns exists in df.columns
+        for col in self.file_columns:
+            assert (
+                col in df.columns
+            ), "File column '{}' is not in input file '{}'. Please check file.".format(
+                col, self.input
+            )
 
         # Check if files exist
         for ix, row in df[file_columns].iterrows():
