@@ -5,5 +5,5 @@ __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.0"
 
 
-from .genome_annotation import GenomeAnnotation
+from .genome_annotation import genome_annotation
 from .kaiju import KaijuWorkflow
