@@ -1,3 +1,10 @@
+__author__ = "Vini Salazar"
+__license__ = "MIT"
+__maintainer__ = "Vini Salazar"
+__url__ = "https://github.com/vinisalazar/bioprov"
+__version__ = "0.1.0"
+
+
 """
 Testing module for the package BioProv.
 
@@ -46,7 +53,8 @@ def test_import_packages():
     """
     try:
         from bioprov.data import data_dir, genomes_dir, synechococcus_genome
-        from bioprov.programs import prodigal
+        from bioprov.programs import prodigal, prokka, kaiju, kaiju2table
         from bioprov.cli import WorkflowOptionsParser
+        from bioprov.workflows import KaijuWorkflow, GenomeAnnotation
     except ImportError:
         raise

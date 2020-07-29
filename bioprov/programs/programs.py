@@ -1,3 +1,10 @@
+__author__ = "Vini Salazar"
+__license__ = "MIT"
+__maintainer__ = "Vini Salazar"
+__url__ = "https://github.com/vinisalazar/bioprov"
+__version__ = "0.1.0"
+
+
 """
 Module for holding preset instances of the Program class.
 """
@@ -5,6 +12,7 @@ Module for holding preset instances of the Program class.
 from os import path
 from bioprov import Program, Parameter, File
 from bioprov import config
+from bioprov.utils import assert_tax_rank, warnings
 
 
 def prodigal(
@@ -142,20 +150,99 @@ def prokka(
 def kaiju(
     _sample,
     output_path=None,
-    nodes=None,
+    kaijudb="",
+    nodes="",
     threads=config.threads,
     r1="R1",
     r2="R2",
     add_param_str="",
 ):
     """
-    Run Kaiju on paired-end metagenomic data
+    Run Kaiju on paired-end metagenomic data.
     :param _sample: An instance of BioProv sample.
-    :param output_path: Output directory of Kaiju.
-    :param nodes: Nodes file to use with Kaiju.
+    :param output_path: Output file of Kaiju.
+    :param kaijudb: Path to Kaiju database.
+    :param nodes: Nodes file to use with Kaiju.False
     :param threads: Threads to use with Kaiju.
     :param r1: Tag of forward reads.
     :param r2: Tag of reverse reads.
     :param add_param_str: Add any paremeters to Kaiju.
     :return: An instance of Program, containing Kaiju.
     """
+    kaiju_out_name = _sample.name + "_kaiju.out"
+    if output_path is None:
+        output_path = path.join(_sample.files[r1].directory, kaiju_out_name,)
+    else:
+        output_path = path.join(output_path, kaiju_out_name)
+    _sample.add_files(File(output_path, tag="kaiju_output"))
+
+    kaiju_ = Program("kaiju")
+
+    params = (
+        Parameter(key="-t", value=nodes, kind="misc"),
+        Parameter(key="-i", value=str(_sample.files[r1]), kind="input"),
+        Parameter(key="-j", value=str(_sample.files[r2]), kind="input"),
+        Parameter(key="-f", value=kaijudb, kind="input"),
+        Parameter(key="-z", value=threads, kind="misc"),
+        Parameter(key="-o", value=output_path, kind="output"),
+    )
+    for p in params:
+        kaiju_.add_parameter(p, _print=False)
+
+    if add_param_str:
+        kaiju_.cmd += " {}".format(add_param_str)
+
+    return kaiju_
+
+
+def kaiju2table(
+    _sample,
+    output_path=None,
+    rank="phylum",
+    nodes="",
+    names="",
+    kaiju_output="kaiju_output",
+    add_param_str="",
+):
+    """
+    Run kaiju2table to create Kaiju reports.
+    :param _sample: An instance of BioProv sample.
+    :param output_path: Output file of kaiju2table.
+    :param rank: Taxonomic rank to create report of.
+    :param nodes: Nodes file to use with kaiju2table.
+    :param names: Names file to use with kaiju2table.
+    :param kaiju_output: Tag of Kaiju output file.
+    :param add_param_str: Parameter string to add.
+    :return: Instance of Program containing kaiju2table.
+    """
+    # Assertion statement for rank argument.
+    assert_tax_rank(rank), warnings["invalid_tax_rank"](rank)
+
+    kaiju_report_suffix = "kaiju_report_{}".format(rank)
+    kaiju_report_out = "{}_{}".format(_sample.name, kaiju_report_suffix)
+
+    # Format output_path
+    if output_path is None:
+        output_path = path.join(
+            _sample.files[kaiju_output].directory, kaiju_report_out + ".tsv"
+        )
+    _sample.add_files(File(output_path, tag=kaiju_report_suffix))
+
+    kaiju2table_ = Program("kaiju2table")
+    params = (
+        Parameter("-o", str(_sample.files[kaiju_report_suffix]), kind="output"),
+        Parameter("-t", nodes, kind="misc"),
+        Parameter("-n", names, kind="misc"),
+        Parameter("-r", rank, kind="misc"),
+    )
+
+    for p in params:
+        kaiju2table_.add_parameter(p, _print=False)
+
+    # Add final parameter:
+    kaiju2table_.cmd += " {}".format(str(_sample.files[kaiju_output]))
+
+    if add_param_str:
+        kaiju2table_.cmd += " {}".format(add_param_str)
+
+    return kaiju2table_

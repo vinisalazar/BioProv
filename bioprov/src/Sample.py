@@ -1,3 +1,10 @@
+__author__ = "Vini Salazar"
+__license__ = "MIT"
+__maintainer__ = "Vini Salazar"
+__url__ = "https://github.com/vinisalazar/bioprov"
+__version__ = "0.1.0"
+
+
 """
 Contains the Sample and SampleSet classes and related functions.
 """
@@ -24,6 +31,9 @@ class Sample:
         :param files: Dictionary of files associated with the sample.
         :param attributes: Dictionary of any other attributes associated with the sample.
         """
+        if isinstance(name, str):
+            name = name.replace(" ", "_")  # No space, will use it for filenames.
+
         self.name = name
         self.tag = tag
         if isinstance(files, dict):
@@ -58,30 +68,11 @@ class Sample:
 
     def add_files(self, files):
         """
-        Adds file(s) to self.files. Must be a dict or an instance or iterable of bioprov.File.
-        :param files: bioprov.File list, instance or dict with key, value where value is the file path.
-        :return: Updates self by adding the file to self.files
+        Sample method to add files.
+        :param files: See input to add_files function.
+        :return: Adds files to Sample
         """
-
-        # If it is a dict, we convert to File instances
-        if isinstance(files, dict):
-            files = {k: File(v, tag=k) for k, v in files.items()}
-
-        # If it is an iterable of File instances, transform to a dict
-        elif isinstance(files, list):
-            files = {file.name: file for file in files}
-
-        # If it is a single item, also transform to dict
-        elif isinstance(files, File):
-            files = {
-                files.tag: files
-            }  # Grabs by tag because it is File.name by default
-
-        # Here files must be a dictionary of File instances
-        for k, v in files.items():
-            if k in self.files.keys():
-                print(f"Updating file {k} with value {v}.")
-            self.files[k] = v
+        add_files(self, files)
 
     def to_json(self, path=None, dict_only=False, _print=True):
         """
@@ -114,10 +105,14 @@ class SampleSet:
         )  # Checks if `samples` is a valid constructor.
         samples = self.build_sample_dict(samples)
         self._samples = samples
+        self.files = dict()
         self.tag = tag
 
     def __len__(self):
         return len(self._samples)
+
+    def __repr__(self):
+        return f"SampleSet with {len(self._samples)} samples."
 
     def __getitem__(self, item):
         try:
@@ -143,8 +138,13 @@ class SampleSet:
     def items(self):
         return self._samples.items()
 
-    def __repr__(self):
-        return f"SampleSet with {len(self._samples)} samples."
+    def add_files(self, files):
+        """
+        SampleSet method to add files.
+        :param files: See input to add_files function.
+        :return: Adds files to SampleSet
+        """
+        add_files(self, files)
 
     @staticmethod
     def is_sample_and_name(sample):
@@ -218,6 +218,40 @@ class SampleSet:
             else:
                 pass
         return to_json(self, path, dict_only=dict_only, _print=_print)
+
+
+def add_files(object_, files):
+    """
+        Adds file(s) to object. Must be a dict or an instance or iterable of bioprov.File.
+        :param object_: A Sample or SampleSet instance.
+        :param files: bioprov.File list, instance or dict with key, value where value is the file path.
+        :return: Updates self by adding the file to object.
+        """
+
+    # Assert it is adding to correct object
+    assert isinstance(
+        object_, (Sample, SampleSet)
+    ), "Can't add file to type '{}'. Can only add file to Sample or SampleSet object.".format(
+        type(object_)
+    )
+
+    # If it is a dict, we convert to File instances
+    if isinstance(files, dict):
+        files = {k: File(v, tag=k) for k, v in files.items()}
+
+    # If it is an iterable of File instances, transform to a dict
+    elif isinstance(files, list):
+        files = {file.name: file for file in files}
+
+    # If it is a single item, also transform to dict
+    elif isinstance(files, File):
+        files = {files.tag: files}  # Grabs by tag because it is File.name by default
+
+    # Here files must be a dictionary of File instances
+    for k, v in files.items():
+        if k in object_.files.keys():
+            print(f"Updating file {k} with value {v}.")
+        object_.files[k] = v
 
 
 def to_json(samplelike, path=None, dict_only=False, _print=True):
@@ -301,6 +335,8 @@ def from_df(
     samples = from_df('sample.tsv', sep="\t")
 
     type(samples)  # bioprov.Sample.SampleSet.
+
+    You can select columns to be added as Files or SequenceFile instances.
     '''
     :param df: A pandas DataFrame
     :param index_col: A column to be used as index. Must be in df.columns. If int is passed, will get it from columns.

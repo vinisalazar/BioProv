@@ -1,16 +1,36 @@
 #!/usr/bin/env python
+__author__ = "Vini Salazar"
+__license__ = "MIT"
+__maintainer__ = "Vini Salazar"
+__url__ = "https://github.com/vinisalazar/bioprov"
+__version__ = "0.1.0"
+
+
+"""
+Genome annotation workflow module.
+
+'Genome annotation with Prodigal, Prokka and the COG database.'
+
+This can be run by itself as a script or called
+with the BioProv CLI application (recommended).
+"""
+
 import argparse
 import sys
 from os import path, listdir
 import pandas as pd
-import bioprov as bp
+from bioprov import from_df, config
+from bioprov.utils import warnings
 from bioprov.programs import prodigal, prokka
+from tqdm import tqdm
 
 
 class GenomeAnnotation:
-    description = """
-Genome annotation with Prodigal, Prokka and the COG database.
-"""
+    """
+    Class holding the GenomeAnnotation main function and parser.
+    """
+
+    description = "Genome annotation with Prodigal, Prokka and the COG database."
 
     def __init__(self):
         pass
@@ -28,6 +48,8 @@ Genome annotation with Prodigal, Prokka and the COG database.
         _directory_input=False,
     ):
         """
+        Main function to run the GenomeAnnotation workflow.
+
         :param _input_path: A tab delimited file where assembly files are the first column
         :param labels: Name of the column containing the labels.
         :param files: Name of the column containing the files.
@@ -48,10 +70,9 @@ Genome annotation with Prodigal, Prokka and the COG database.
         dataframe.columns = (files, *dataframe.columns[1:])
         dataframe[files] = dataframe[files].apply(lambda s: path.abspath(s))
         for file in dataframe[files]:
-            assert path.isfile(
-                file
-            ), f"{file} was not found! Please check the correct path."
-        print(f"Loading {len(dataframe)} samples.")
+            assert path.isfile(file), warnings["not_exist"](file)
+
+        print(warnings["sample_loading"](len(dataframe)))
 
         # Parse labels
         if labels is not None:
@@ -62,17 +83,17 @@ Genome annotation with Prodigal, Prokka and the COG database.
                 lambda s: path.splitext(path.basename(s))[0]
             )
 
-        ss = bp.from_df(dataframe, index_col="label", sequencefile_cols=files)
+        # Create BioProv SampleSet
+        ss = from_df(dataframe, index_col="label", sequencefile_cols=files)
         for k, sample in ss.items():
             sample.files["assembly"] = sample.files.pop(
                 files
             )  # rename whatever the files column was called.
         ss.tag = _tag
 
-        ix, success = 1, 0
+        success = 0
 
-        for k, sample in ss.items():
-            print(f"Processing sample {ix}/{len(dataframe)}.")
+        for k, sample in tqdm(ss.items()):
 
             # Prodigal block
             prodigal_ = prodigal(sample)
@@ -89,13 +110,17 @@ Genome annotation with Prodigal, Prokka and the COG database.
                     print(prokka_run_)
             if all(file_.exists for _, file_ in sample.files.items()):
                 success += 1
-            ix += 1
+
+        print(warnings["number_success"](success, len(dataframe)))
 
         ss.to_json()
-        print(f"Ran successfully for {success}/{len(dataframe)} samples.")
 
     @classmethod
     def parser(cls):
+        """
+        Parser for the GenomeAnnotation workflow.
+        :return: instance of argparse.ArgumentParser.
+        """
         _parser = argparse.ArgumentParser(
             "genome_annotation", description=GenomeAnnotation.description,
         )
@@ -165,7 +190,7 @@ Genome annotation with Prodigal, Prokka and the COG database.
             "-p",
             "--threads",
             help="Number of threads. Default is set in BioProv config (half of the threads).",
-            default=bp.config.threads,
+            default=config.threads,
         )
         return _parser
 

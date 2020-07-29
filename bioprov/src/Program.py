@@ -1,3 +1,10 @@
+__author__ = "Vini Salazar"
+__license__ = "MIT"
+__maintainer__ = "Vini Salazar"
+__url__ = "https://github.com/vinisalazar/bioprov"
+__version__ = "0.1.0"
+
+
 """
 Contains the Program, Parameter and Run class and related functions.
 
@@ -76,14 +83,15 @@ class Program:
         if _print:
             print(f"Added parameter {k} with value '{v}' to program {self.name}")
 
-    def run(self, sample=None):
+    def run(self, sample=None, _print=True):
         """
         Runs the process.
         :param sample: An instance of the Sample class
+        :param _print: Argument to pass to Run.run()
         :return: An instance of Run class.
         """
         run = Run(self, sample=sample)
-        run.run()
+        run.run(_print=_print)
         return run
 
 
@@ -212,21 +220,29 @@ class Run(Program):
         dict_ = {True: "Finished", False: "Pending"}
         return dict_[finished_status]
 
-    def run(self, print_=True):
+    def run(self, _sample=None, _print=True):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
+        :type _print: bool
+        :param _sample: self.sample
         :return: self.stdout
         """
+        if _sample is None:
+            _sample = self.sample
+
         # Declare process and start time
         program_exists = "command not found" not in getoutput(self.program.name)
-        assert program_exists, "Cannot find program. Make sure it is on your $PATH."
-        if print_:
+        assert (
+            program_exists
+        ), "Cannot find program {}. Make sure it is on your $PATH.".format(self.name)
+        if _print:
             str_ = f"Running program '{self.program.name}'"
-            if self.sample is not None:
-                str_ += f" for sample {self.sample.name}."
+            if _sample is not None:
+                str_ += f" for sample {_sample.name}."
             else:
                 str_ += "."
+            str_ += "\nCommand is:\n{}".format(self.program.cmd)
             print(str_)
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
