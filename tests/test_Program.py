@@ -19,6 +19,7 @@ from bioprov.src.program import (
     Program,
     Run,
 )
+from bioprov.utils import random_string
 
 
 def test_Program():
@@ -30,6 +31,7 @@ def test_Program():
         "name": "prodigal",
         "params": {"-h": ""},
         "tag": "gene annotation",
+        "found": True,
         "version": "Prodigal V2.6.3: February, 2016",
     }
     p = Program(name="prodigal")
@@ -40,6 +42,11 @@ def test_Program():
             setattr(p, attr, v)
         assert getattr(p, attr) == v, f"{attr} attribute is wrong!"
     assert p.cmd == p.generate_cmd()
+    r32 = random_string(32)
+    some_random_program = Program(r32)
+    assert (
+        not some_random_program.found
+    ), "You shouldn't a program called {} lying around!".format(r32)
 
 
 def test_Parameter():
