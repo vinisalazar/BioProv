@@ -471,9 +471,7 @@ class PresetProgram(Program):
             preffix_tag = self.preffix_tag
         if not self.ready:
             self.create_func(sample, preffix_tag)
-            self.run(sample, preffix_tag)
-        else:
-            self.run(sample, preffix_tag)
+        self.program.run(sample, preffix_tag)
 
 
 def parse_params(params, program=None):

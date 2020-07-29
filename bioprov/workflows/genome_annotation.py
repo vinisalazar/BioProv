@@ -96,9 +96,10 @@ class GenomeAnnotation:
         for k, sample in tqdm(ss.items()):
 
             # Prodigal block
-            prodigal_ = prodigal(sample)
+            prodigal_ = prodigal()
+            prodigal_.create_func(sample, preffix_tag="assembly")
             if not _skip_prodigal:
-                prodigal_run = prodigal_.run(sample)
+                prodigal_run = prodigal_.run()
                 if _verbose:
                     print(prodigal_run)
 
