@@ -97,7 +97,6 @@ class Program:
 
         # Update self._run, run self.run() and update self._run again.
         run_ = Run(self, sample=sample)
-        self.run_ = run_
         run_.run(_print=_print)
         self.run_ = run_
         return run_
@@ -458,10 +457,11 @@ class PresetProgram(Program):
 
         self.generic_cmd = generic_cmd
 
-    def run(self, sample=None, preffix_tag=None):
+    def run(self, sample=None, _print=True, preffix_tag=None):
         """
         Runs PresetProgram for sample.
         :param sample: Instance of bioprov.Sample.
+        :param _print: Whether to print more output.
         :param preffix_tag: Preffix tag to self.create_func()
         :return:
         """
@@ -471,7 +471,8 @@ class PresetProgram(Program):
             preffix_tag = self.preffix_tag
         if not self.ready:
             self.create_func(sample, preffix_tag)
-        self.program.run(sample, preffix_tag)
+        self.program.run_ = self.program.run(sample=sample, _print=_print)
+        return self.program.run_
 
 
 def parse_params(params, program=None):
