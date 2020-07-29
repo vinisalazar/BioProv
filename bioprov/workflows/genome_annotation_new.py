@@ -22,7 +22,7 @@ def genome_annotation(**kwargs):
     _genome_annotation = Workflow(
         name="genome_annotation",
         description="Genome annotation with Prodigal, Prokka and the COG database.",
-        **kwargs
+        **kwargs,
     )
 
     # Create steps from preset programs.
@@ -32,9 +32,11 @@ def genome_annotation(**kwargs):
         Step(prokka_preset, default=False),
     ]
 
+    steps[1].name = "prokka"
+
     # Add steps to parser
-    for step in steps:
-        _genome_annotation.add_step(step)
+    for _step in steps:
+        _genome_annotation.add_step(_step)
 
     return _genome_annotation
 
