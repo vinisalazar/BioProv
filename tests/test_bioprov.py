@@ -59,6 +59,6 @@ def test_import_packages():
         from bioprov.data import data_dir, genomes_dir, synechococcus_genome
         from bioprov.programs import prodigal, prokka, kaiju, kaiju2table
         from bioprov.cli import WorkflowOptionsParser
-        from bioprov.workflows import KaijuWorkflow, GenomeAnnotation
+        from bioprov.workflows import KaijuWorkflow, genome_annotation
     except ImportError:
         raise
