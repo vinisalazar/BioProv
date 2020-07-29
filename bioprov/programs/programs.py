@@ -35,6 +35,13 @@ def prodigal():
     return _prodigal
 
 
+def prokka_():
+    """
+    :return: Instance of PresetProgram containing Prokka.
+    """
+    _prokka = PresetProgram(program=Program("prokka"), output_files={})
+
+
 def prokka(
     _sample,
     output_path=None,
