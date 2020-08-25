@@ -11,7 +11,7 @@ Testing for the Sample module.
 from os import remove, path
 from bioprov import Sample, SampleSet, SequenceFile, read_csv, from_json
 from bioprov.src.sample import dict_to_sample, json_to_dict
-from bioprov.data import synechococcus_genome, synechococcus_dataset
+from bioprov.data import synechococcus_genome, picocyano_dataset
 
 # Sample attributes for testing
 attributes = {
@@ -66,7 +66,7 @@ def test_from_df():
     :return:
     """
     sampleset_ = read_csv(
-        synechococcus_dataset, index_col="sample-id", sequencefile_cols="assembly-file",
+        picocyano_dataset, index_col="sample-id", sequencefile_cols="assembly-file",
     )
     assert len(sampleset_) > 0
 
@@ -103,7 +103,7 @@ def test_json_SampleSet():
     Testing for JSON methods in SampleSet class.
     :return:
     """
-    ss = read_csv(synechococcus_dataset, sequencefile_cols="assembly-file",)
+    ss = read_csv(picocyano_dataset, sequencefile_cols="assembly-file",)
     ss.tag = "Synechococcus"
     ss.to_json()
     json_out = ss.tag + ".json"
