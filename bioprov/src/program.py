@@ -294,7 +294,7 @@ class PresetProgram(Program):
     Class for holding a preset program and related functions.
 
     A WorkflowStep instance inherits from Program and consists of an instance
-    of Program with an associated instance of Sample or SampleSet.
+    of Program with an associated instance of Sample or Project.
     """
 
     def __init__(
@@ -310,7 +310,7 @@ class PresetProgram(Program):
         """
         :param program: Instance of bioprov.Program
         :param params: Dictionary of parameters.
-        :param sample: An instance of Sample or SampleSet.
+        :param sample: An instance of Sample or Project.
         :param input_files: A dictionary consisting of Parameter keys as keys and a File.tag
                             as value, where File.tag is a string that must be a key in
                             self.sample.files with a corresponding existing file.

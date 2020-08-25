@@ -16,7 +16,7 @@ from .src.file import File
 from .src.program import Program, Parameter, Run
 from .src.sample import (
     Sample,
-    SampleSet,
+    Project,
     read_csv,
     from_df,
     from_json,

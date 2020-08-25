@@ -35,7 +35,7 @@ You can import data into BioProv using Pandas objects.
 # Now load from your df
 >>> samples = bp.from_df(df, sequencefile_cols="assembly")
 
-# `samples` becomes a SampleSet dict-like object
+# `samples` becomes a Project dict-like object
 >>> sample1 = samples['sample1']
 ```
 

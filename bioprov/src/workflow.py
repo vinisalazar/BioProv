@@ -22,7 +22,7 @@ class Workflow:
     """
     Workflow class. Used to build workflows for BioProv command line.
 
-    A workflow runs a series of steps (bioprov.Program) on a set of samples (bioprov.SampleSet).
+    A workflow runs a series of steps (bioprov.Program) on a set of samples (bioprov.Project).
     """
 
     def __init__(
@@ -53,7 +53,7 @@ class Workflow:
         :param file_extensions: Extension of files if input_type is 'directory'.
         :param steps: Dictionary of steps. May also receive a list, tuple or None.
         :param parser: argparse.ArgumentParser object used to construct the workflow's command-line application.
-        :param tag: Tag of the SampleSet being run.
+        :param tag: Tag of the Project being run.
         :param verbose: Verbose output of workflow.
         :param threads: Number of threads in workflow. Defaults to bioprov.config.threads
         :param sep: Separator if input_type is 'dataframe'.
@@ -109,8 +109,8 @@ class Workflow:
 
     def generate_sampleset(self):
         """
-        Generate SampleSet instance from input.
-        :return: SampleSet instance.
+        Generate Project instance from input.
+        :return: Project instance.
         """
         _generate_sampleset = {
             "dataframe": self._load_dataframe_input,
@@ -212,8 +212,8 @@ class Workflow:
 
     def _load_directory_input(self):
         """
-        Generates SampleSet from directory.
-        :return: bioprov.SampleSet
+        Generates Project from directory.
+        :return: bioprov.Project
         """
         directory = self.input
         file_extensions = self.file_extensions
@@ -253,8 +253,8 @@ class Workflow:
 
     def _load_dataframe_input(self):
         """
-        Generates SampleSet from DataFrame.
-        :return: bioprov.SampleSet
+        Generates Project from DataFrame.
+        :return: bioprov.Project
         """
 
         index_col = self.index_col

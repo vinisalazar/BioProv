@@ -39,7 +39,7 @@ def test_import_classes_and_functions():
             Parameter,
             Run,
             Sample,
-            SampleSet,
+            Project,
             read_csv,
             from_df,
             from_json,
