@@ -213,6 +213,10 @@ class Project:
     def samples(self):
         return self._samples
 
+    @samples.setter
+    def samples(self, value):
+        self._samples = self.build_sample_dict(value)
+
     def to_json(self, path=None, dict_only=False, _print=True):
         """
         Exports the Project as JSON. Similar to Sample.to_json()
@@ -315,7 +319,7 @@ def from_json(json_file, kind="Sample"):
     :param kind: Whether to create a Sample or Project instance.
     :return: a Sample or Project instance.
     """
-    assert kind in ("Sample", "Project"), "Must specify 'Sample' or 'Sampleset'."
+    assert kind in ("Sample", "Project"), "Must specify 'Sample' or 'Project'."
     d = json_to_dict(json_file)
     if "name" in d.keys():  # This checks whether the file is a Sample or Project
         kind = "Sample"  # To-do: must be improved.
