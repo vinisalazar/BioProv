@@ -1,0 +1,69 @@
+bioprov.src package
+===================
+
+Submodules
+----------
+
+bioprov.src.config module
+-------------------------
+
+.. automodule:: bioprov.src.config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bioprov.src.file module
+-----------------------
+
+.. automodule:: bioprov.src.file
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bioprov.src.program module
+--------------------------
+
+.. automodule:: bioprov.src.program
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bioprov.src.prov module
+-----------------------
+
+.. automodule:: bioprov.src.prov
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bioprov.src.sample module
+-------------------------
+
+.. automodule:: bioprov.src.sample
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bioprov.src.sequencefile module
+-------------------------------
+
+.. automodule:: bioprov.src.sequencefile
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bioprov.src.workflow module
+---------------------------
+
+.. automodule:: bioprov.src.workflow
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: bioprov.src
+   :members:
+   :undoc-members:
+   :show-inheritance:
