@@ -10,7 +10,9 @@ install:
   - pip install .
 # command to run tests
 script:
-  - pytest
+  - coverage run -m pytest
 branches:
   only:
     - master
+after_success:
+  - coveralls
