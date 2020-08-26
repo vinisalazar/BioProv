@@ -31,12 +31,12 @@ setuptools.setup(
     python_requires=">=3.6",
     install_requires=[
         "biopython",
-        "coverage",
+        "pytest-cov",
         "tqdm",
         "pandas",
         "pytest",
         "prov",
         "pydot",
-        "python-coveralls",
+        "coveralls",
     ],
 )
