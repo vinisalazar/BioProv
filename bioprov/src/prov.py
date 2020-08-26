@@ -11,7 +11,8 @@ This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
 from os import environ
-from coolname import generate_slug
+from bioprov import Project
+from bioprov.utils import warnings
 from prov.model import ProvDocument
 
 
@@ -22,17 +23,11 @@ class BaseProvenance:
     This includes system-level information and execution status
     """
 
-    def __init__(self, default_namespace, project, workflow_name=None):
+    def __init__(self, project):
         """
         Constructor for the base provenance class.
-        Defines main namespaces of the PROV object.
-        The default namespace should be an URL linked with the analysis.
-        For most purposes, we suggest this to be a GitHub repository,
-        since it is mutable and has version control.
-
-        :param default_namespace: URL linked to the analysis.
-            Can be a GitHub repository
-        :param workflow_name: Name of the workflow. If None, will be generated randomly.
+        Creates a prov.model.ProvDocument instance and
+        loads the main attributes.
         :param project: Project being processed.
         """
 
@@ -42,11 +37,31 @@ class BaseProvenance:
         self.env_dict = dict(self.env)
         self.user = self.env_dict["USER"]
 
+        # Set Project
+        assert isinstance(project, Project), warnings["incorrect_type"](
+            project, Project
+        )
+        self.project = project
+
         # Start provenance document
         self.provdoc = ProvDocument()
-        self.provdoc.add_namespace("user")
+        self.provdoc.add_namespace("user", self.user)
+        self.provdoc.add_namespace("project", self.project.tag)
+        self.provdoc.add_namespace("samples", str(project))
+        self.provdoc.add_namespace(
+            "files", "Files associated with project '{}'".format(project.tag)
+        )
+        self.provdoc.add_namespace(
+            "activities", "Activities associated with project '{}'".format(project.tag)
+        )
 
-        # Default values to be set as namespaces
-        default_values = {}
+        # Add user agent
+        self.provdoc.agent("user:{}".format(self.user))
+
+        # Add project entity
+        self.project.entity = self.provdoc.entity("project:{}".format(project.tag))
+        self.project_file = self.provdoc.entity(
+            "project:{}".format(self.project.files["project_csv"])
+        )
 
     pass
