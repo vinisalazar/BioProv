@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/github/license/vinisalazar/bioprov)](https://img.shields.io/github/license/vinisalazar/bioprov)
 [![Requirements Status](https://requires.io/github/vinisalazar/BioProv/requirements.svg?branch=master)](https://requires.io/github/vinisalazar/BioProv/requirements/?branch=master)
 
-BioProv is a Python library for builiding bioinformatics pipelines and easily extracting provenance data.
+BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of biological data. It enables you to quickly write workflows and to describe relationships between samples, files, users and processes. 
 
 ```bibtex
 >>> import bioprov as bp
@@ -65,6 +65,7 @@ $ git clone https://github.com/vinisalazar/bioprov  # download
 $ cd bioprov; pip install .                         # install
 $ pytest                                            # test
 ```
+**Important!** BioProv requires [Prodigal](https://github.com/hyattpd/Prodigal) to be tested. Otherwise tests will fail.
 
 Contributions are welcome!
 
