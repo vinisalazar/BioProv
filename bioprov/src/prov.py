@@ -16,11 +16,9 @@ from bioprov.utils import warnings
 from prov.model import ProvDocument
 
 
-class BaseProvenance:
+class ProjectProv:
     """
-    Class containing base provenance information.
-
-    This includes system-level information and execution status
+    Class containing base provenance information for a Project.
     """
 
     def __init__(self, project):
@@ -55,13 +53,33 @@ class BaseProvenance:
             "activities", "Activities associated with project '{}'".format(project.tag)
         )
 
-        # Add user agent
+        # Agents
         self.provdoc.agent("user:{}".format(self.user))
 
-        # Add project entity
+        # Entities
         self.project.entity = self.provdoc.entity("project:{}".format(project.tag))
-        self.project_file = self.provdoc.entity(
-            "project:{}".format(self.project.files["project_csv"])
+        self.project_file_entity = self.provdoc.entity(
+            "files:{}".format(self.project.files["project_csv"].path.name)
         )
+        self.samples_entity = self.provdoc.entity("samples:{}".format(str(project)))
 
-    pass
+        # Activities
+        self.activities = {
+            "import_Project": self.provdoc.activity(
+                "activities:{}".format("bioprov.Project")
+            ),
+            "import_Sample": self.provdoc.activity(
+                "activities:{}".format("bioprov.Sample")
+            ),
+        }
+
+        # Relating project with user, project file, and sample
+        self.provdoc.wasAttributedTo(self.project.entity, "user:{}".format(self.user))
+        self.provdoc.wasGeneratedBy(
+            self.project.entity, self.activities["import_Project"]
+        )
+        self.provdoc.used(self.activities["import_Project"], self.project_file_entity)
+        self.provdoc.used(self.activities["import_Sample"], self.project.entity)
+        self.provdoc.wasGeneratedBy(
+            self.samples_entity, self.activities["import_Sample"]
+        )
