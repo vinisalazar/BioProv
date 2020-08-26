@@ -3,9 +3,14 @@ python:
   - "3.6"      # current default Python on Travis CI
   - "3.7"
   - "3.8"
+before_install:
+  - "sudo apt-get install prodigal"
 # command to install dependencies
 install:
   - pip install .
 # command to run tests
 script:
   - pytest
+branches:
+  only:
+    - master
