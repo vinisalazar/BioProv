@@ -12,7 +12,7 @@ BioProv command-line application. This module holds the main executable.
 import argparse
 import sys
 from bioprov.cli import WorkflowOptionsParser
-from bioprov.workflows import GenomeAnnotation, KaijuWorkflow
+from bioprov.workflows import genome_annotation, KaijuWorkflow
 from bioprov.utils import parser_help
 
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     subparsers = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
     _ = subparsers.add_parser("genome_annotation")
     _ = subparsers.add_parser("kaiju")
-    subparsers.choices["genome_annotation"] = GenomeAnnotation.parser()
+    subparsers.choices["genome_annotation"] = genome_annotation().parser
     subparsers.choices["kaiju"] = KaijuWorkflow.parser()
 
     # Refactoring to subparsers

@@ -10,56 +10,42 @@ Module for holding preset instances of the Program class.
 """
 
 from os import path
-from bioprov import Program, Parameter, File
-from bioprov import config
+from bioprov import default_config, File
+from bioprov.src.program import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, warnings
 
 
-def prodigal(
-    _sample,
-    assembly="assembly",
-    genes="genes",
-    proteins="proteins",
-    scores="scores",
-    write_scores=False,
-):
+def prodigal():
     """
-    :param _sample: An instance of BioProv Sample.
-    :param assembly: Name of assembly file.
-    :param genes: Name of genes file.
-    :param proteins: Name of proteins file.
-    :param scores: Name of scores file.
-    :param write_scores: bool Whether to write the scores file. Default is False because they are BIG.
-    :return:
+    :return: Instance of PresetProgram containing Prodigal.
     """
-    file_preffix, _ = path.splitext(str(_sample.files[assembly].path))
-    _sample.add_files(
-        {
-            proteins: file_preffix + "_proteins.faa",
-            genes: file_preffix + "_genes.fna",
-            scores: file_preffix + "_score.cds",
-        }
+    _prodigal = PresetProgram(
+        program=Program("prodigal"),
+        input_files={"-i": "assembly"},
+        output_files={
+            "-a": ("proteins", "_proteins.faa"),
+            "-d": ("genes", "_genes.fna"),
+            "-s": ("scores", "_scores.cds"),
+        },
+        preffix_tag="assembly",
     )
-    prodigal_ = Program("prodigal",)
-    params = (
-        Parameter(key="-i", value=str(_sample.files[assembly]), kind="input"),
-        Parameter(key="-a", value=str(_sample.files[proteins]), kind="output"),
-        Parameter(key="-d", value=str(_sample.files[genes]), kind="output"),
-        Parameter(key="-s", value=str(_sample.files[scores]), kind="output"),
-    )
-    for param in params:
-        if param.key == "-s":
-            if not write_scores:
-                pass
-        prodigal_.add_parameter(param, _print=False)
 
-    return prodigal_
+    _prodigal.generate_cmd()
+
+    return _prodigal
+
+
+def prokka_():
+    """
+    :return: Instance of PresetProgram containing Prokka.
+    """
+    _prokka = PresetProgram(program=Program("prokka"))
 
 
 def prokka(
     _sample,
     output_path=None,
-    threads=config.threads,
+    threads=default_config.threads,
     add_param_str="",
     assembly="assembly",
     contigs="prokka_contigs",
@@ -103,7 +89,7 @@ def prokka(
             str(_sample.files[assembly].directory), "{}_prokka".format(prefix)
         )
 
-    prokka_ = Program("prokka",)
+    _prokka = Program("prokka",)
     params = (
         Parameter(key="--prefix", value=prefix, kind="misc"),
         Parameter(key="--outdir", value=output_path, kind="output"),
@@ -111,11 +97,11 @@ def prokka(
     )
 
     for param in params:
-        prokka_.add_parameter(param, _print=False)
+        _prokka.add_parameter(param, _print=False)
 
     if path.isdir(output_path):
         print("Warning: {} directory exists. Will overwrite.".format(output_path))
-        prokka_.add_parameter(Parameter(key="--force", value="", kind="misc"))
+        _prokka.add_parameter(Parameter(key="--force", value="", kind="misc"))
 
     # Add files according to their extension # To-do: add support for SequenceFile
     extensions_parser = {
@@ -136,15 +122,15 @@ def prokka(
         _ = func(file_)  # Add file based on extension
 
     if add_param_str:  # Any additional parameters are added here.
-        prokka_.cmd += " {}".format(add_param_str)
+        _prokka.cmd += " {}".format(add_param_str)
 
     # Input goes here, must be last positionally.
-    prokka_.add_parameter(
+    _prokka.add_parameter(
         Parameter(key="", value=str(_sample.files[assembly]), kind="input"),
         _print=False,
     )
 
-    return prokka_
+    return _prokka
 
 
 def kaiju(
@@ -152,7 +138,7 @@ def kaiju(
     output_path=None,
     kaijudb="",
     nodes="",
-    threads=config.threads,
+    threads=default_config.threads,
     r1="R1",
     r2="R2",
     add_param_str="",

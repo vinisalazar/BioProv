@@ -9,7 +9,7 @@ __version__ = "0.1.0"
 Contains the SequenceFile class and related functions.
 """
 
-from .File import File
+from bioprov.src.file import File
 from Bio import SeqIO
 from collections import namedtuple
 from statistics import mean, median

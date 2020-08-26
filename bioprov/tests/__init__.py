@@ -6,7 +6,5 @@ __version__ = "0.1.0"
 
 
 """
-Init file for the src/ package.
-
-I removed all modules from here, preferring to import them directly from bioprov/__init__.py
+Init file for the tests/ package.
 """

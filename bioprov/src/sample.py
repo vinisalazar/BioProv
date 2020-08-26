@@ -6,13 +6,13 @@ __version__ = "0.1.0"
 
 
 """
-Contains the Sample and SampleSet classes and related functions.
+Contains the Sample and Project classes and related functions.
 """
 
 import json
 import pandas as pd
-from .File import File
-from .SequenceFile import SequenceFile
+from bioprov.src.file import File
+from bioprov.src.sequencefile import SequenceFile
 from bioprov.utils import random_string
 from types import GeneratorType
 from copy import copy
@@ -76,7 +76,7 @@ class Sample:
 
     def to_json(self, path=None, dict_only=False, _print=True):
         """
-        Exports the SampleSet as JSON. Similar to Sample.to_json()
+        Exports the Project as JSON. Similar to Sample.to_json()
         :param path: JSON output file path.
         :param dict_only: Whether to return the dictionary only or write the JSON.
         :param _print: Whether to print if the file was created correctly.
@@ -88,8 +88,17 @@ class Sample:
 
         return to_json(self, path, dict_only=dict_only, _print=_print)
 
+    def run(self, program, _print=True):
+        """
+        Run a Program or PresetProgram on Sample.
+        :param program: An instance of bioprov.Program or PresetProgram
+        :param _print: Whether to print output of Program.
+        :return: Runs the program for Sample.
+        """
+        program.run(sample=self, _print=print)
 
-class SampleSet:
+
+class Project:
     """
     Class which holds a dictionary of Sample instances, where each key is the sample name.
     """
@@ -98,7 +107,7 @@ class SampleSet:
         """
         Initiates the object by creating a sample dictionary.
         :param samples: An iterator of Sample objects.
-        :param tag: A tag to describe the SampleSet.
+        :param tag: A tag to describe the Project.
         """
         samples = self.is_iterator(
             samples
@@ -112,7 +121,7 @@ class SampleSet:
         return len(self._samples)
 
     def __repr__(self):
-        return f"SampleSet with {len(self._samples)} samples."
+        return f"Project with {len(self._samples)} samples."
 
     def __getitem__(self, item):
         try:
@@ -121,7 +130,7 @@ class SampleSet:
         except KeyError:
             keys = self.keys()
             print(
-                f"Sample {item} not in SampleSet.\n",
+                f"Sample {item} not in Project.\n",
                 "Check the following keys:\n",
                 "\n".join(keys),
             )
@@ -140,9 +149,9 @@ class SampleSet:
 
     def add_files(self, files):
         """
-        SampleSet method to add files.
+        Project method to add files.
         :param files: See input to add_files function.
-        :return: Adds files to SampleSet
+        :return: Adds files to Project
         """
         add_files(self, files)
 
@@ -167,7 +176,7 @@ class SampleSet:
     def is_iterator(constructor):
         """
         Checks if the constructor passed is a valid iterable, or None.
-        :param constructor: constructor object used to build a SampleSet instance.
+        :param constructor: constructor object used to build a Project instance.
         :return:.
         """
         assert type(constructor) in (
@@ -195,7 +204,7 @@ class SampleSet:
             constructor = list(constructor.values())
 
         for sample in constructor:
-            sample = SampleSet.is_sample_and_name(sample)
+            sample = Project.is_sample_and_name(sample)
             samples[sample.name] = sample
 
         return samples
@@ -204,9 +213,13 @@ class SampleSet:
     def samples(self):
         return self._samples
 
+    @samples.setter
+    def samples(self, value):
+        self._samples = self.build_sample_dict(value)
+
     def to_json(self, path=None, dict_only=False, _print=True):
         """
-        Exports the SampleSet as JSON. Similar to Sample.to_json()
+        Exports the Project as JSON. Similar to Sample.to_json()
         :param path: JSON output file path.
         :param dict_only: Whether to return the dictionary only or write the JSON.
         :param _print: Whether to print if the file was created correctly.
@@ -223,15 +236,15 @@ class SampleSet:
 def add_files(object_, files):
     """
         Adds file(s) to object. Must be a dict or an instance or iterable of bioprov.File.
-        :param object_: A Sample or SampleSet instance.
+        :param object_: A Sample or Project instance.
         :param files: bioprov.File list, instance or dict with key, value where value is the file path.
         :return: Updates self by adding the file to object.
         """
 
     # Assert it is adding to correct object
     assert isinstance(
-        object_, (Sample, SampleSet)
-    ), "Can't add file to type '{}'. Can only add file to Sample or SampleSet object.".format(
+        object_, (Sample, Project)
+    ), "Can't add file to type '{}'. Can only add file to Sample or Project object.".format(
         type(object_)
     )
 
@@ -256,8 +269,8 @@ def add_files(object_, files):
 
 def to_json(samplelike, path=None, dict_only=False, _print=True):
     """
-    Exports the Sample or SampleSet as JSON.
-    :param samplelike: Sample or SampleSet instance.
+    Exports the Sample or Project as JSON.
+    :param samplelike: Sample or Project instance.
     :param path: Path to JSON file. Default is current directory.
     :param dict_only: Whether to return a dictionary only or write the JSON.
     :param _print: Whether to print if the file was created correctly.
@@ -266,15 +279,15 @@ def to_json(samplelike, path=None, dict_only=False, _print=True):
     json_out = dict()
 
     assert isinstance(
-        samplelike, (SampleSet, Sample)
-    ), f"{samplelike} must be a Sample or SampleSet object!"
+        samplelike, (Project, Sample)
+    ), f"{samplelike} must be a Sample or Project object!"
 
-    # Build SampleSet JSON dict
-    if isinstance(samplelike, SampleSet):
-        sampleset = samplelike
+    # Build Project JSON dict
+    if isinstance(samplelike, Project):
+        project = samplelike
         if path is None:
-            path = f"./SampleSet_{random_string()}.json"
-        for name, sample in sampleset.items():
+            path = f"./Project_{random_string()}.json"
+        for name, sample in project.items():
             json_out[name] = sample.to_json(dict_only=True, _print=False)
 
     # Build Sample JSON dict
@@ -301,50 +314,58 @@ def to_json(samplelike, path=None, dict_only=False, _print=True):
 
 def from_json(json_file, kind="Sample"):
     """
-    Imports Sample or SampleSet from JSON file.
+    Imports Sample or Project from JSON file.
     :param json_file: A JSON file created by Sample.to_json()
-    :param kind: Whether to create a Sample or SampleSet instance.
-    :return: a Sample or SampleSet instance.
+    :param kind: Whether to create a Sample or Project instance.
+    :return: a Sample or Project instance.
     """
-    assert kind in ("Sample", "SampleSet"), "Must specify 'Sample' or 'Sampleset'."
+    assert kind in ("Sample", "Project"), "Must specify 'Sample' or 'Project'."
     d = json_to_dict(json_file)
-    if "name" in d.keys():  # This checks whether the file is a Sample or SampleSet
+    if "name" in d.keys():  # This checks whether the file is a Sample or Project
         kind = "Sample"  # To-do: must be improved.
     else:
-        kind = "SampleSet"
+        kind = "Project"
     if kind == "Sample":
         sample_ = dict_to_sample(d)
         return sample_
-    elif kind == "SampleSet":
+    elif kind == "Project":
         samples = dict()
         for k, v in d.items():
             samples[k] = dict_to_sample(v)
-        sampleset = SampleSet(samples=samples)
+        sampleset = Project(samples=samples)
         return sampleset
 
 
 def from_df(
-    df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None, import_data=False
+    df,
+    index_col=0,
+    file_cols=None,
+    sequencefile_cols=None,
+    tag=None,
+    source_file=None,
+    import_data=False,
 ):
     """
-    Pandas-like function to build a SampleSet object.
+    Pandas-like function to build a Project object.
 
     By default, assumes the sample names or ids are in the first column,
         else they should be specified by 'index_col' arg.
     '''
-    samples = from_df('sample.tsv', sep="\t")
+    samples = from_df(df_path, sep="\t")
 
-    type(samples)  # bioprov.Sample.SampleSet.
+    type(samples)  # bioprov.Sample.Project.
 
     You can select columns to be added as Files or SequenceFile instances.
     '''
     :param df: A pandas DataFrame
-    :param index_col: A column to be used as index. Must be in df.columns. If int is passed, will get it from columns.
+    :param index_col: A column to be used as index. Must be in df_path.columns.
+                        If int is passed, will get it from columns.
     :param file_cols: Columns containing Files.
     :param sequencefile_cols: Columns containing SequenceFiles.
-    :param tag: A tag to describe the SampleSet.
+    :param tag: A tag to describe the Project.
+    :param source_file: The source file used to read the dataframe.
     :param import_data: Whether to import data when importing SequenceFiles
-    :return: a SampleSet instance
+    :return: a Project instance
     """
     df_ = df.copy()
     if isinstance(index_col, int):
@@ -381,22 +402,24 @@ def from_df(
                 sample.attributes[attr_] = row[attr_]
         samples[ix] = sample
 
-    samples = SampleSet(samples, tag=tag)
+    samples = Project(samples, tag=tag)
+    if source_file:
+        samples.add_files({"project_csv": source_file})
 
     return samples
 
     pass
 
 
-def read_csv(df, sep=",", **kwargs):
+def read_csv(df_path, sep=",", **kwargs):
     """
-    :param df: Path of dataframe.
+    :param df_path: Path of dataframe.
     :param sep: Separator of dataframe.
     :param kwargs: Any kwargs to be passed to from_df()
-    :return: A SampleSet instance.
+    :return: A Project instance.
     """
-    df = pd.read_csv(df, sep=sep)
-    sampleset = from_df(df, **kwargs)
+    df = pd.read_csv(df_path, sep=sep)
+    sampleset = from_df(df, source_file=df_path, **kwargs)
     return sampleset
 
 

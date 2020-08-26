@@ -8,7 +8,7 @@ __version__ = "0.1.0"
 """
 Module containing the class CLI and related functions.
 """
-from bioprov.workflows import GenomeAnnotation, KaijuWorkflow
+from bioprov.workflows import genome_annotation, KaijuWorkflow
 
 
 class WorkflowOptionsParser:
@@ -25,17 +25,10 @@ class WorkflowOptionsParser:
         Runs genome annotation workflow
         :return:
         """
-        GenomeAnnotation.main(
-            _input_path=options.input,
-            labels=options.labels,
-            files=options.files,
-            _tag=options.tag,
-            run_prokka=options.run_prokka,
-            _skip_prodigal=options.skip_prodigal,
-            _verbose=options.verbose,
-            _threads=options.threads,
-            _directory_input=options.directory,
-        )
+        main = genome_annotation()
+        main.input = options.input
+        steps = options.steps
+        main.run_steps(steps)
 
     @staticmethod
     def _kaiju_workflow(options):

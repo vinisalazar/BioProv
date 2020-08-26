@@ -9,9 +9,9 @@ __version__ = "0.1.0"
 Testing for the Sample module.
 """
 from os import remove, path
-from bioprov import Sample, SampleSet, SequenceFile, read_csv, from_json
-from bioprov.src import dict_to_sample, json_to_dict
-from bioprov.data import synechococcus_genome, synechococcus_dataset
+from bioprov import Sample, Project, SequenceFile, read_csv, from_json
+from bioprov.src.sample import dict_to_sample, json_to_dict
+from bioprov.data import synechococcus_genome, picocyano_dataset
 
 # Sample attributes for testing
 attributes = {
@@ -46,12 +46,12 @@ def test_Sample():
     ].exists, f"Couldn't find file in path {synechococcus_genome}. Check bioprov's data directory."
 
 
-def test_SampleSet():
+def test_Project():
     """
-    Testing for the SampleSet class.
+    Testing for the Project class.
     :return:
     """
-    ss = SampleSet()
+    ss = Project()
     sample = Sample()
     for attr, v in attributes.items():
         setattr(sample, attr, v)
@@ -66,7 +66,7 @@ def test_from_df():
     :return:
     """
     sampleset_ = read_csv(
-        synechococcus_dataset, index_col="sample-id", sequencefile_cols="assembly-file",
+        picocyano_dataset, index_col="sample-id", sequencefile_cols="assembly-file",
     )
     assert len(sampleset_) > 0
 
@@ -100,16 +100,14 @@ def test_json_Sample():
 
 def test_json_SampleSet():
     """
-    Testing for JSON methods in SampleSet class.
+    Testing for JSON methods in Project class.
     :return:
     """
-    ss = read_csv(synechococcus_dataset, sequencefile_cols="assembly-file",)
+    ss = read_csv(picocyano_dataset, sequencefile_cols="assembly-file",)
     ss.tag = "Synechococcus"
     ss.to_json()
     json_out = ss.tag + ".json"
-    assert path.isfile(
-        json_out
-    ), f"Did not create JSON output for SampleSet '{ss.tag}'."
+    assert path.isfile(json_out), f"Did not create JSON output for Project '{ss.tag}'."
     ss = from_json(json_out)
-    assert isinstance(ss, SampleSet)
+    assert isinstance(ss, Project)
     remove(json_out)

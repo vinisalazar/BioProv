@@ -27,4 +27,4 @@ class Config:
 
 
 # Default config variable if not instantiating
-config = Config()
+default_config = Config()

@@ -16,7 +16,7 @@ with the BioProv CLI application (recommended).
 """
 
 from os import path, getcwd, mkdir
-from bioprov import config, from_df
+from bioprov import default_config, from_df
 from bioprov.programs import kaiju, kaiju2table
 from bioprov.utils import warnings, tax_ranks
 from tqdm import tqdm
@@ -43,7 +43,7 @@ class KaijuWorkflow:
         kaijudb=None,
         nodes=None,
         names=None,
-        threads=config.threads,
+        threads=default_config.threads,
         _tag=None,
         verbose=False,
         resume=True,
@@ -59,7 +59,7 @@ class KaijuWorkflow:
         :param nodes: Kaiju nodes file.
         :param names: Kaiju names file.
         :param threads: Number of threads to use with Kaiju.
-        :param _tag: Tag for SampleSet.
+        :param _tag: Tag for Project.
         :param verbose: Verbose output.
         :param resume: Check for existing files and skip running Kaiju for them.
         :param kaiju_params: Parameter string to add to Kaiju command.
@@ -89,7 +89,7 @@ class KaijuWorkflow:
 
         print(warnings["sample_loading"](len(df)))
 
-        # Create BioProv SampleSet
+        # Create BioProv Project
         ss = from_df(df, index_col="sample-id", file_cols=("R1", "R2"), tag=_tag)
 
         success, skip = 0, 0
@@ -211,7 +211,7 @@ class KaijuWorkflow:
             "-p",
             "--threads",
             help="Number of threads. Default is set in BioProv config (half of the threads).",
-            default=config.threads,
+            default=default_config.threads,
         )
         return _parser
 
