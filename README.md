@@ -7,7 +7,7 @@
 
 BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of biological data. It enables you to quickly write workflows and to describe relationships between samples, files, users and processes. 
 
-```bibtex
+```
 >>> import bioprov as bp
 
 # Create samples and file objects
@@ -42,7 +42,7 @@ BioProv is built with the [Biopython](https://biopython.org/) and [Pandas](http:
 
 You can import data into BioProv using Pandas objects.
 
-```bibtex
+```
 # Read csv straight into BioProv
 >>> samples = bp.read_csv("my_dataframe.tsv", sep="\t", sequencefile_cols="assembly")
 
@@ -61,21 +61,21 @@ You can import data into BioProv using Pandas objects.
 
 BioProv 'SequenceFile' objects contains records formatted as [Biopython SeqRecords](https://biopython.org/wiki/SeqRecord):
 
-```bibtex
+```
 >>> type(sample1)
 Bio.SeqRecord.SeqRecord
 ```
 
 BioProv objects can be imported or exported as JSON objects.
 
-```bibtex
+```
 >>> sample1.to_json(), samples.to_json()
 ```
 
 
 ### Installation
 
-```bibtex
+```
 $ git clone https://github.com/vinisalazar/bioprov  # download
 $ cd bioprov; pip install .                         # install
 $ pytest                                            # test
