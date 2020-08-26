@@ -29,5 +29,13 @@ setuptools.setup(
     scripts=["bioprov/cli/bioprov", "bioprov/workflows/genome_annotation.py"],
     include_package_data=True,
     python_requires=">=3.6",
-    install_requires=["biopython", "tqdm", "pandas", "pytest", "prov", "pydot"],
+    install_requires=[
+        "biopython",
+        "tqdm",
+        "pandas",
+        "pytest",
+        "prov",
+        "pydot",
+        "coolname",
+    ],
 )
