@@ -1,5 +1,7 @@
 ### BioProv - provenance capturing for bioinformatics.
 
+[![Build Status](https://travis-ci.org/vinisalazar/BioProv.svg?branch=master)](https://travis-ci.org/vinisalazar/BioProv)
+
 BioProv is a Python library for builiding bioinformatics pipelines and easily extracting provenance data.
 
 ```bibtex
