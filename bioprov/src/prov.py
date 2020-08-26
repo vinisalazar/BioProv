@@ -58,9 +58,17 @@ class ProjectProv:
 
         # Entities
         self.project.entity = self.provdoc.entity("project:{}".format(project.tag))
-        self.project_file_entity = self.provdoc.entity(
-            "files:{}".format(self.project.files["project_csv"].path.name)
-        )
+
+        try:
+            self.project_file_entity = self.provdoc.entity(
+                "files:{}".format(self.project.files["project_csv"].path.name)
+            )
+        except KeyError:
+            raise Exception(
+                "No 'project_csv' file associated with Project '{}'. Please create a project CSV file.".format(
+                    self.project.tag
+                )
+            )
         self.samples_entity = self.provdoc.entity("samples:{}".format(str(project)))
 
         # Activities
