@@ -23,6 +23,21 @@ BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/)
 >>> blast.run(sample=sample)  # Or sample.run(program=blast)
 ```
 
+BioProv also has a command-line application to run preset workflows.
+
+```
+$ bioprov -h
+usage: bioprov [-h] {genome_annotation,kaiju} ...
+
+BioProv command-line application. Choose a workflow to begin.
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+workflows:
+  {genome_annotation,kaiju}
+```
+
 BioProv is built with the [Biopython](https://biopython.org/) and [Pandas](http://pandas.pydata.org/) libraries.
 
 You can import data into BioProv using Pandas objects.
@@ -38,13 +53,13 @@ You can import data into BioProv using Pandas objects.
 >>> df["assembly"] = "assembly_directory/" + df["assembly"]
 
 # Now load from your df
->>> samples = bp.from_df(df, sequencefile_cols="assembly")
+>>> samples = bp.from_df(df, sequencefile_cols="assembly", source_file="my_dataframe.tsv")
 
 # `samples` becomes a Project dict-like object
 >>> sample1 = samples['sample1']
 ```
 
-BioProv 'SequenceFile' objects contains records formatted as [BioPython SeqRecords](https://biopython.org/wiki/SeqRecord):
+BioProv 'SequenceFile' objects contains records formatted as [Biopython SeqRecords](https://biopython.org/wiki/SeqRecord):
 
 ```bibtex
 >>> type(sample1)
