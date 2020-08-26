@@ -10,6 +10,7 @@ Testing for the workflows package.
 """
 from bioprov.data import genome_annotation_dataset
 from bioprov.workflows.genome_annotation import genome_annotation
+from bioprov.workflows.kaiju import KaijuWorkflow
 
 
 def test_genome_annotation():
@@ -23,3 +24,12 @@ def test_genome_annotation():
         "prodigal",
     ]
     workflow.run_steps(steps)
+
+
+def test_kaiju_workflow():
+    """
+    Tests the 'kaiju' workflow.
+    :return:
+    """
+    _ = KaijuWorkflow()
+    pass
