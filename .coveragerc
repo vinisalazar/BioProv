@@ -4,3 +4,7 @@
 [report]
 exclude_lines =
     $__
+
+[run]
+omit = 
+    bioprov/workflows/kaiju.py
