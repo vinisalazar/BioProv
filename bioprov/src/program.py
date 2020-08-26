@@ -461,9 +461,8 @@ class PresetProgram(Program):
     def generate_cmd(self, from_files=True):
         """
         Generates a wildcard command string, independent of samples.
-        :param from_files: Generate command from self.input_files and
-                                                 self.output_files (recommended)
-                           If False, will generate from parameter dictionary instead.
+        :param from_files: Generate command from self.input_files and self.output_files (recommended) If False,
+        will generate from parameter dictionary instead.
         :return: Updates self.generic_cmd.
         """
         self.validate_program()
