@@ -337,7 +337,13 @@ def from_json(json_file, kind="Sample"):
 
 
 def from_df(
-    df, index_col=0, file_cols=None, sequencefile_cols=None, tag=None, import_data=False
+    df,
+    index_col=0,
+    file_cols=None,
+    sequencefile_cols=None,
+    tag=None,
+    source_file=None,
+    import_data=False,
 ):
     """
     Pandas-like function to build a Project object.
@@ -345,17 +351,19 @@ def from_df(
     By default, assumes the sample names or ids are in the first column,
         else they should be specified by 'index_col' arg.
     '''
-    samples = from_df('sample.tsv', sep="\t")
+    samples = from_df(df_path, sep="\t")
 
     type(samples)  # bioprov.Sample.Project.
 
     You can select columns to be added as Files or SequenceFile instances.
     '''
     :param df: A pandas DataFrame
-    :param index_col: A column to be used as index. Must be in df.columns. If int is passed, will get it from columns.
+    :param index_col: A column to be used as index. Must be in df_path.columns.
+                        If int is passed, will get it from columns.
     :param file_cols: Columns containing Files.
     :param sequencefile_cols: Columns containing SequenceFiles.
     :param tag: A tag to describe the Project.
+    :param source_file: The source file used to read the dataframe.
     :param import_data: Whether to import data when importing SequenceFiles
     :return: a Project instance
     """
@@ -395,21 +403,23 @@ def from_df(
         samples[ix] = sample
 
     samples = Project(samples, tag=tag)
+    if source_file:
+        samples.add_files({"project_csv": source_file})
 
     return samples
 
     pass
 
 
-def read_csv(df, sep=",", **kwargs):
+def read_csv(df_path, sep=",", **kwargs):
     """
-    :param df: Path of dataframe.
+    :param df_path: Path of dataframe.
     :param sep: Separator of dataframe.
     :param kwargs: Any kwargs to be passed to from_df()
     :return: A Project instance.
     """
-    df = pd.read_csv(df, sep=sep)
-    sampleset = from_df(df, **kwargs)
+    df = pd.read_csv(df_path, sep=sep)
+    sampleset = from_df(df, source_file=df_path, **kwargs)
     return sampleset
 
 
