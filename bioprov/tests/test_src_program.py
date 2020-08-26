@@ -40,7 +40,7 @@ def test_Program():
             attr != "version"
         ):  # check if it gets the version automatically (won't see version attribute).
             setattr(p, attr, v)
-        assert getattr(p, attr) == v, f"{attr} attribute is wrong!"
+            assert getattr(p, attr) == v, f"{attr} attribute is wrong!"
     assert p.cmd == p.generate_cmd()
     r32 = random_string(32)
     some_random_program = Program(r32)
