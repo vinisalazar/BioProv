@@ -260,7 +260,9 @@ class Run(Program):
         # Declare process and start time
         assert (
             self.program.found
-        ), "Cannot find program {}. Make sure it is on your $PATH.".format(self.name)
+        ), "Cannot find program {}. Make sure it is on your $PATH.".format(
+            self.program.name
+        )
         if _print:
             str_ = f"Running program '{self.program.name}'"
             if _sample is not None:
