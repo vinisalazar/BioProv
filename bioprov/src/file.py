@@ -29,7 +29,7 @@ class File(ProvEntity):
         self.path = Path(path).absolute()
         self.name = self.path.stem
         self.basename = self.path.name
-        super().__init__(bundle, identifier="files:{}".format(self.basename))
+        super().__init__(document, identifier="files:{}".format(self.basename))
         self.directory = self.path.parent
         self.extension = self.path.suffix
         if tag is None:
