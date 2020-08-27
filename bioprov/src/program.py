@@ -71,6 +71,7 @@ class Program:
     def generate_cmd(self):
         """
         Generates command string to execute.
+
         :return: command string
         """
         return " ".join([self.path, self.param_str]).strip()
