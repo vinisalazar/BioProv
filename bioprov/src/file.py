@@ -19,12 +19,12 @@ class File(ProvEntity):
     """
 
     def __init__(
-        self, path, tag=None, bundle=None,
+        self, path, tag=None, document=None,
     ):
         """
         :param path: A UNIX-like file path.
         :param tag: optional tag describing the file.
-        :param generated_by: An instance of the Run class which generated the command.
+        :param document: prov.model.ProvDocument
         """
         self.path = Path(path).absolute()
         self.name = self.path.stem
