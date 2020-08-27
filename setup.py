@@ -16,6 +16,8 @@ setuptools.setup(
     long_description=(
         "BioProv is a toolkit for capturing and extracting provenance data from"
         " bioinformatics workflows."
+        "\n"
+        "To know more about BioProv, please visit the Homepage."
     ),
     url="https://github.com/vinisalazar/BioProv",
     classifiers=[
