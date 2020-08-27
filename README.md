@@ -76,9 +76,15 @@ BioProv objects can be imported or exported as JSON objects.
 ### Installation
 
 ```
-$ git clone https://github.com/vinisalazar/bioprov  # download
-$ cd bioprov; pip install .                         # install
-$ pytest                                            # test
+# Install from pip
+$ pip install bioprov
+
+# Or install from source
+$ git clone https://github.com/vinisalazar/bioprov
+$ cd bioprov; pip install .
+
+# Test the installation
+$ pytest                                           
 ```
 **Important!** BioProv requires [Prodigal](https://github.com/hyattpd/Prodigal) to be tested. Otherwise tests will fail.
 
