@@ -1,3 +1,7 @@
+```{include} ../../README.md
+```
+
+```{eval-rst}
 Welcome to BioProv's documentation!
 ===================================
 
@@ -5,10 +9,11 @@ Welcome to BioProv's documentation!
    :members:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
    :caption: Contents:
 
    readme
+   Source API <modules>
 
 
 Indices and tables
@@ -18,3 +23,4 @@ Indices and tables
 * :ref:`modindex`
 
 * :ref:`search`
+```
