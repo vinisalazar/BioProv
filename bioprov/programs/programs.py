@@ -145,6 +145,7 @@ def kaiju(
 ):
     """
     Run Kaiju on paired-end metagenomic data.
+
     :param _sample: An instance of BioProv sample.
     :param output_path: Output file of Kaiju.
     :param kaijudb: Path to Kaiju database.
