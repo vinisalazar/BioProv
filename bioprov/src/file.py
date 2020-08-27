@@ -18,15 +18,18 @@ class File(ProvEntity):
     Class for holding file and file information.
     """
 
-    def __init__(self, path, bundle=None, tag=None, generated_by=None):
+    def __init__(
+        self, path, tag=None, bundle=None,
+    ):
         """
         :param path: A UNIX-like file path.
         :param tag: optional tag describing the file.
         :param generated_by: An instance of the Run class which generated the command.
         """
         self.path = Path(path).absolute()
-        self.name = self.path.name
-        super().__init__(bundle, identifier="files:{}".format(self.name))
+        self.name = self.path.stem
+        self.basename = self.path.name
+        super().__init__(bundle, identifier="files:{}".format(self.basename))
         self.directory = self.path.parent
         self.extension = self.path.suffix
         if tag is None:
@@ -35,11 +38,12 @@ class File(ProvEntity):
         self.exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
-        self.generated_by = generated_by
 
         # Provenance attributes
         self._document = None
-        self._entity = ProvEntity(self._document, self.path.name)
+        self._entity = ProvEntity(
+            self._document, identifier="files:{}".format(self.basename)
+        )
 
     def __repr__(self):
         return str(self.path)
