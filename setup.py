@@ -9,7 +9,7 @@ import setuptools
 
 setuptools.setup(
     name="bioprov",
-    version="0.1.0",
+    version="0.1.1",
     author="Vini Salazar",
     author_email="viniws@gmail.com",
     description="BioProv - Provenance capture for bioinformatics workflows",
