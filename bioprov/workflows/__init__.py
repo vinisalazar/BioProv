@@ -7,3 +7,4 @@ __version__ = "0.1.0"
 
 from .genome_annotation import genome_annotation
 from .kaiju import KaijuWorkflow
+from .wf_parser import WorkflowOptionsParser

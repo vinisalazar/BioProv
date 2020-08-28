@@ -6,8 +6,10 @@ __version__ = "0.1.0"
 
 
 """
-Module containing the class CLI and related functions.
+Module containing the Workflow options parser for preset workflows.
 """
+
+
 from bioprov.workflows import genome_annotation, KaijuWorkflow
 
 

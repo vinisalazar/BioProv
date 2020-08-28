@@ -28,7 +28,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
     ],
     packages=setuptools.find_packages(),
-    scripts=["bioprov/cli/bioprov", "bioprov/workflows/genome_annotation.py"],
+    scripts=["bioprov/bioprov", "bioprov/workflows/genome_annotation.py"],
     include_package_data=True,
     python_requires=">=3.6",
     install_requires=[
