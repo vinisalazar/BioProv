@@ -55,10 +55,18 @@ def test_import_packages():
     :return: ImportError if not able to import
     """
     try:
-        from bioprov import src, data, programs, cli, workflows
-        from bioprov.data import data_dir, genomes_dir, synechococcus_genome
+        from bioprov import src, data, programs, workflows, bioprov
+        from bioprov.data import (
+            data_dir,
+            genomes_dir,
+            synechococcus_genome,
+            picocyano_dataset,
+        )
         from bioprov.programs import prodigal, prokka, kaiju, kaiju2table
-        from bioprov.cli import WorkflowOptionsParser
-        from bioprov.workflows import KaijuWorkflow, genome_annotation
+        from bioprov.workflows import (
+            KaijuWorkflow,
+            genome_annotation,
+            WorkflowOptionsParser,
+        )
     except ImportError:
         raise
