@@ -44,13 +44,13 @@ class ProjectProv:
         # Start provenance document
         self.provdoc = ProvDocument()
         self.provdoc.add_namespace("user", self.user)
-        self.provdoc.add_namespace("project", self.project.tag)
-        self.provdoc.add_namespace("samples", str(project))
+        self.provdoc.add_namespace("project", self.project.tag.replace(" ", "_"))
+        self.provdoc.add_namespace("samples", str(project).replace(" ", "_"))
         self.provdoc.add_namespace(
-            "files", "Files associated with project '{}'".format(project.tag)
+            "files", "Files_associated_with_project_'{}'".format(project.tag)
         )
         self.provdoc.add_namespace(
-            "activities", "Activities associated with project '{}'".format(project.tag)
+            "activities", "Activities_associated_with_project_'{}'".format(project.tag)
         )
 
         # Agents
