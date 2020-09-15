@@ -206,11 +206,13 @@ def calculate_N50(array):
     :return: N50 value
     """
     array.sort()
-    new_array = array([[x] * x for x in array])
+    new_array = []
+    for x in array:
+        new_array += [x] * x
 
     if len(new_array) % 2 == 0:
         ix = int(len(new_array) / 2)
-        return new_array[ix] + new_array[ix - 1] / 2
+        return (new_array[ix] + new_array[ix - 1]) / 2
     else:
         ix = int((len(new_array) / 2) - 0.5)
         return new_array[ix]
