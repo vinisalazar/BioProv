@@ -103,7 +103,7 @@ def prokka(
         print("Warning: {} directory exists. Will overwrite.".format(output_path))
         _prokka.add_parameter(Parameter(key="--force", value="", kind="misc"))
 
-    # Add files according to their extension # To-do: add support for SequenceFile
+    # Add files according to their extension # To-do: add support for SeqFile
     extensions_parser = {
         ".faa": lambda file: _sample.add_files(File(file, tag=proteins)),
         ".fna": lambda file: _sample.add_files(File(file, tag=contigs)),

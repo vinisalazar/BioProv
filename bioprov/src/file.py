@@ -85,42 +85,43 @@ class File:
         self._entity = ProvEntity(self._document, self.path.name)
 
 
-class FASTAFile(File):
+class SeqFile(File):
     """
     Class for holding sequence file and sequence information. Inherits from File.
     """
 
     def __init__(
-        self, path, tag=None, document=None, import_records=True, _format="fasta",
+        self, path, tag=None, document=None, import_records=True, format="fasta",
     ):
         """
         :param path: A UNIX-like file path.
+        :param format: Format to be parsed by SeqIO.parse()
         :param tag: optional tag describing the file.
         :param import_records: Whether to import sequence data as Bio.SeqRecord.SeqRecord
-        :param _format: Input format. Only 'fasta' is supported for now.
         """
         super().__init__(path, tag, document)
+        self.format = format
         self._generator = None
         self.records = None
 
         if self.exists:
-            self.fasta_seqrecordgenerator()
+            self.seqrecordgenerator()
         else:
             import_records = False
 
         if import_records:
             self.import_records()
 
-    def fasta_seqrecordgenerator(self):
+    def seqrecordgenerator(self):
         """
-        Runs seqrecordgenerator with the FASTA format.
+        Runs seqrecordgenerator with the format.
         """
-        self._generator = seqrecordgenerator(self.path, "fasta")
+        self._generator = seqrecordgenerator(self.path, format=self.format)
 
     @property
     def generator(self):
         if self._generator is None:
-            self.fasta_seqrecordgenerator()
+            self.seqrecordgenerator()
         return self._generator
 
     @generator.setter
@@ -129,6 +130,16 @@ class FASTAFile(File):
 
     def import_records(self):
         self.records = SeqIO.to_dict(self._generator)
+
+
+class FASTAFile(SeqFile):
+    def __init__(self, path, **kwargs):
+        """
+        Class FASTAFile to hold information and methods for FASTA files.
+        :param path: A UNIX-like file path.
+        :param kwargs: Keyword arguments for SeqFile class. See help(SeqFile) for reference.
+        """
+        super().__init__(path, format="fasta", **kwargs)
 
 
 def seqrecordgenerator(path, format):

@@ -12,7 +12,7 @@ Inherits objects from the src/ package.
 """
 
 from .src.config import Config, default_config
-from .src.file import File, FASTAFile
+from .src.file import File, SeqFile, FASTAFile
 from .src.program import Program, Parameter, Run
 from .src.sample import (
     Sample,
@@ -21,8 +21,5 @@ from .src.sample import (
     from_df,
     from_json,
 )
-
-# from .src.prov import ProjectProv
-from .src.sequencefile import SequenceFile
 
 name = "bioprov"
