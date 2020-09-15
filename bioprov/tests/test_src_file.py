@@ -9,7 +9,7 @@ __version__ = "0.1.1"
 Testing for the File module.
 """
 import bioprov as bp
-from bioprov import File, FASTAFile, utils
+from bioprov import File, SeqFile, utils
 from pathlib import Path
 from bioprov.data import synechococcus_genome
 
@@ -54,11 +54,11 @@ def test_File():
 
 def test_FASTAFile():
     """
-    Tests the FASTAFile constructor.
+    Tests the SeqFile constructor.
     :return:
     """
     tag = "Synechococcus elongatus PCC 6301"
-    genome = FASTAFile(synechococcus_genome, tag)
+    genome = SeqFile(synechococcus_genome, tag)
     # nf_genome, nf_tag = random_string(), random_string(4)
     # nf_genome = SequenceFile(nf_genome, nf_tag)
 
@@ -66,7 +66,7 @@ def test_FASTAFile():
     existing_instance = {
         "exists": genome.exists,
         "tag": genome.tag == tag,
-        "class": type(genome) == FASTAFile,
+        "class": type(genome) == SeqFile,
         "records": all(
             (
                 type(genome.records) == dict,

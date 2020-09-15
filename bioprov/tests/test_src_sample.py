@@ -9,7 +9,7 @@ __version__ = "0.1.1"
 Testing for the Sample module.
 """
 from os import remove, path
-from bioprov import Sample, Project, FASTAFile, read_csv, from_json
+from bioprov import Sample, Project, SeqFile, read_csv, from_json
 from bioprov.src.sample import dict_to_sample, json_to_dict
 from bioprov.data import synechococcus_genome, picocyano_dataset
 
@@ -17,7 +17,7 @@ from bioprov.data import synechococcus_genome, picocyano_dataset
 attributes = {
     "name": "GCF_000010065.1_ASM1006v1",
     "tag": "Synechococcus elongatus PCC 6301",
-    "files": {"assembly": FASTAFile(synechococcus_genome, "assembly")},
+    "files": {"assembly": SeqFile(synechococcus_genome, "assembly")},
     "attributes": {"habitat": "freshwater"},
 }
 

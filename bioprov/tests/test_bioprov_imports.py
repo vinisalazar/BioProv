@@ -43,7 +43,7 @@ def test_import_classes_and_functions():
             read_csv,
             from_df,
             from_json,
-            SequenceFile,
+            SeqFile,
         )
     except ImportError:
         raise
