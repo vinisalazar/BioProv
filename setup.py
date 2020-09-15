@@ -2,14 +2,14 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 
 import setuptools
 
 setuptools.setup(
     name="bioprov",
-    version="0.1.1",
+    version="0.1.2",
     author="Vini Salazar",
     author_email="viniws@gmail.com",
     description="BioProv - Provenance capture for bioinformatics workflows",

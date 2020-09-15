@@ -91,9 +91,6 @@ Contributions are welcome!
 
 **BioProv is in active development and no warranties are provided (please see the License).**
 
-### Changelog - v0.1.1
-* Refactor SequenceFile as SeqFile
-* Paving the way to add support to more BioPython formats
-* Refactor SeqStats as dataclass and optimize with NumPy
-* Refactor tests
-* Adding draft provenance classes
+### Changelog - v0.1.2
+* Refactor functions in src.files module [x]
+* Add support for BioPython AlignIO module [ ]
