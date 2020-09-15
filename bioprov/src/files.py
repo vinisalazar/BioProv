@@ -12,7 +12,7 @@ import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
 from Bio import SeqIO
-from bioprov.utils import get_size
+from bioprov.utils import get_size, warnings
 from prov.model import ProvEntity
 
 
@@ -107,77 +107,100 @@ class SeqFile(File):
         self.format = format
         self._generator = None
         self.records = None
+        self._seqstats = None
 
         if self.exists:
-            self.seqrecordgenerator()
+            self._seqrecordgenerator()
         else:
             import_records = False
 
         if import_records:
             self.import_records()
 
-    def seqrecordgenerator(self):
+    def _seqrecordgenerator(self):
         """
-        Runs seqrecordgenerator with the format.
+        Runs _seqrecordgenerator with the format.
         """
         self._generator = seqrecordgenerator(self.path, format=self.format)
 
     @property
     def generator(self):
         if self._generator is None:
-            self.seqrecordgenerator()
+            self._seqrecordgenerator()
         return self._generator
 
     @generator.setter
     def generator(self, value):
         self._generator = value
 
+    @property
+    def seqstats(self):
+        if self._seqstats is None:
+            self._seqstats = _calculate_seqstats(self.records)
+        return self._seqstats
+
+    @seqstats.setter
+    def seqstats(self, value):
+        self._seqstats = value
+
     def import_records(self):
         assert self.exists, "Cannot import, file does not exist."
         self.records = SeqIO.to_dict(self._generator)
 
-    def calculate_stats(
-        self, calculate_gc=True, megabases=False, percentage=False, decimals=5
-    ):
 
-        bp_array, GC = [], 0
-        aminoacids = "LMFWKQESPVIYHRND"
+def _calculate_seqstats(
+    seqrecord_dict, calculate_gc=True, megabases=False, percentage=False, decimals=5
+):
+    """
+    :param seqrecord_dict: Dict of SeqRecord entries, from SeqFile.records.
+    :param calculate_gc: Whether to calculate GC content. Disabled if amino acid file.
+    :param megabases: Whether to convert number of sequences to megabases.
+    :param percentage: Whether to convert GC content to percentage (value * 100)
+    :param decimals: Number of decimals to round.
+    :return: SeqStats instance.
+    """
+    assert isinstance(seqrecord_dict, dict), warnings["incorrect_type"](
+        seqrecord_dict, dict
+    )
 
-        # We use enumerate to check the first item for amino acids.
-        for ix, (key, seqrecord) in enumerate(self.records.items()):
-            if ix == 0:
-                seq = str(seqrecord.seq)
-                if any(i in aminoacids for i in seq):
-                    calculate_gc = False
+    bp_array, GC = [], 0
+    aminoacids = "LMFWKQESPVIYHRND"
 
-            # Add length of sequences (number of base pairs)
-            bp_array.append(len(seqrecord.seq))
+    # We use enumerate to check the first item for amino acids.
+    for ix, (key, SeqRecord) in enumerate(seqrecord_dict.items()):
+        if ix == 0:
+            seq = str(SeqRecord.seq)
+            if any(i in aminoacids for i in seq):
+                calculate_gc = False
 
-            # Only count if there are no aminoacids.
-            if calculate_gc:
-                GC += seqrecord.upper().count("G")
-                GC += seqrecord.upper().count("C")
+        # Add length of sequences (number of base pairs)
+        bp_array.append(len(SeqRecord.seq))
 
-        # Convert to array
-        bp_array = np.array(bp_array)
-        number_seqs = len(bp_array)
-        total_bps = bp_array.sum()
-        mean_bp = round(bp_array.mean(), decimals)
-        N50 = calculate_N50(bp_array)
-        min_bp = bp_array.min()
-        max_bp = bp_array.max()
-
+        # Only count if there are no aminoacids.
         if calculate_gc:
-            GC = round(GC / total_bps, decimals)
-            if percentage:
-                GC *= 100
-        else:
-            GC = np.nan
+            GC += SeqRecord.seq.upper().count("G")
+            GC += SeqRecord.seq.upper().count("C")
 
-        if megabases:
-            total_bps /= 10e5
+    # Convert to array
+    bp_array = np.array(bp_array)
+    number_seqs = len(bp_array)
+    total_bps = bp_array.sum()
+    mean_bp = round(bp_array.mean(), decimals)
+    N50 = calculate_N50(bp_array)
+    min_bp = bp_array.min()
+    max_bp = bp_array.max()
 
-        return SeqStats(number_seqs, total_bps, mean_bp, min_bp, max_bp, N50, GC)
+    if calculate_gc:
+        GC = round(GC / total_bps, decimals)
+        if percentage:
+            GC *= 100
+    else:
+        GC = np.nan
+
+    if megabases:
+        total_bps /= 10e5
+
+    return SeqStats(number_seqs, total_bps, mean_bp, min_bp, max_bp, N50, GC)
 
 
 @dataclass
