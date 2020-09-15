@@ -80,7 +80,6 @@ def test_json_Sample():
 
     # Test json methods
     sample.to_json()
-    breakpoint()
     assert sample.files[
         "json"
     ].exists, f"Did not create JSON output for Sample '{sample.name}'."

@@ -35,7 +35,7 @@ class File:
         if tag is None:
             tag = self.name
         self.tag = tag
-        self.exists = self.path.exists()
+        self._exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
 
@@ -50,6 +50,14 @@ class File:
 
     def __str__(self):
         return self.__repr__()
+
+    @property
+    def exists(self):
+        return self.path.exists()
+
+    @exists.setter
+    def exists(self, value):
+        self._exists = value
 
     @property
     def document(self):

@@ -63,7 +63,6 @@ def test_FASTAFile():
     # nf_genome = SequenceFile(nf_genome, nf_tag)
 
     # Instance where file exists
-    # breakpoint()
     existing_instance = {
         "exists": genome.exists,
         "tag": genome.tag == tag,
