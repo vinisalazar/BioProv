@@ -12,10 +12,10 @@ bioprov.src.config module
    :undoc-members:
    :show-inheritance:
 
-bioprov.src.file module
------------------------
+bioprov.src.files module
+------------------------
 
-.. automodule:: bioprov.src.file
+.. automodule:: bioprov.src.files
    :members:
    :undoc-members:
    :show-inheritance:
@@ -40,14 +40,6 @@ bioprov.src.sample module
 -------------------------
 
 .. automodule:: bioprov.src.sample
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bioprov.src.sequencefile module
--------------------------------
-
-.. automodule:: bioprov.src.sequencefile
    :members:
    :undoc-members:
    :show-inheritance:

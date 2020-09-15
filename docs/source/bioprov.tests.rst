@@ -76,14 +76,6 @@ bioprov.tests.test\_src\_sample module
    :undoc-members:
    :show-inheritance:
 
-bioprov.tests.test\_src\_sequencefile module
---------------------------------------------
-
-.. automodule:: bioprov.tests.test_src_sequencefile
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

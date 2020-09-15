@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 """
@@ -25,16 +25,6 @@ def convert_bytes(num):
         if num < 1024.0:
             return "%3.1f %s" % (num, x)
         num /= 1024.0
-
-
-def random_string(n=8):
-    """
-    Generate random strings for tests.
-    :param n: Length of string.
-    :return: Random string of n characters.
-    """
-    letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for _ in range(n))
 
 
 def get_size(path, convert=True):

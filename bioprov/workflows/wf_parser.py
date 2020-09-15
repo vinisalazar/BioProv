@@ -2,12 +2,14 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 """
-Module containing the class CLI and related functions.
+Module containing the Workflow options parser for preset workflows.
 """
+
+
 from bioprov.workflows import genome_annotation, KaijuWorkflow
 
 

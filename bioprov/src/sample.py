@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 """
@@ -11,9 +11,9 @@ Contains the Sample and Project classes and related functions.
 
 import json
 import pandas as pd
-from bioprov.src.file import File
-from bioprov.src.sequencefile import SequenceFile
-from bioprov.utils import random_string
+from bioprov.src.files import File
+from bioprov.src.files import SeqFile
+from coolname import generate_slug
 from types import GeneratorType
 from copy import copy
 from pathlib import Path
@@ -62,7 +62,7 @@ class Sample:
 
     def __setitem__(self, key, value):
         assert isinstance(
-            value, (File, SequenceFile)
+            value, (File, SeqFile)
         ), f"To create file in sample, must be either a bioprov.File or bioprov.SequenceFile instance."
         self.files[key] = value
 
@@ -168,7 +168,9 @@ class Project:
 
         # Name
         if sample.name is None:
-            sample.name = random_string()
+            slug = generate_slug(2)
+            sample.name = slug
+            print("No sample name set. Setting random name: {}".format(sample.name))
 
         return sample
 
@@ -286,7 +288,7 @@ def to_json(samplelike, path=None, dict_only=False, _print=True):
     if isinstance(samplelike, Project):
         project = samplelike
         if path is None:
-            path = f"./Project_{random_string()}.json"
+            path = f"./Project_{generate_slug(2)}.json"
         for name, sample in project.items():
             json_out[name] = sample.to_json(dict_only=True, _print=False)
 
@@ -391,8 +393,8 @@ def from_df(
                         sample.add_files(File(path=row[column], tag=column))
                     elif type_ == "sequencefile":
                         sample.add_files(
-                            SequenceFile(
-                                path=row[column], tag=column, import_data=import_data
+                            SeqFile(
+                                path=row[column], tag=column, import_records=import_data
                             )
                         )
         if (

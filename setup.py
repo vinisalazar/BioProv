@@ -2,20 +2,22 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 import setuptools
 
 setuptools.setup(
     name="bioprov",
-    version="0.1.0",
+    version="0.1.1",
     author="Vini Salazar",
     author_email="viniws@gmail.com",
     description="BioProv - Provenance capture for bioinformatics workflows",
     long_description=(
         "BioProv is a toolkit for capturing and extracting provenance data from"
         " bioinformatics workflows."
+        "\n"
+        "To know more about BioProv, please visit the Homepage."
     ),
     url="https://github.com/vinisalazar/BioProv",
     classifiers=[
@@ -23,20 +25,21 @@ setuptools.setup(
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     packages=setuptools.find_packages(),
-    scripts=["bioprov/cli/bioprov", "bioprov/workflows/genome_annotation.py"],
+    scripts=["bioprov/bioprov"],
     include_package_data=True,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=[
         "biopython",
-        "pytest-cov",
-        "tqdm",
+        "coolname",
+        "coveralls",
         "pandas",
-        "pytest",
         "prov",
         "pydot",
-        "coveralls",
+        "pytest",
+        "pytest-cov",
+        "tqdm",
     ],
 )

@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 """
@@ -43,7 +43,7 @@ def test_import_classes_and_functions():
             read_csv,
             from_df,
             from_json,
-            SequenceFile,
+            SeqFile,
         )
     except ImportError:
         raise
@@ -55,10 +55,18 @@ def test_import_packages():
     :return: ImportError if not able to import
     """
     try:
-        from bioprov import src, data, programs, cli, workflows
-        from bioprov.data import data_dir, genomes_dir, synechococcus_genome
+        from bioprov import src, data, programs, workflows, bioprov
+        from bioprov.data import (
+            data_dir,
+            genomes_dir,
+            synechococcus_genome,
+            picocyano_dataset,
+        )
         from bioprov.programs import prodigal, prokka, kaiju, kaiju2table
-        from bioprov.cli import WorkflowOptionsParser
-        from bioprov.workflows import KaijuWorkflow, genome_annotation
+        from bioprov.workflows import (
+            KaijuWorkflow,
+            genome_annotation,
+            WorkflowOptionsParser,
+        )
     except ImportError:
         raise

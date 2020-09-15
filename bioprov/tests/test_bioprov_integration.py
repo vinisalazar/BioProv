@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 """
@@ -10,6 +10,7 @@ Integration testing for drafting new ideas.
 """
 
 import bioprov as bp
+import pytest
 from os import remove
 
 
@@ -23,14 +24,14 @@ def test_integration(debug=False):
     assembly_file = bp.data.synechococcus_genome
     protein_file = str(assembly_file).replace("fna", "faa")
     name, tag = "Synechococcus elongatus PCC 6301", "GCF_000010065.1"
-    assembly_file = bp.SequenceFile(assembly_file, "assembly")
+    assembly_file = bp.SeqFile(assembly_file, "assembly")
     sample = bp.Sample(  # Add one file in the __init__ method
         name,
         tag,
         {"assembly": assembly_file},
         {"description": f"Genome of {name} with RefSeq accession {tag}"},
     )
-    protein_file = bp.SequenceFile(protein_file, "proteins")
+    protein_file = bp.SeqFile(protein_file, "proteins")
     sample.add_files(protein_file)  # And add another file with the add_file method
     assert assembly_file.exists, sample.files["assembly"].exists
 
@@ -63,6 +64,15 @@ def test_integration(debug=False):
     # Return (useful for debugging)
     if debug:
         return sample, program_, run
+
+
+def test_CLI():
+    from bioprov.bioprov import main
+
+    # https://medium.com/python-pandemonium/testing-sys-exit-with-pytest-10c6e5f7726f
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main()
+    assert pytest_wrapped_e.type == SystemExit
 
 
 # Uncomment this if you want to test locally

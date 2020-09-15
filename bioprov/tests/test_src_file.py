@@ -2,15 +2,17 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 
 """
 Testing for the File module.
 """
 import bioprov as bp
-from bioprov import utils
+from bioprov import File, SeqFile, utils
+from coolname import generate_slug
 from pathlib import Path
+from bioprov.data import synechococcus_genome
 
 
 def test_File():
@@ -24,9 +26,9 @@ def test_File():
 
     # Test existing file
     file, tag = bp.__file__, "Init file for BioProv."
-    f = bp.File(file, tag)
-    non_existing = utils.random_string() + "." + utils.random_string(3)
-    nf = bp.File("./" + non_existing)
+    f = File(file, tag)
+    non_existing = generate_slug(2)
+    nf = File("./" + non_existing)
     attributes = {
         # File class - existing file
         "path": f.path == Path(file).absolute(),
@@ -49,3 +51,32 @@ def test_File():
     }
     for k, statement in attributes.items():
         assert statement, f"{k} did not pass!"
+
+
+def test_SeqFile():
+    """
+    Tests the SeqFile constructor.
+    :return:
+    """
+    tag = "Synechococcus elongatus PCC 6301"
+    genome = SeqFile(synechococcus_genome, tag)
+    nf_genome, nf_tag = generate_slug(2), generate_slug(2)
+    nf_genome = SeqFile(nf_genome, nf_tag)
+
+    # Instance where file exists
+    existing_instance = {
+        "exists": genome.exists,
+        "tag": genome.tag == tag,
+        "class": type(genome) == SeqFile,
+        "records": all(
+            (
+                type(genome.records) == dict,
+                len(genome.records),
+                genome.records["NC_006576.1"],
+            )
+        ),
+    }
+
+    for dict_ in (existing_instance,):
+        for k, statement in dict_.items():
+            assert statement, f"{k} did not pass!"

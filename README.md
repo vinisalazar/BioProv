@@ -1,5 +1,6 @@
 ### BioProv - W3C-PROV provenance documents for bioinformatics
 
+[![PyPI Version](https://img.shields.io/pypi/v/bioprov)](https://img.shields.io/pypi/v/bioprov)
 [![Build Status](https://travis-ci.org/vinisalazar/BioProv.svg?branch=master)](https://travis-ci.org/vinisalazar/BioProv)
 [![Coverage Status](https://coveralls.io/repos/github/vinisalazar/BioProv/badge.svg?branch=master&service=github)](https://coveralls.io/github/vinisalazar/BioProv?branch=master&service=github)
 [![License](https://img.shields.io/github/license/vinisalazar/bioprov)](https://img.shields.io/github/license/vinisalazar/bioprov)
@@ -80,14 +81,19 @@ BioProv objects can be imported or exported as JSON objects.
 $ pip install bioprov
 
 # Or install from source
-$ git clone https://github.com/vinisalazar/bioprov
-$ cd bioprov; pip install .
-
-# Test the installation
-$ pytest                                           
+$ git clone https://github.com/vinisalazar/bioprov  # download
+$ cd bioprov; pip install .                         # install
+$ pytest                                            # test
 ```
 **Important!** BioProv requires [Prodigal](https://github.com/hyattpd/Prodigal) to be tested. Otherwise tests will fail.
 
 Contributions are welcome!
 
 **BioProv is in active development and no warranties are provided (please see the License).**
+
+### Changelog - v0.1.1
+* Refactor SequenceFile as SeqFile
+* Paving the way to add support to more BioPython formats
+* Refactor SeqStats as dataclass and optimize with NumPy
+* Refactor tests
+* Adding draft provenance classes
