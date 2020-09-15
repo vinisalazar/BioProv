@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   bioprov.cli
    bioprov.data
    bioprov.programs
    bioprov.src
@@ -16,6 +15,14 @@ Subpackages
 
 Submodules
 ----------
+
+bioprov.bioprov module
+----------------------
+
+.. automodule:: bioprov.bioprov
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 bioprov.utils module
 --------------------

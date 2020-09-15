@@ -20,6 +20,14 @@ bioprov.workflows.kaiju module
    :undoc-members:
    :show-inheritance:
 
+bioprov.workflows.wf\_parser module
+-----------------------------------
+
+.. automodule:: bioprov.workflows.wf_parser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
