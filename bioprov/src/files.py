@@ -133,9 +133,27 @@ class SeqFile(File):
 
 
 class FASTAFile(SeqFile):
+    """
+        Class FASTAFile to hold information and methods for FASTA files.
+    """
+
     def __init__(self, path, **kwargs):
         """
-        Class FASTAFile to hold information and methods for FASTA files.
+        :param path: A UNIX-like file path.
+        :param kwargs: Keyword arguments for SeqFile class. See help(SeqFile) for reference.
+        """
+        super().__init__(path, format="fasta", **kwargs)
+
+
+class FASTNFile(FASTAFile):
+    """
+    Class FASTNFile to hold information and methods for FASTA nucleotide file.
+
+    Contains methods and attributes exclusive to nucleotide file, such as GC content.
+    """
+
+    def __init__(self, path, **kwargs):
+        """
         :param path: A UNIX-like file path.
         :param kwargs: Keyword arguments for SeqFile class. See help(SeqFile) for reference.
         """

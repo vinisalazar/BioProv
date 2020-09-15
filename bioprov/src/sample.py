@@ -11,8 +11,8 @@ Contains the Sample and Project classes and related functions.
 
 import json
 import pandas as pd
-from bioprov.src.file import File
-from bioprov.src.file import SeqFile
+from bioprov.src.files import File
+from bioprov.src.files import SeqFile
 from bioprov.utils import random_string
 from types import GeneratorType
 from copy import copy
