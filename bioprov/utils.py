@@ -27,16 +27,6 @@ def convert_bytes(num):
         num /= 1024.0
 
 
-def random_string(n=8):
-    """
-    Generate random strings for tests.
-    :param n: Length of string.
-    :return: Random string of n characters.
-    """
-    letters = string.ascii_lowercase
-    return "".join(random.choice(letters) for _ in range(n))
-
-
 def get_size(path, convert=True):
     """
     Calculate size of a given file.

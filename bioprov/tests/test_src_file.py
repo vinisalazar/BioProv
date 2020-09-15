@@ -10,6 +10,7 @@ Testing for the File module.
 """
 import bioprov as bp
 from bioprov import File, SeqFile, utils
+from coolname import generate_slug
 from pathlib import Path
 from bioprov.data import synechococcus_genome
 
@@ -26,7 +27,7 @@ def test_File():
     # Test existing file
     file, tag = bp.__file__, "Init file for BioProv."
     f = File(file, tag)
-    non_existing = utils.random_string() + "." + utils.random_string(3)
+    non_existing = generate_slug(2)
     nf = File("./" + non_existing)
     attributes = {
         # File class - existing file
@@ -59,8 +60,8 @@ def test_SeqFile():
     """
     tag = "Synechococcus elongatus PCC 6301"
     genome = SeqFile(synechococcus_genome, tag)
-    # nf_genome, nf_tag = random_string(), random_string(4)
-    # nf_genome = SequenceFile(nf_genome, nf_tag)
+    nf_genome, nf_tag = generate_slug(2), generate_slug(2)
+    nf_genome = SeqFile(nf_genome, nf_tag)
 
     # Instance where file exists
     existing_instance = {

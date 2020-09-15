@@ -13,7 +13,7 @@ import json
 import pandas as pd
 from bioprov.src.files import File
 from bioprov.src.files import SeqFile
-from bioprov.utils import random_string
+from coolname import generate_slug
 from types import GeneratorType
 from copy import copy
 from pathlib import Path
@@ -168,7 +168,9 @@ class Project:
 
         # Name
         if sample.name is None:
-            sample.name = random_string()
+            slug = generate_slug(2)
+            sample.name = slug
+            print("No sample name set. Setting random name: {}".format(sample.name))
 
         return sample
 
@@ -286,7 +288,7 @@ def to_json(samplelike, path=None, dict_only=False, _print=True):
     if isinstance(samplelike, Project):
         project = samplelike
         if path is None:
-            path = f"./Project_{random_string()}.json"
+            path = f"./Project_{generate_slug(2)}.json"
         for name, sample in project.items():
             json_out[name] = sample.to_json(dict_only=True, _print=False)
 

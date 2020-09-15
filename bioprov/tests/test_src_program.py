@@ -19,7 +19,7 @@ from bioprov.src.program import (
     Program,
     Run,
 )
-from bioprov.utils import random_string
+from coolname import generate_slug
 
 
 def test_Program():
@@ -42,11 +42,11 @@ def test_Program():
             setattr(p, attr, v)
             assert getattr(p, attr) == v, f"{attr} attribute is wrong!"
     assert p.cmd == p.generate_cmd()
-    r32 = random_string(32)
-    some_random_program = Program(r32)
+    slug = generate_slug(3)
+    some_random_program = Program(slug)
     assert (
         not some_random_program.found
-    ), "You shouldn't a program called {} lying around!".format(r32)
+    ), "You shouldn't a program called {} lying around!".format(slug)
 
 
 def test_Parameter():
