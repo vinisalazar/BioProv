@@ -9,11 +9,12 @@ __version__ = "0.1.1"
 Contains the File class and related functions.
 """
 from pathlib import Path
+from Bio import SeqIO
 from bioprov.utils import get_size
 from prov.model import ProvEntity
 
 
-class File(ProvEntity):
+class File:
     """
     Class for holding file and file information.
     """
@@ -67,20 +68,61 @@ class File(ProvEntity):
         self._document = document
         self._entity = ProvEntity(self._document, self.path.name)
 
+
+class FASTAFile(File):
+    """
+    Class for holding sequence file and sequence information. Inherits from File.
+    """
+
+    def __init__(
+        self, path, tag=None, document=None, import_records=True, _format="fasta",
+    ):
+        """
+        :param path: A UNIX-like file path.
+        :param tag: optional tag describing the file.
+        :param import_records: Whether to import sequence data as Bio.SeqRecord.SeqRecord
+        :param _format: Input format. Only 'fasta' is supported for now.
+        """
+        super().__init__(path, tag, document)
+        self._generator = None
+        self.records = None
+
+        if self.exists:
+            self.fasta_seqrecordgenerator()
+        else:
+            import_records = False
+
+        if import_records:
+            self.import_records()
+
+    def fasta_seqrecordgenerator(self):
+        """
+        Runs seqrecordgenerator with the FASTA format.
+        """
+        self._generator = seqrecordgenerator(self.path, "fasta")
+
     @property
-    def size(self):
-        return self._size
+    def generator(self):
+        if self._generator is None:
+            self.fasta_seqrecordgenerator()
+        return self._generator
 
-    @size.setter
-    def size(self, value):
-        self._size = value
+    @generator.setter
+    def generator(self, value):
+        self._generator = value
 
-    @property
-    def exists(self):
-        return self.path.exists()
+    def import_records(self):
+        self.records = SeqIO.to_dict(self._generator)
 
-    @exists.setter
-    def exists(self, _):
-        self._exists = self.path.exists()
 
-    pass
+def seqrecordgenerator(path, format):
+    """
+    :param path: Path to file.
+    :param format: format to pass to SeqIO.parse().
+    :return: A generator of SeqRecords.
+    """
+    try:
+        records = SeqIO.parse(path, format=format)
+        return records
+    except FileNotFoundError:
+        raise
