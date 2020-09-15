@@ -10,6 +10,7 @@ Integration testing for drafting new ideas.
 """
 
 import bioprov as bp
+import pytest
 from os import remove
 
 
@@ -63,6 +64,15 @@ def test_integration(debug=False):
     # Return (useful for debugging)
     if debug:
         return sample, program_, run
+
+
+def test_CLI():
+    from bioprov.bioprov import main
+
+    # https://medium.com/python-pandemonium/testing-sys-exit-with-pytest-10c6e5f7726f
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main()
+    assert pytest_wrapped_e.type == SystemExit
 
 
 # Uncomment this if you want to test locally
