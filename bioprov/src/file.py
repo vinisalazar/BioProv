@@ -60,6 +60,14 @@ class File:
         self._exists = value
 
     @property
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self, value):
+        self._size = value
+
+    @property
     def document(self):
         return self._document
 
