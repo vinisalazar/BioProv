@@ -29,7 +29,6 @@ class File(ProvEntity):
         self.path = Path(path).absolute()
         self.name = self.path.stem
         self.basename = self.path.name
-        super().__init__(document, identifier="files:{}".format(self.basename))
         self.directory = self.path.parent
         self.extension = self.path.suffix
         if tag is None:
@@ -40,7 +39,7 @@ class File(ProvEntity):
         self.raw_size = get_size(self.path, convert=False)
 
         # Provenance attributes
-        self._document = None
+        self._document = document
         self._entity = ProvEntity(
             self._document, identifier="files:{}".format(self.basename)
         )
