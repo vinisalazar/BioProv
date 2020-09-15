@@ -52,7 +52,7 @@ def test_File():
         assert statement, f"{k} did not pass!"
 
 
-def test_FASTAFile():
+def test_SeqFile():
     """
     Tests the SeqFile constructor.
     :return:

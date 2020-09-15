@@ -12,7 +12,7 @@ Inherits objects from the src/ package.
 """
 
 from .src.config import Config, default_config
-from .src.files import File, SeqFile, FASTAFile
+from .src.files import File, SeqFile
 from .src.program import Program, Parameter, Run
 from .src.sample import (
     Sample,

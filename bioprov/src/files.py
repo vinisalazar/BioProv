@@ -8,6 +8,8 @@ __version__ = "0.1.1"
 """
 Contains the File class and related functions.
 """
+import numpy as np
+from dataclasses import dataclass
 from pathlib import Path
 from Bio import SeqIO
 from bioprov.utils import get_size
@@ -19,13 +21,12 @@ class File:
     Class for holding file and file information.
     """
 
-    def __init__(
-        self, path, tag=None, document=None,
-    ):
+    def __init__(self, path, tag=None, document=None, attributes=None):
         """
         :param path: A UNIX-like file path.
         :param tag: optional tag describing the file.
         :param document: prov.model.ProvDocument
+        :param attributes: Miscellaneous attributes.
         """
         self.path = Path(path).absolute()
         self.name = self.path.stem
@@ -34,7 +35,10 @@ class File:
         self.extension = self.path.suffix
         if tag is None:
             tag = self.name
+        if attributes is None:
+            attributes = {}
         self.tag = tag
+        self.attributes = attributes
         self._exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
@@ -129,35 +133,87 @@ class SeqFile(File):
         self._generator = value
 
     def import_records(self):
+        assert self.exists, "Cannot import, file does not exist."
         self.records = SeqIO.to_dict(self._generator)
 
+    def calculate_stats(
+        self, calculate_gc=True, megabases=False, percentage=False, decimals=5
+    ):
 
-class FASTAFile(SeqFile):
+        bp_array, GC = [], 0
+        aminoacids = "LMFWKQESPVIYHRND"
+
+        # We use enumerate to check the first item for amino acids.
+        for ix, (key, seqrecord) in enumerate(self.records.items()):
+            if ix == 0:
+                seq = str(seqrecord.seq)
+                if any(i in aminoacids for i in seq):
+                    calculate_gc = False
+
+            # Add length of sequences (number of base pairs)
+            bp_array.append(len(seqrecord.seq))
+
+            # Only count if there are no aminoacids.
+            if calculate_gc:
+                GC += seqrecord.upper().count("G")
+                GC += seqrecord.upper().count("C")
+
+        # Convert to array
+        bp_array = np.array(bp_array)
+        number_seqs = len(bp_array)
+        total_bps = bp_array.sum()
+        mean_bp = round(bp_array.mean(), decimals)
+        N50 = calculate_N50(bp_array)
+        min_bp = bp_array.min()
+        max_bp = bp_array.max()
+
+        if calculate_gc:
+            GC = round(GC / total_bps, decimals)
+            if percentage:
+                GC *= 100
+        else:
+            GC = np.nan
+
+        if megabases:
+            total_bps /= 10e5
+
+        return SeqStats(number_seqs, total_bps, mean_bp, min_bp, max_bp, N50, GC)
+
+
+@dataclass
+class SeqStats:
     """
-        Class FASTAFile to hold information and methods for FASTA files.
+    Dataclass to describe sequence statistics.
     """
 
-    def __init__(self, path, **kwargs):
-        """
-        :param path: A UNIX-like file path.
-        :param kwargs: Keyword arguments for SeqFile class. See help(SeqFile) for reference.
-        """
-        super().__init__(path, format="fasta", **kwargs)
+    number_seqs: int
+    total_bps: int
+    mean_bp: float
+    min_bp: int
+    max_bp: int
+    N50: int
+    GC: float
 
 
-class FASTNFile(FASTAFile):
+def calculate_N50(array):
     """
-    Class FASTNFile to hold information and methods for FASTA nucleotide file.
+    Calculate N50 from an array of contig lengths.
+    https://github.com/vikas0633/python/blob/master/N50.py
 
-    Contains methods and attributes exclusive to nucleotide file, such as GC content.
+    Based on the Broad Institute definition:
+    https://www.broad.harvard.edu/crd/wiki/index.php/N50
+    :param array: list of contig lengths
+    :return: N50 value
     """
+    array.sort()
+    new_array = array([[x] * x for x in array])
 
-    def __init__(self, path, **kwargs):
-        """
-        :param path: A UNIX-like file path.
-        :param kwargs: Keyword arguments for SeqFile class. See help(SeqFile) for reference.
-        """
-        super().__init__(path, format="fasta", **kwargs)
+    if len(new_array) % 2 == 0:
+        ix = int(len(new_array) / 2)
+        return new_array[ix] + new_array[ix - 1] / 2
+    else:
+        ix = int((len(new_array) / 2) - 0.5)
+        return new_array[ix]
 
 
 def seqrecordgenerator(path, format):
