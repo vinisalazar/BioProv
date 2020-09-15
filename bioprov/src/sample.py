@@ -11,8 +11,8 @@ Contains the Sample and Project classes and related functions.
 
 import json
 import pandas as pd
-from bioprov.src.file import File
-from bioprov.src.sequencefile import SequenceFile
+from bioprov.src.files import File
+from bioprov.src.files import SeqFile
 from bioprov.utils import random_string
 from types import GeneratorType
 from copy import copy
@@ -62,7 +62,7 @@ class Sample:
 
     def __setitem__(self, key, value):
         assert isinstance(
-            value, (File, SequenceFile)
+            value, (File, SeqFile)
         ), f"To create file in sample, must be either a bioprov.File or bioprov.SequenceFile instance."
         self.files[key] = value
 
@@ -391,8 +391,8 @@ def from_df(
                         sample.add_files(File(path=row[column], tag=column))
                     elif type_ == "sequencefile":
                         sample.add_files(
-                            SequenceFile(
-                                path=row[column], tag=column, import_data=import_data
+                            SeqFile(
+                                path=row[column], tag=column, import_records=import_data
                             )
                         )
         if (
