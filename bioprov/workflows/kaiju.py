@@ -157,7 +157,7 @@ class KaijuWorkflow:
             "--input",
             help=(
                 "Input file, a tab delimited file which must contain three columns: 'sample-id', 'R1', and 'R2',\
-                containing respectively sample IDs, path to forward reads and path to reverse reads."
+                containing respectively sample IDs, _path to forward reads and _path to reverse reads."
             ),
             required=True,
             type=str,

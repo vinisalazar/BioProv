@@ -8,8 +8,6 @@ __version__ = "0.1.2"
 """
 Helper functions.
 """
-import random
-import string
 import sys
 from pathlib import Path
 
@@ -30,7 +28,7 @@ def convert_bytes(num):
 def get_size(path, convert=True):
     """
     Calculate size of a given file.
-    :param path: Valid path of a file.
+    :param path: Valid _path of a file.
     :param convert: Whether to convert the values to bytes, KB, etc.
     :return: Size with converted values. 0 if file does not exist.
     """

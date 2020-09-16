@@ -23,7 +23,7 @@ class File:
 
     def __init__(self, path, tag=None, document=None, attributes=None):
         """
-        :param path: A UNIX-like file path.
+        :param path: A UNIX-like file _path.
         :param tag: optional tag describing the file.
         :param document: prov.model.ProvDocument
         :param attributes: Miscellaneous attributes.
@@ -98,7 +98,7 @@ class SeqFile(File):
         self, path, tag=None, document=None, import_records=True, format="fasta",
     ):
         """
-        :param path: A UNIX-like file path.
+        :param path: A UNIX-like file _path.
         :param format: Format to be parsed by SeqIO.parse()
         :param tag: optional tag describing the file.
         :param import_records: Whether to import sequence data as Bio.SeqRecord.SeqRecord
