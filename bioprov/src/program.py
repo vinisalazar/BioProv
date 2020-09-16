@@ -4,19 +4,26 @@ __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.2"
 
-
 """
 Contains the Program, Parameter and Run class and related functions.
+
+Contains the Sample and Project classes and related functions.
 
 To-do:
     - implement ParameterDict
 """
 import datetime
-from bioprov.src.sample import Sample
+import json
+import pandas as pd
 from bioprov.utils import warnings
+from bioprov.src.files import File, SeqFile
+from coolname import generate_slug
+from copy import copy
 from os import path
+from pathlib import Path
 from subprocess import Popen, PIPE, getoutput
 from time import time
+from types import GeneratorType
 
 
 class Program:
@@ -38,8 +45,8 @@ class Program:
         :param name: Name of the program being called.
         :param params: Dictionary of parameters.
         :param tag: Tag to call the program if different from name. Default: self.name
-        :param path_to_bin: A full path to the program's binary. Default: get from self.name.
-        :param cmd: A command string to call the program. Default: build from self.path and self.params.
+        :param path_to_bin: A full _path to the program's binary. Default: get from self.name.
+        :param cmd: A command string to call the program. Default: build from self._path and self.params.
         :param version: Version of the program.
         :param version_param: the parameter passed to the program to return the version.
         """
@@ -561,3 +568,554 @@ def generate_param_str(params):
     param_str = " ".join(split_str).strip()
 
     return param_str
+
+
+def add_programs(object_, programs):
+    """
+    Adds program(s) to object. Must be an instance or iterable of bioprov.Program.
+    :param object_: A bioprov.Sample or Project instance.
+    :param programs: bioprov.Program iterator or instance, value where key is the program name
+                     and value is a bp.Program instance.
+    :return: Updates self by adding the programs to object.
+    """
+
+    # Assert it is adding to correct object
+    assert isinstance(
+        object_, (Sample, Project)
+    ), "Can't add file to type '{}'. Can only add file to Sample or Project object.".format(
+        type(object_)
+    )
+
+    # If a single item, make into tuple and assert correct type
+    if isinstance(programs, Program):
+        programs = (programs,)
+    else:
+        for item in programs:
+            assert isinstance(item, Program), warnings["incorrect_type"](item, Program)
+
+    # Set 'programs' attribute in object if None
+    if object_.programs is None:
+        object_.programs = []
+
+    # Finally, append programs to object_.programs
+    for program in programs:
+        object_.programs.append(program)
+
+
+def add_runs(object_, runs):
+    """
+    Adds run(s) to object. Must be an instance or iterable of bioprov.Run.
+    :param object_: A bioprov.Sample or Project instance.
+    :param runs: bioprov.Run iterator or instance or dict with key, value where key is the run name
+                     and value is a bp.Run instance.
+    :return: Updates self by adding the runs to object.
+    """
+
+    # Assert it is adding to correct object
+    assert isinstance(
+        object_, (Sample, Project)
+    ), "Can't add file to type '{}'. Can only add file to Sample or Project object.".format(
+        type(object_)
+    )
+
+    # If a single item, make into tuple and assert correct type
+    if isinstance(runs, Run):
+        runs = (runs,)
+    else:
+        for item in runs:
+            assert isinstance(item, Run), warnings["incorrect_type"](item, Run)
+
+    # Set 'runs' attribute in object if None
+    if object_.runs is None:
+        object_.runs = []
+
+    # Finally, append runs to object_.runs
+    for run in runs:
+        object_.runs.append(run)
+
+
+"""
+Sample block starts here.
+ 
+This block was contained in a separate module but was moved here to prevent circular import problems.
+"""
+
+
+class Sample:
+    """
+    Class for holding sample information and related files and programs.
+    """
+
+    def __init__(self, name=None, tag=None, files=None, attributes=None):
+        """
+        :param name:  Sample name or ID.
+        :param tag: optional tag describing the sample.
+        :param files: Dictionary of files associated with the sample.
+        :param attributes: Dictionary of any other attributes associated with the sample.
+        """
+        if isinstance(name, str):
+            name = name.replace(" ", "_")  # No space, will use it for filenames.
+
+        self.name = name
+        self.tag = tag
+        if isinstance(files, dict):
+            files_ = dict()
+            for k, v in files.items():
+                if isinstance(v, File):
+                    files_[k] = v
+                else:  # if not a File instance, create one.
+                    files_[k] = File(path=v, tag=k)
+            files = files_
+        elif files is None:
+            files = dict()
+        self.files = files
+        if attributes is not None:
+            assert isinstance(attributes, dict)
+        else:
+            attributes = dict()
+        self.attributes = attributes
+        self._programs = None
+        self._runs = None
+
+    def __repr__(self):
+        str_ = f"Sample {self.name} with {len(self.files)} file(s)."
+        return str_
+
+    def __getitem__(self, item):
+        return self.files[item]
+
+    def __setitem__(self, key, value):
+        assert isinstance(
+            value, (File, SeqFile)
+        ), f"To create file in sample, must be either a bioprov.File or bioprov.SequenceFile instance."
+        self.files[key] = value
+
+    def add_programs(self, programs):
+        """
+        Adds program(s) to self. Must be an instance or iterable of bioprov.Program.
+        :param programs: bioprov.Program iterator or instance, value where key is the program name
+                         and value is a bp.Program instance.
+        :return: Updates self by adding the programs to object.
+        """
+        add_programs(self, programs)
+
+    def add_files(self, files):
+        """
+        Sample method to add files.
+        :param files: See input to add_files function.
+        :return: Adds files to Sample
+        """
+        add_files(self, files)
+
+    def to_json(self, _path=None, dict_only=False, _print=True):
+        """
+        Exports the Project as JSON. Similar to Sample.to_json()
+        :param _path: JSON output file _path.
+        :param dict_only: Whether to return the dictionary only or write the JSON.
+        :param _print: Whether to print if the file was created correctly.
+        :return:
+        """
+        if _path is None:
+            _path = Path.joinpath(Path("./"), Path(self.name + ".json"))
+            self.add_files(File(_path, "json"))
+
+        return to_json(self, _path, dict_only=dict_only, _print=_print)
+
+    def run(self, program, _print=True):
+        """
+        Run a Program or PresetProgram on Sample.
+        :param program: An instance of bioprov.Program or PresetProgram
+        :param _print: Whether to print output of Program.
+        :return: Runs the program for Sample.
+        """
+        run = program.run(sample=self, _print=print)
+
+        if program not in self.programs:
+            self.programs.append(program)
+        if run not in self.runs:
+            self.runs.append(run)
+
+    @property
+    def runs(self):
+        if self._runs is None:
+            self._runs = []
+        return self._runs
+
+    @property
+    def programs(self):
+        if self._programs is None:
+            self._programs = []
+        return self._programs
+
+
+class Project:
+    """
+    Class which holds a dictionary of Sample instances, where each key is the sample name.
+    """
+
+    def __init__(self, samples=None, tag=None):
+        """
+        Initiates the object by creating a sample dictionary.
+        :param samples: An iterator of Sample objects.
+        :param tag: A tag to describe the Project.
+        """
+        samples = self.is_iterator(
+            samples
+        )  # Checks if `samples` is a valid constructor.
+        samples = self.build_sample_dict(samples)
+        self._samples = samples
+        self.files = dict()
+        self.tag = tag
+
+    def __len__(self):
+        return len(self._samples)
+
+    def __repr__(self):
+        return f"Project with {len(self._samples)} samples."
+
+    def __getitem__(self, item):
+        try:
+            value = self._samples[item]
+            return value
+        except KeyError:
+            keys = self.keys()
+            print(
+                f"Sample {item} not in Project.\n",
+                "Check the following keys:\n",
+                "\n".join(keys),
+            )
+
+    def __setitem__(self, key, value):
+        self._samples[key] = value
+
+    def keys(self):
+        return self._samples.keys()
+
+    def values(self):
+        return self._samples.values()
+
+    def items(self):
+        return self._samples.items()
+
+    def add_files(self, files):
+        """
+        Project method to add files.
+        :param files: See input to add_files function.
+        :return: Adds files to Project
+        """
+        add_files(self, files)
+
+    @staticmethod
+    def is_sample_and_name(sample):
+        """
+        Checks if an object is of the Sample class.
+        Name the sample if it isn't named.
+        :param sample: an object of the Sample class.
+        :return:
+        """
+        # Check class
+        assert isinstance(sample, Sample), f"{sample} is not a valid Sample object!"
+
+        # Name
+        if sample.name is None:
+            slug = generate_slug(2)
+            sample.name = slug
+            print("No sample name set. Setting random name: {}".format(sample.name))
+
+        return sample
+
+    @staticmethod
+    def is_iterator(constructor):
+        """
+        Checks if the constructor passed is a valid iterable, or None.
+        :param constructor: constructor object used to build a Project instance.
+        :return:.
+        """
+        assert type(constructor) in (
+            list,
+            dict,
+            tuple,
+            GeneratorType,
+            type(None),
+        ), f"'samples' must be an iterator of Sample instances."
+
+        return constructor
+
+    @staticmethod
+    def build_sample_dict(constructor):
+        """
+        Build sample dictionary from passed constructor.
+        :param constructor: Iterable or NoneType
+        :return: dictionary of sample instances.
+        """
+        samples = dict()
+        if constructor is None:
+            return samples
+
+        if isinstance(constructor, dict):
+            constructor = list(constructor.values())
+
+        for sample in constructor:
+            sample = Project.is_sample_and_name(sample)
+            samples[sample.name] = sample
+
+        return samples
+
+    @property
+    def samples(self):
+        return self._samples
+
+    @samples.setter
+    def samples(self, value):
+        self._samples = self.build_sample_dict(value)
+
+    def to_json(self, _path=None, dict_only=False, _print=True):
+        """
+        Exports the Project as JSON. Similar to Sample.to_json()
+        :param _path: JSON output file _path.
+        :param dict_only: Whether to return the dictionary only or write the JSON.
+        :param _print: Whether to print if the file was created correctly.
+        :return:
+        """
+        if _path is None:
+            if self.tag is not None:
+                _path = f"./{self.tag}.json"
+            else:
+                pass
+        return to_json(self, _path, dict_only=dict_only, _print=_print)
+
+
+def add_files(object_, files):
+    """
+    Adds file(s) to object. Must be a dict or an instance or iterable of bioprov.File.
+    :param object_: A Sample or Project instance.
+    :param files: bioprov.File list, instance or dict with key, value where value is the file _path.
+    :return: Updates self by adding the file to object.
+    """
+
+    # Assert it is adding to correct object
+    assert isinstance(
+        object_, (Sample, Project)
+    ), "Can't add file to type '{}'. Can only add file to Sample or Project object.".format(
+        type(object_)
+    )
+
+    # If it is a dict, we convert to File instances
+    if isinstance(files, dict):
+        files = {k: File(v, tag=k) for k, v in files.items()}
+
+    # If it is an iterable of File instances, transform to a dict
+    elif isinstance(files, list):
+        files = {file.name: file for file in files}
+
+    # If it is a single item, also transform to dict
+    elif isinstance(files, File):
+        files = {files.tag: files}  # Grabs by tag because it is File.name by default
+
+    # Here files must be a dictionary of File instances
+    for k, v in files.items():
+        if k in object_.files.keys():
+            print(f"Updating file {k} with value {v}.")
+        object_.files[k] = v
+
+
+def to_json(samplelike, _path=None, dict_only=False, _print=True):
+    """
+    Exports the Sample or Project as JSON.
+    :param samplelike: Sample or Project instance.
+    :param _path: Path to JSON file. Default is current directory.
+    :param dict_only: Whether to return a dictionary only or write the JSON.
+    :param _print: Whether to print if the file was created correctly.
+    :return:
+    """
+    json_out = dict()
+
+    assert isinstance(
+        samplelike, (Project, Sample)
+    ), f"{samplelike} must be a Sample or Project object!"
+
+    # Build Project JSON dict
+    if isinstance(samplelike, Project):
+        project = samplelike
+        if _path is None:
+            _path = f"./Project_{generate_slug(2)}.json"
+        for name, sample in project.items():
+            json_out[name] = sample.to_json(dict_only=True, _print=False)
+
+    # Build Sample JSON dict
+    elif isinstance(samplelike, Sample):
+        sample = samplelike
+        if _path is None:
+            _path = Path.joinpath(Path("./"), Path(sample.name + ".json"))
+            sample.add_files(File(_path, "json"))
+
+        for key, value in sample.__dict__.items():
+            key_, value_ = copy(key), copy(value)  # Create copies, not reference
+            if isinstance(value, dict):  # Or we will lose our original values.
+                for k, v in value_.items():
+                    value_[k] = str(v)
+            json_out[key] = value_
+
+    if dict_only:
+        return json_out
+
+    write_json(json_out, _path)
+
+    return
+
+
+def from_json(json_file, kind="Sample"):
+    """
+    Imports Sample or Project from JSON file.
+    :param json_file: A JSON file created by Sample.to_json()
+    :param kind: Whether to create a Sample or Project instance.
+    :return: a Sample or Project instance.
+    """
+    assert kind in ("Sample", "Project"), "Must specify 'Sample' or 'Project'."
+    d = json_to_dict(json_file)
+    if "name" in d.keys():  # This checks whether the file is a Sample or Project
+        kind = "Sample"  # To-do: must be improved.
+    else:
+        kind = "Project"
+    if kind == "Sample":
+        sample_ = dict_to_sample(d)
+        return sample_
+    elif kind == "Project":
+        samples = dict()
+        for k, v in d.items():
+            samples[k] = dict_to_sample(v)
+        sampleset = Project(samples=samples)
+        return sampleset
+
+
+def from_df(
+    df,
+    index_col=0,
+    file_cols=None,
+    sequencefile_cols=None,
+    tag=None,
+    source_file=None,
+    import_data=False,
+):
+    """
+    Pandas-like function to build a Project object.
+
+    By default, assumes the sample names or ids are in the first column,
+        else they should be specified by 'index_col' arg.
+    '''
+    samples = from_df(df_path, sep="\t")
+
+    type(samples)  # bioprov.Sample.Project.
+
+    You can select columns to be added as Files or SequenceFile instances.
+    '''
+    :param df: A pandas DataFrame
+    :param index_col: A column to be used as index. Must be in df_path.columns.
+                        If int is passed, will get it from columns.
+    :param file_cols: Columns containing Files.
+    :param sequencefile_cols: Columns containing SequenceFiles.
+    :param tag: A tag to describe the Project.
+    :param source_file: The source file used to read the dataframe.
+    :param import_data: Whether to import data when importing SequenceFiles
+    :return: a Project instance
+    """
+    df_ = df.copy()
+    if isinstance(index_col, int):
+        index_col = df_.columns[index_col]
+    assert (
+        index_col in df_.columns
+    ), f"Index column '{index_col}' not present in columns!"
+    df_.set_index(index_col, inplace=True)
+
+    samples = dict()
+    attribute_cols = [
+        i for i in df_.columns if i not in (file_cols, sequencefile_cols, index_col)
+    ]
+    for ix, row in df_.iterrows():
+        sample = Sample(name=ix)
+
+        for arg, type_ in zip((file_cols, sequencefile_cols), ("file", "sequencefile")):
+            if arg is not None:
+                if isinstance(arg, str):  # If a string is passed,
+                    arg = (arg,)  # we must make a list/tuple so we can iterate.
+                for column in arg:
+                    if type_ == "file":
+                        sample.add_files(File(path=row[column], tag=column))
+                    elif type_ == "sequencefile":
+                        sample.add_files(
+                            SeqFile(
+                                path=row[column], tag=column, import_records=import_data
+                            )
+                        )
+        if (
+            len(attribute_cols) > 0
+        ):  # Here we check by len() instead of none because it is a list.
+            for attr_ in attribute_cols:
+                sample.attributes[attr_] = row[attr_]
+        samples[ix] = sample
+
+    samples = Project(samples, tag=tag)
+    if source_file:
+        samples.add_files({"project_csv": source_file})
+
+    return samples
+
+    pass
+
+
+def read_csv(df_path, sep=",", **kwargs):
+    """
+    :param df_path: Path of dataframe.
+    :param sep: Separator of dataframe.
+    :param kwargs: Any kwargs to be passed to from_df()
+    :return: A Project instance.
+    """
+    df = pd.read_csv(df_path, sep=sep)
+    sampleset = from_df(df, source_file=df_path, **kwargs)
+    return sampleset
+
+
+def json_to_dict(json_file):
+    """
+    Reads dict from a JSON file.
+    :param json_file: A JSON file created by Sample.to_json()
+    :return: a dictionary (input to dict_to_sample())
+    """
+    with open(json_file) as f:
+        dict_ = json.load(f)
+    return dict_
+
+
+def dict_to_sample(json_dict):
+    """
+    Converts a JSON dictionary to a sample instance.
+    :param json_dict: output of sample_from_json.
+    :return: a Sample instance.
+    """
+    sample_ = Sample()
+    for attr, value in json_dict.items():
+        # Create File instances
+        if attr == "files":
+            for tag, _path in value.items():
+                value[tag] = File(_path, tag)
+
+        setattr(sample_, attr, value)
+    return sample_
+
+
+def write_json(dict_, _path, _print=True):
+    """
+    Writes dictionary to JSON file.
+    :param dict_: JSON dictionary.
+    :param _path: String with _path to JSON file.
+    :param _print: Whether to print if the file was successfully created.
+    :return: Writes JSON file
+    """
+    with open(_path, "w") as f:
+        json.dump(dict_, f, indent=3)
+
+    if _print:
+        if Path(_path).exists():
+            print(f"Created JSON file at {_path}.")
+        else:
+            print(f"Could not create JSON file for {_path}.")

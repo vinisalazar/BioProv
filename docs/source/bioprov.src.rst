@@ -36,10 +36,10 @@ bioprov.src.prov module
    :undoc-members:
    :show-inheritance:
 
-bioprov.src.sample module
+bioprov.src.program module
 -------------------------
 
-.. automodule:: bioprov.src.sample
+.. automodule:: bioprov.src.program
    :members:
    :undoc-members:
    :show-inheritance:
