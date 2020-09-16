@@ -4,7 +4,6 @@ __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.2"
 
-
 """
 Helper functions.
 """
@@ -79,3 +78,44 @@ warnings = {
         x, type(x), type_
     ),
 }
+
+
+def serializer(object_):
+    """
+    Helper function to serialize objects into JSON compatible dictionaries.
+    :param object_: A BioProv class instance.
+    :return: JSON compatible dictionary.
+    """
+    serial_out = dict()
+
+    if isinstance(object_, dict):
+        pass
+    else:
+        object_ = object_.__dict__
+
+    for k, v in object_.items():
+        if has_serializer(v):
+            serial_out[k] = v.serializer()
+
+        elif isinstance(v, dict):
+            serial_out[k] = serializer(v)
+
+        elif is_serializable_type(v):
+            serial_out[k] = v
+        # Checks for serializer method
+        # If none of the previous conditions apply, convert to str
+        else:
+            serial_out[k] = str(v)
+
+    return serial_out
+
+
+def has_serializer(object_):
+    _has_serializer = getattr(object_, "serializer", None)
+    if callable(_has_serializer):
+        return True
+
+
+def is_serializable_type(type_):
+    serializable_types = (float, int, str, list, tuple, bool, type(None))
+    return isinstance(type_, serializable_types)
