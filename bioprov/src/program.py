@@ -15,10 +15,9 @@ To-do:
 import datetime
 import json
 import pandas as pd
-from bioprov.utils import warnings
+from bioprov.utils import warnings, serializer
 from bioprov.src.files import File, SeqFile
 from coolname import generate_slug
-from copy import copy
 from os import path
 from pathlib import Path
 from subprocess import Popen, PIPE, getoutput
@@ -112,6 +111,9 @@ class Program:
         run_.run(_print=_print)
         self.run_ = run_
         return run_
+
+    def serializer(self):
+        return serializer(self)
 
 
 class Parameter:
@@ -297,6 +299,9 @@ class Run(Program):
         self.status = self._finished_to_status(self.finished)
 
         return self.stdout
+
+    def serializer(self):
+        return serializer(self)
 
 
 class PresetProgram(Program):
@@ -707,19 +712,8 @@ class Sample:
         """
         add_files(self, files)
 
-    def to_json(self, _path=None, dict_only=False, _print=True):
-        """
-        Exports the Project as JSON. Similar to Sample.to_json()
-        :param _path: JSON output file _path.
-        :param dict_only: Whether to return the dictionary only or write the JSON.
-        :param _print: Whether to print if the file was created correctly.
-        :return:
-        """
-        if _path is None:
-            _path = Path.joinpath(Path("./"), Path(self.name + ".json"))
-            self.add_files(File(_path, "json"))
-
-        return to_json(self, _path, dict_only=dict_only, _print=_print)
+    def serializer(self):
+        return serializer(self)
 
     def run(self, program, _print=True):
         """
@@ -746,6 +740,15 @@ class Sample:
         if self._programs is None:
             self._programs = []
         return self._programs
+
+    def to_json(self, _path=None, _print=True):
+        """
+        Exports the Sample as JSON. Similar to Project.to_json()
+        :param _path: JSON output file path.
+        :param _print: Whether to print if the file was created correctly.
+        :return:
+        """
+        return to_json(self, self.serializer(), _path, _print=_print)
 
 
 class Project:
@@ -869,20 +872,17 @@ class Project:
     def samples(self, value):
         self._samples = self.build_sample_dict(value)
 
-    def to_json(self, _path=None, dict_only=False, _print=True):
+    def serializer(self):
+        return serializer(self)
+
+    def to_json(self, _path=None, _print=True):
         """
         Exports the Project as JSON. Similar to Sample.to_json()
         :param _path: JSON output file _path.
-        :param dict_only: Whether to return the dictionary only or write the JSON.
         :param _print: Whether to print if the file was created correctly.
         :return:
         """
-        if _path is None:
-            if self.tag is not None:
-                _path = f"./{self.tag}.json"
-            else:
-                pass
-        return to_json(self, _path, dict_only=dict_only, _print=_print)
+        return to_json(self, self.serializer(), _path, _print=_print)
 
 
 def add_files(object_, files):
@@ -919,49 +919,19 @@ def add_files(object_, files):
         object_.files[k] = v
 
 
-def to_json(samplelike, _path=None, dict_only=False, _print=True):
+def to_json(object_, dictionary, _path=None, _print=True):
     """
     Exports the Sample or Project as JSON.
-    :param samplelike: Sample or Project instance.
-    :param _path: Path to JSON file. Default is current directory.
-    :param dict_only: Whether to return a dictionary only or write the JSON.
-    :param _print: Whether to print if the file was created correctly.
-    :return:
+    :return: Writes JSON output
     """
-    json_out = dict()
+    if _path is None:
+        assert object_.tag is not None
+        _path = f"./{object_.tag}.json"
 
-    assert isinstance(
-        samplelike, (Project, Sample)
-    ), f"{samplelike} must be a Sample or Project object!"
+    if "json" not in object_.files.keys():
+        object_.add_files({"json": _path})
 
-    # Build Project JSON dict
-    if isinstance(samplelike, Project):
-        project = samplelike
-        if _path is None:
-            _path = f"./Project_{generate_slug(2)}.json"
-        for name, sample in project.items():
-            json_out[name] = sample.to_json(dict_only=True, _print=False)
-
-    # Build Sample JSON dict
-    elif isinstance(samplelike, Sample):
-        sample = samplelike
-        if _path is None:
-            _path = Path.joinpath(Path("./"), Path(sample.name + ".json"))
-            sample.add_files(File(_path, "json"))
-
-        for key, value in sample.__dict__.items():
-            key_, value_ = copy(key), copy(value)  # Create copies, not reference
-            if isinstance(value, dict):  # Or we will lose our original values.
-                for k, v in value_.items():
-                    value_[k] = str(v)
-            json_out[key] = value_
-
-    if dict_only:
-        return json_out
-
-    write_json(json_out, _path)
-
-    return
+    return write_json(dictionary, _path, _print=_print)
 
 
 def from_json(json_file, kind="Sample"):
@@ -982,10 +952,14 @@ def from_json(json_file, kind="Sample"):
         return sample_
     elif kind == "Project":
         samples = dict()
-        for k, v in d.items():
+        for k, v in d["_samples"].items():
             samples[k] = dict_to_sample(v)
-        sampleset = Project(samples=samples)
-        return sampleset
+
+        # Create Project
+        project = Project(samples=samples, tag=d["tag"])
+        project.add_files(d["files"])
+
+        return project
 
 
 def from_df(

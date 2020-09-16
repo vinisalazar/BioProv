@@ -98,7 +98,7 @@ def test_json_Sample():
     remove(str(sample.files["json"]))
 
 
-def test_json_SampleSet():
+def test_json_Project():
     """
     Testing for JSON methods in Project class.
     :return:
