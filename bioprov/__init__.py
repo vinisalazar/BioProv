@@ -21,5 +21,6 @@ from .src.sample import (
     from_df,
     from_json,
 )
+from .src.prov import BioProvDocument, BioProvProject
 
 name = "bioprov"
