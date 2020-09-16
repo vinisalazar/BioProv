@@ -45,9 +45,7 @@ class File:
 
         # Provenance attributes
         self._document = document
-        self._entity = ProvEntity(
-            self._document, identifier="files:{}".format(self.basename)
-        )
+        self._entity = None
 
     def __repr__(self):
         return str(self.path)
@@ -81,17 +79,16 @@ class File:
 
     @property
     def entity(self):
+        if self._entity is None:
+            ProvEntity(self._document, identifier="files:{}".format(self.basename))
         return self._entity
-
-    @entity.setter
-    def entity(self, document):
-        self._document = document
-        self._entity = ProvEntity(self._document, self.path.name)
 
 
 class SeqFile(File):
     """
     Class for holding sequence file and sequence information. Inherits from File.
+
+    This class support records parsed with the BioPython.SeqIO module.
     """
 
     def __init__(
