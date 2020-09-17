@@ -112,8 +112,7 @@ def serializer(object_):
 
 def has_serializer(object_):
     _has_serializer = getattr(object_, "serializer", None)
-    if callable(_has_serializer):
-        return True
+    return callable(_has_serializer)
 
 
 def is_serializable_type(type_):
