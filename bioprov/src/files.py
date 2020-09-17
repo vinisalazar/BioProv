@@ -84,6 +84,10 @@ class File:
         return self._entity
 
 
+class BLASTFile(File):
+    pass
+
+
 class SeqFile(File):
     """
     Class for holding sequence file and sequence information. Inherits from File.

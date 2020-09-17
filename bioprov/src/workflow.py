@@ -322,9 +322,9 @@ class Step(PresetProgram):
     Class for holding workflow steps.
 
     Steps are basically PresetProgram instances but they do not have
-    any Sample associated with them, and alawys generate command strings.
+    any Sample associated with them, and always generate command strings.
 
-    They have two extra attributes:
+    They have two extra attributes: input_files and output_files.
     """
 
     def __init__(
