@@ -12,7 +12,7 @@ Module for holding preset instances of the Program class.
 from os import path
 from bioprov import default_config, File
 from bioprov.src.program import Parameter, Program, PresetProgram
-from bioprov.utils import assert_tax_rank, warnings
+from bioprov.utils import assert_tax_rank, Warnings
 
 
 def prodigal():
@@ -203,7 +203,7 @@ def kaiju2table(
     :return: Instance of Program containing kaiju2table.
     """
     # Assertion statement for rank argument.
-    assert_tax_rank(rank), warnings["invalid_tax_rank"](rank)
+    assert_tax_rank(rank), Warnings()["invalid_tax_rank"](rank)
 
     kaiju_report_suffix = "kaiju_report_{}".format(rank)
     kaiju_report_out = "{}_{}".format(_sample.name, kaiju_report_suffix)

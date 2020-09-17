@@ -12,7 +12,7 @@ settings, and stores them. It is invoked to export provenance objects.
 """
 from os import environ
 from bioprov import Project
-from bioprov.utils import warnings
+from bioprov.utils import Warnings
 from prov.model import ProvDocument, Namespace, QualifiedName
 
 
@@ -82,7 +82,7 @@ class BioProvProject(BioProvDocument):
         # Inherit from BioProvDocument and add new attributes
         super().__init__(**kwargs)
         # Assert Project is good before constructing instance
-        assert isinstance(project, Project), warnings["incorrect_type"](
+        assert isinstance(project, Project), Warnings()["incorrect_type"](
             project, Project
         )
         self.project = project
@@ -209,10 +209,10 @@ def build_prov_attributes(dictionary, namespace):
     """
 
     # Check arg types
-    assert isinstance(namespace, Namespace), warnings["incorrect_type"](
+    assert isinstance(namespace, Namespace), Warnings()["incorrect_type"](
         namespace, Namespace
     )
-    assert isinstance(dictionary, dict), warnings["incorrect_type"](dictionary, dict)
+    assert isinstance(dictionary, dict), Warnings()["incorrect_type"](dictionary, dict)
 
     attributes = []
     for k, v in dictionary.items():

@@ -18,7 +18,7 @@ with the BioProv CLI application (recommended).
 from os import path, getcwd, mkdir
 from bioprov import default_config, from_df
 from bioprov.programs import kaiju, kaiju2table
-from bioprov.utils import warnings, tax_ranks
+from bioprov.utils import Warnings, tax_ranks
 from tqdm import tqdm
 import argparse
 import pandas as pd
@@ -68,7 +68,7 @@ class KaijuWorkflow:
         """
         # Asserting files exist
         for file_ in (input_file, kaijudb, nodes, names):
-            assert path.isfile(file_), warnings["not_exist"](file_)
+            assert path.isfile(file_), Warnings()["not_exist"](file_)
 
         # Asserting columns are correct
         df = pd.read_csv(input_file, sep="\t")
@@ -87,7 +87,7 @@ class KaijuWorkflow:
                     file_
                 )
 
-        print(warnings["sample_loading"](len(df)))
+        print(Warnings()["sample_loading"](len(df)))
 
         # Create BioProv Project
         ss = from_df(df, index_col="sample-id", file_cols=("R1", "R2"), tag=_tag)
@@ -140,8 +140,8 @@ class KaijuWorkflow:
                 success += 1
 
         ss.to_json()
-        print(warnings["number_success"](success, len(df)))
-        print(warnings["number_skip"](skip))
+        print(Warnings()["number_success"](success, len(df)))
+        print(Warnings()["number_skip"](skip))
 
     @classmethod
     def parser(cls):

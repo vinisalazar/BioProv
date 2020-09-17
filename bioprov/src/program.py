@@ -15,7 +15,7 @@ To-do:
 import datetime
 import json
 import pandas as pd
-from bioprov.utils import warnings, serializer
+from bioprov.utils import Warnings, serializer
 from bioprov.src.files import File, SeqFile
 from coolname import generate_slug
 from os import path
@@ -342,7 +342,7 @@ class PresetProgram(Program):
             self.program = Program.__init__(self, params)
             self.params = parse_params(params)
         else:
-            assert isinstance(program, Program), warnings["incorrect_type"](
+            assert isinstance(program, Program), Warnings()["incorrect_type"](
                 program, Program
             )
             self.program = program
@@ -390,7 +390,7 @@ class PresetProgram(Program):
                 )
 
             # If in sample, check if it exists
-            assert file_.exists, warnings["not_exist"](file_)
+            assert file_.exists, Warnings()["not_exist"](file_)
 
             # Finally, add file to program as a parameter.
             param = Parameter(
@@ -458,7 +458,7 @@ class PresetProgram(Program):
         Checks type of self.sample.
         :return:
         """
-        assert isinstance(self.sample, Sample), warnings["incorrect_type"](
+        assert isinstance(self.sample, Sample), Warnings()["incorrect_type"](
             self.sample, Sample
         )
 
@@ -467,7 +467,7 @@ class PresetProgram(Program):
         Checks type of self.program
         :return:
         """
-        assert isinstance(self.program, Program), warnings["incorrect_type"](
+        assert isinstance(self.program, Program), Warnings()["incorrect_type"](
             self.program, Program
         )
 
@@ -596,7 +596,9 @@ def add_programs(object_, programs):
         programs = (programs,)
     else:
         for item in programs:
-            assert isinstance(item, Program), warnings["incorrect_type"](item, Program)
+            assert isinstance(item, Program), Warnings()["incorrect_type"](
+                item, Program
+            )
 
     # Set 'programs' attribute in object if None
     if object_.programs is None:
@@ -628,7 +630,7 @@ def add_runs(object_, runs):
         runs = (runs,)
     else:
         for item in runs:
-            assert isinstance(item, Run), warnings["incorrect_type"](item, Run)
+            assert isinstance(item, Run), Warnings()["incorrect_type"](item, Run)
 
     # Set 'runs' attribute in object if None
     if object_.runs is None:

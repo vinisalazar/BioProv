@@ -64,20 +64,33 @@ def assert_tax_rank(tax_rank):
     return tax_rank in tax_ranks
 
 
-warnings = {
-    "not_exist": lambda x: "File '{}' does not exist!".format(x),
-    "sample_loading": lambda n: "Loading {} samples.".format(str(n)),
-    "invalid_tax_rank": lambda tax_rank: "Rank '{}' not in ranks, choose from:\n{}".format(
-        tax_rank, tax_ranks
-    ),
-    "number_success": lambda success, total: "Ran successfully for {}/{} samples.".format(
-        str(success), str(total),
-    ),
-    "number_skip": lambda skip: "Skipped {} samples.".format(str(skip)),
-    "incorrect_type": lambda x, type_: "'{}' is of type '{}'; it must be an instance of '{}'".format(
-        x, type(x), type_
-    ),
-}
+class Warnings:
+
+    """
+    Class to handle warnings.
+    """
+
+    _warnings = {
+        "not_exist": lambda x: "File '{}' does not exist!".format(x),
+        "sample_loading": lambda n: "Loading {} samples.".format(str(n)),
+        "invalid_tax_rank": lambda tax_rank: "Rank '{}' not in ranks, choose from:\n{}".format(
+            tax_rank, tax_ranks
+        ),
+        "number_success": lambda success, total: "Ran successfully for {}/{} samples.".format(
+            str(success), str(total),
+        ),
+        "number_skip": lambda skip: "Skipped {} samples.".format(str(skip)),
+        "incorrect_type": lambda x, type_: "'{}' is of type '{}'; it must be an instance of '{}'".format(
+            x, type(x), type_
+        ),
+    }
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def __getitem__(cls, item):
+        return cls._warnings[item]
 
 
 def serializer(object_):

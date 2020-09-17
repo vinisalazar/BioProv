@@ -12,7 +12,7 @@ import argparse
 import pandas as pd
 from glob import glob
 from bioprov import from_df, default_config
-from bioprov.utils import warnings
+from bioprov.utils import Warnings
 from bioprov.src.program import PresetProgram
 from os import path
 from tqdm import tqdm
@@ -165,7 +165,7 @@ class Workflow:
         :param step: An instance of Step containing a PresetProgram.
         :return:
         """
-        assert isinstance(step, Step), warnings["incorrect_type"](step, Step)
+        assert isinstance(step, Step), Warnings()["incorrect_type"](step, Step)
         if step.default:
             self.default_steps.append(step.name)
         self.steps[step.name] = step
@@ -204,7 +204,7 @@ class Workflow:
         :return: Updates self.sampleset.
         """
         # Loading samples statement
-        print(warnings["sample_loading"](len(df)))
+        print(Warnings()["sample_loading"](len(df)))
         sampleset = from_df(
             df, index_col=self.index_col, file_cols=self.file_columns, tag=self.tag
         )
@@ -262,7 +262,7 @@ class Workflow:
         file_columns = self.file_columns
 
         # Assert input file exists
-        assert path.isfile(input_), warnings["not_exist"]
+        assert path.isfile(input_), Warnings()["not_exist"]
 
         # Read input
         df = pd.read_csv(input_, sep=self.sep)

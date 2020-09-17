@@ -12,7 +12,7 @@ import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
 from Bio import SeqIO
-from bioprov.utils import get_size, warnings
+from bioprov.utils import get_size, Warnings
 from prov.model import ProvEntity
 
 
@@ -145,6 +145,16 @@ class SeqFile(File):
         self.records = SeqIO.to_dict(self._generator)
 
 
+class AlignFile(File):
+    """
+    Class for holding alignment file and alignment information. Inherits from File.
+
+    This class support records parsed with the BioPython.AlignIO module.
+    """
+
+    pass
+
+
 def _calculate_seqstats(
     seqrecord_dict, calculate_gc=True, megabases=False, percentage=False, decimals=5
 ):
@@ -156,7 +166,7 @@ def _calculate_seqstats(
     :param decimals: Number of decimals to round.
     :return: SeqStats instance.
     """
-    assert isinstance(seqrecord_dict, dict), warnings["incorrect_type"](
+    assert isinstance(seqrecord_dict, dict), Warnings()["incorrect_type"](
         seqrecord_dict, dict
     )
 
