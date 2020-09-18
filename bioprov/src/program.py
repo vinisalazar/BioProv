@@ -616,11 +616,11 @@ def add_programs(object_, programs):
 
     # Set 'programs' attribute in object if None
     if object_.programs is None:
-        object_.programs = []
+        object_.programs = dict()
 
     # Finally, append programs to object_.programs
     for program in programs:
-        object_.programs.append(program)
+        object_.programs[program.name] = program
 
 
 def add_runs(object_, runs):
@@ -648,11 +648,11 @@ def add_runs(object_, runs):
 
     # Set 'runs' attribute in object if None
     if object_.runs is None:
-        object_.runs = []
+        object_.runs = dict()
 
     # Finally, append runs to object_.runs
     for run in runs:
-        object_.runs.append(run)
+        object_.runs[str(len(object_.runs) + 1)] = run
 
 
 """
@@ -770,7 +770,7 @@ class Sample:
         :return:
         """
         if len(self.programs) >= 1:
-            for p in self.programs:
+            for _, p in self.programs.items():
                 self._run_program(p, _print=_print)
         else:
             print("No programs to run for Sample '{}'".format(self.name))
@@ -785,20 +785,20 @@ class Sample:
         run = program.run(sample=self, _print=print)
 
         if program not in self.programs:
-            self.programs.append(program)
+            self.programs[program.name] = program
         if run not in self.runs:
-            self.runs.append(run)
+            self.runs[str(len(self.runs) + 1)] = run
 
     @property
     def runs(self):
         if self._runs is None:
-            self._runs = []
+            self._runs = dict()
         return self._runs
 
     @property
     def programs(self):
         if self._programs is None:
-            self._programs = []
+            self._programs = dict()
         return self._programs
 
     def to_json(self, _path=None, _print=True):
