@@ -15,6 +15,7 @@ from .src.config import Config, default_config
 from .src.files import File, SeqFile
 from .src.program import (
     Program,
+    PresetProgram,
     Parameter,
     Run,
     Sample,
