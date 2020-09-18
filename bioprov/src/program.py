@@ -113,7 +113,10 @@ class Program:
         return run_
 
     def serializer(self):
-        return serializer(self)
+        serial_out = self.__dict__
+        if "run_" in serial_out.keys():
+            del serial_out["run_"]
+        return serializer(serial_out)
 
 
 class Parameter:
@@ -205,13 +208,19 @@ class Run(Program):
         :param program: An instance of bioprov.Program.
         :param sample: An instance of bioprov.Sample
         """
-        if program is None:
+        self.program = program
+        if self.program is None:
             self.program = Program.__init__(self, params)
             self.params = parse_params(params)
         else:
             self.program = program
             self.params = program.params
+
+        assert isinstance(self.program, Program), Warnings()["incorrect_type"](
+            self.program, Program
+        )
         self.sample = sample
+        self.cmd = self.program.cmd
 
         # Process status
         self.process = None
@@ -303,8 +312,9 @@ class Run(Program):
     def serializer(self):
         # The following lines prevent RecursionError
         serial_out = self.__dict__
-        if "program" in serial_out.keys():
-            del serial_out["program"]
+        for key in ("sample", "program"):
+            if key in serial_out.keys():
+                del serial_out[key]
         return serializer(serial_out)
 
 
@@ -719,11 +729,38 @@ class Sample:
         add_files(self, files)
 
     def serializer(self):
+        """
+        Custom serializer for Sample class. Serializes runs, programs, and files attributes.
+        :return:
+        """
         serial_out = self.__dict__
+
+        # Serialize runs, if there are any.
+        key = "_runs"
+        if key in serial_out.keys():
+            run_dict = dict()
+            for ix, _run in enumerate(self.runs):
+                run_dict[ix] = _run.serializer()
+
+            serial_out[key] = run_dict
+
+        # Serialize programs, if there are any.
         key = "_programs"
         if key in serial_out.keys():
-            del serial_out[key]
-        return serializer(serial_out)
+            _serial = dict()
+            for program in self.programs:
+                _serial[program.name] = program.serializer()
+
+            serial_out[key] = _serial
+
+        # # Serialize files, if there are any.
+        # key = "files"
+        # if key in serial_out.keys():
+        #     files_serial = dict()
+        #     for key, file in self.files.items():
+        #         files_serial[key] = file.serializer()
+
+        return serializer(self)
 
     def run_programs(self, _print=True):
         """
@@ -783,13 +820,13 @@ class Project:
         :param samples: An iterator of Sample objects.
         :param tag: A tag to describe the Project.
         """
+        self.tag = tag
+        self.files = dict()
         samples = self.is_iterator(
             samples
         )  # Checks if `samples` is a valid constructor.
         samples = self.build_sample_dict(samples)
         self._samples = samples
-        self.files = dict()
-        self.tag = tag
 
     def __len__(self):
         return len(self._samples)
@@ -1091,8 +1128,8 @@ def dict_to_sample(json_dict):
     for attr, value in json_dict.items():
         # Create File instances
         if attr == "files":
-            for tag, _path in value.items():
-                value[tag] = File(_path, tag)
+            for tag, file in value.items():
+                value[tag] = File(file["path"], tag)
 
         setattr(sample_, attr, value)
     return sample_
