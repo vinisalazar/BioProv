@@ -719,7 +719,10 @@ class Sample:
         add_files(self, files)
 
     def serializer(self):
-        return serializer(self)
+        serial_out = self.__dict__
+        if "programs" in serial_out.keys():
+            del serial_out["programs"]
+        return serializer(serial_out)
 
     def run_programs(self, _print=True):
         """
