@@ -15,7 +15,7 @@ To-do:
 import datetime
 import json
 import pandas as pd
-from bioprov.utils import Warnings, serializer
+from bioprov.utils import Warnings, serializer, has_serializer
 from bioprov.src.files import File, SeqFile
 from coolname import generate_slug
 from os import path
@@ -740,7 +740,8 @@ class Sample:
         if key in serial_out.keys():
             run_dict = dict()
             for ix, _run in enumerate(self.runs):
-                run_dict[ix] = _run.serializer()
+                if has_serializer(_run):
+                    run_dict[ix] = _run.serializer()
 
             serial_out[key] = run_dict
 
@@ -749,7 +750,8 @@ class Sample:
         if key in serial_out.keys():
             _serial = dict()
             for program in self.programs:
-                _serial[program.name] = program.serializer()
+                if has_serializer(program):
+                    _serial[program.name] = program.serializer()
 
             serial_out[key] = _serial
 
@@ -960,7 +962,15 @@ def add_files(object_, files):
 
     # If it is a dict, we convert to File instances
     if isinstance(files, dict):
-        files = {k: File(v, tag=k) for k, v in files.items()}
+        files_ = dict()
+        for k, v in files.items():
+            # This is to convert JSON files.
+            if isinstance(v, dict):
+                files_[k] = File(v["path"], v["tag"])
+            else:
+                files_[k] = File(v, tag=k)
+
+        files = files_
 
     # If it is an iterable of File instances, transform to a dict
     elif isinstance(files, list):
@@ -1129,10 +1139,34 @@ def dict_to_sample(json_dict):
         # Create File instances
         if attr == "files":
             for tag, file in value.items():
-                value[tag] = File(file["path"], tag)
+                value[tag] = File(file["path"])
+                for attr_, value_ in file.items():
+                    setattr(value[tag], attr_, value_)
+
+        # Create run instances
+        if attr == "_runs":
+            for tag, run in value.items():
+                value[tag] = Run(Program())
+                for attr_, value_ in run.items():
+                    setattr(value[tag], attr_, value_)
+                sample_.runs.append(value[tag])
+
+        # Create program instances
+        if attr == "_programs":
+            for tag, program in value.items():
+                value[tag] = Program()
+                for attr_, value_ in program.items():
+                    setattr(value[tag], attr_, value_)
+                sample_.add_programs(value[tag])
 
         setattr(sample_, attr, value)
+
     return sample_
+
+
+def _create_instance_from_dict(dict_name, dict_):
+    for tag, value in dict_.items():
+        value[tag] = Run()
 
 
 def write_json(dict_, _path, _print=True):
