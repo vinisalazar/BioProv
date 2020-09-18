@@ -1164,11 +1164,6 @@ def dict_to_sample(json_dict):
     return sample_
 
 
-def _create_instance_from_dict(dict_name, dict_):
-    for tag, value in dict_.items():
-        value[tag] = Run()
-
-
 def write_json(dict_, _path, _print=True):
     """
     Writes dictionary to JSON file.
