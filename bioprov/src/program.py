@@ -720,8 +720,9 @@ class Sample:
 
     def serializer(self):
         serial_out = self.__dict__
-        if "programs" in serial_out.keys():
-            del serial_out["programs"]
+        key = "_programs"
+        if key in serial_out.keys():
+            del serial_out[key]
         return serializer(serial_out)
 
     def run_programs(self, _print=True):

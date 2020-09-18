@@ -129,5 +129,5 @@ def has_serializer(object_):
 
 
 def is_serializable_type(type_):
-    serializable_types = (float, int, str, list, tuple, bool, type(None))
+    serializable_types = (float, int, str, bool, type(None))
     return isinstance(type_, serializable_types)
