@@ -721,7 +721,18 @@ class Sample:
     def serializer(self):
         return serializer(self)
 
-    def run(self, program, _print=True):
+    def run_programs(self, _print=True):
+        """
+        Runs self._programs in order.
+        :return:
+        """
+        if len(self.programs) >= 1:
+            for p in self.programs:
+                self._run_program(p, _print=_print)
+        else:
+            print("No programs to run for Sample '{}'".format(self.name))
+
+    def _run_program(self, program, _print=True):
         """
         Run a Program or PresetProgram on Sample.
         :param program: An instance of bioprov.Program or PresetProgram
