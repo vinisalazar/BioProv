@@ -301,7 +301,11 @@ class Run(Program):
         return self.stdout
 
     def serializer(self):
-        return serializer(self)
+        # The following lines prevent RecursionError
+        serial_out = self.__dict__
+        if "program" in serial_out.keys():
+            del serial_out["program"]
+        return serializer(serial_out)
 
 
 class PresetProgram(Program):
