@@ -95,6 +95,11 @@ class BioProvProject(BioProvDocument):
         self._add_activities()
         self._add_relationships()
 
+    def __repr__(self):
+        return "BioProvProject describing Project '{}' with '{}' samples.".format(
+            self.project.tag, len(self.project)
+        )
+
     def _add_entities(self):
         self.ProvDocument.add_namespace("project", str(self.project))
         self.ProvDocument.add_namespace(
