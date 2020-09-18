@@ -12,7 +12,7 @@ import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
 from Bio import SeqIO
-from bioprov.utils import get_size, Warnings
+from bioprov.utils import get_size, Warnings, serializer
 from prov.model import ProvEntity
 
 
@@ -82,6 +82,9 @@ class File:
         if self._entity is None:
             ProvEntity(self._document, identifier="files:{}".format(self.basename))
         return self._entity
+
+    def serializer(self):
+        return serializer(self)
 
 
 class BLASTFile(File):

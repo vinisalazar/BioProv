@@ -15,7 +15,7 @@ To-do:
 import datetime
 import json
 import pandas as pd
-from bioprov.utils import Warnings, serializer
+from bioprov.utils import Warnings, serializer, has_serializer
 from bioprov.src.files import File, SeqFile
 from coolname import generate_slug
 from os import path
@@ -113,7 +113,10 @@ class Program:
         return run_
 
     def serializer(self):
-        return serializer(self)
+        serial_out = self.__dict__
+        if "run_" in serial_out.keys():
+            del serial_out["run_"]
+        return serializer(serial_out)
 
 
 class Parameter:
@@ -205,13 +208,19 @@ class Run(Program):
         :param program: An instance of bioprov.Program.
         :param sample: An instance of bioprov.Sample
         """
-        if program is None:
+        self.program = program
+        if self.program is None:
             self.program = Program.__init__(self, params)
             self.params = parse_params(params)
         else:
             self.program = program
             self.params = program.params
+
+        assert isinstance(self.program, Program), Warnings()["incorrect_type"](
+            self.program, Program
+        )
         self.sample = sample
+        self.cmd = self.program.cmd
 
         # Process status
         self.process = None
@@ -303,8 +312,9 @@ class Run(Program):
     def serializer(self):
         # The following lines prevent RecursionError
         serial_out = self.__dict__
-        if "program" in serial_out.keys():
-            del serial_out["program"]
+        for key in ("sample", "program"):
+            if key in serial_out.keys():
+                del serial_out[key]
         return serializer(serial_out)
 
 
@@ -606,11 +616,11 @@ def add_programs(object_, programs):
 
     # Set 'programs' attribute in object if None
     if object_.programs is None:
-        object_.programs = []
+        object_.programs = dict()
 
     # Finally, append programs to object_.programs
     for program in programs:
-        object_.programs.append(program)
+        object_.programs[program.name] = program
 
 
 def add_runs(object_, runs):
@@ -638,11 +648,11 @@ def add_runs(object_, runs):
 
     # Set 'runs' attribute in object if None
     if object_.runs is None:
-        object_.runs = []
+        object_.runs = dict()
 
     # Finally, append runs to object_.runs
     for run in runs:
-        object_.runs.append(run)
+        object_.runs[str(len(object_.runs) + 1)] = run
 
 
 """
@@ -718,10 +728,33 @@ class Sample:
         """
         add_files(self, files)
 
+    def add_runs(self, runs):
+        """
+        Sample method to add runs.
+        :param runs: See input to add_runs function.
+        :return: Adds runs to Sample
+        """
+        add_runs(self, runs)
+
     def serializer(self):
+        """
+        Custom serializer for Sample class. Serializes runs, programs, and files attributes.
+        :return:
+        """
         return serializer(self)
 
-    def run(self, program, _print=True):
+    def run_programs(self, _print=True):
+        """
+        Runs self._programs in order.
+        :return:
+        """
+        if len(self.programs) >= 1:
+            for _, p in self.programs.items():
+                self._run_program(p, _print=_print)
+        else:
+            print("No programs to run for Sample '{}'".format(self.name))
+
+    def _run_program(self, program, _print=True):
         """
         Run a Program or PresetProgram on Sample.
         :param program: An instance of bioprov.Program or PresetProgram
@@ -731,20 +764,20 @@ class Sample:
         run = program.run(sample=self, _print=print)
 
         if program not in self.programs:
-            self.programs.append(program)
+            self.programs[program.name] = program
         if run not in self.runs:
-            self.runs.append(run)
+            self.runs[str(len(self.runs) + 1)] = run
 
     @property
     def runs(self):
         if self._runs is None:
-            self._runs = []
+            self._runs = dict()
         return self._runs
 
     @property
     def programs(self):
         if self._programs is None:
-            self._programs = []
+            self._programs = dict()
         return self._programs
 
     def to_json(self, _path=None, _print=True):
@@ -768,13 +801,13 @@ class Project:
         :param samples: An iterator of Sample objects.
         :param tag: A tag to describe the Project.
         """
+        self.tag = tag
+        self.files = dict()
         samples = self.is_iterator(
             samples
         )  # Checks if `samples` is a valid constructor.
         samples = self.build_sample_dict(samples)
         self._samples = samples
-        self.files = dict()
-        self.tag = tag
 
     def __len__(self):
         return len(self._samples)
@@ -908,7 +941,15 @@ def add_files(object_, files):
 
     # If it is a dict, we convert to File instances
     if isinstance(files, dict):
-        files = {k: File(v, tag=k) for k, v in files.items()}
+        files_ = dict()
+        for k, v in files.items():
+            # This is to convert JSON files.
+            if isinstance(v, dict):
+                files_[k] = File(v["path"], v["tag"])
+            else:
+                files_[k] = File(v, tag=k)
+
+        files = files_
 
     # If it is an iterable of File instances, transform to a dict
     elif isinstance(files, list):
@@ -1074,12 +1115,34 @@ def dict_to_sample(json_dict):
     """
     sample_ = Sample()
     for attr, value in json_dict.items():
-        # Create File instances
-        if attr == "files":
-            for tag, _path in value.items():
-                value[tag] = File(_path, tag)
 
-        setattr(sample_, attr, value)
+        # Don't try to create instances if values are not dictionaries
+        if value is not None:
+            # Create File instances
+            if attr == "files":
+                for tag, file in value.items():
+                    value[tag] = File(file["path"])
+                    for attr_, value_ in file.items():
+                        setattr(value[tag], attr_, value_)
+
+            # Create Run instances
+            if attr == "_runs" and value:
+                for tag, run in value.items():
+                    value[tag] = Run(Program())
+                    for attr_, value_ in run.items():
+                        setattr(value[tag], attr_, value_)
+                    sample_.add_runs(value[tag])
+
+            # Create Program instances
+            if attr == "_programs":
+                for tag, program in value.items():
+                    value[tag] = Program()
+                    for attr_, value_ in program.items():
+                        setattr(value[tag], attr_, value_)
+                    sample_.add_programs(value[tag])
+
+            setattr(sample_, attr, value)
+
     return sample_
 
 

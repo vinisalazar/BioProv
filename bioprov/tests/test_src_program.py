@@ -74,9 +74,7 @@ def test_Run():
     :return:
     """
     attributes = {"program": Program("prodigal", {"-h": ""})}
-    run_ = Run()
-    for attr, v in attributes.items():
-        setattr(run_, attr, v)
+    run_ = Run(attributes["program"])
 
     # Check the status and run
     assert run_.status is "Pending"

@@ -107,6 +107,7 @@ def serializer(object_):
         object_ = object_.__dict__
 
     for k, v in object_.items():
+        # Checks for serializer method
         if has_serializer(v):
             serial_out[k] = v.serializer()
 
@@ -115,7 +116,6 @@ def serializer(object_):
 
         elif is_serializable_type(v):
             serial_out[k] = v
-        # Checks for serializer method
         # If none of the previous conditions apply, convert to str
         else:
             serial_out[k] = str(v)
@@ -129,5 +129,5 @@ def has_serializer(object_):
 
 
 def is_serializable_type(type_):
-    serializable_types = (float, int, str, list, tuple, bool, type(None))
+    serializable_types = (float, int, str, bool, type(None))
     return isinstance(type_, serializable_types)
