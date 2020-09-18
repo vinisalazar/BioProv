@@ -728,40 +728,19 @@ class Sample:
         """
         add_files(self, files)
 
+    def add_runs(self, runs):
+        """
+        Sample method to add runs.
+        :param runs: See input to add_runs function.
+        :return: Adds runs to Sample
+        """
+        add_runs(self, runs)
+
     def serializer(self):
         """
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        serial_out = self.__dict__
-
-        # Serialize runs, if there are any.
-        key = "_runs"
-        if key in serial_out.keys():
-            run_dict = dict()
-            for ix, _run in enumerate(self.runs):
-                if has_serializer(_run):
-                    run_dict[ix] = _run.serializer()
-
-            serial_out[key] = run_dict
-
-        # Serialize programs, if there are any.
-        key = "_programs"
-        if key in serial_out.keys():
-            _serial = dict()
-            for program in self.programs:
-                if has_serializer(program):
-                    _serial[program.name] = program.serializer()
-
-            serial_out[key] = _serial
-
-        # # Serialize files, if there are any.
-        # key = "files"
-        # if key in serial_out.keys():
-        #     files_serial = dict()
-        #     for key, file in self.files.items():
-        #         files_serial[key] = file.serializer()
-
         return serializer(self)
 
     def run_programs(self, _print=True):
@@ -1136,30 +1115,33 @@ def dict_to_sample(json_dict):
     """
     sample_ = Sample()
     for attr, value in json_dict.items():
-        # Create File instances
-        if attr == "files":
-            for tag, file in value.items():
-                value[tag] = File(file["path"])
-                for attr_, value_ in file.items():
-                    setattr(value[tag], attr_, value_)
 
-        # Create run instances
-        if attr == "_runs":
-            for tag, run in value.items():
-                value[tag] = Run(Program())
-                for attr_, value_ in run.items():
-                    setattr(value[tag], attr_, value_)
-                sample_.runs.append(value[tag])
+        # Don't try to create instances if values are not dictionaries
+        if value is not None:
+            # Create File instances
+            if attr == "files":
+                for tag, file in value.items():
+                    value[tag] = File(file["path"])
+                    for attr_, value_ in file.items():
+                        setattr(value[tag], attr_, value_)
 
-        # Create program instances
-        if attr == "_programs":
-            for tag, program in value.items():
-                value[tag] = Program()
-                for attr_, value_ in program.items():
-                    setattr(value[tag], attr_, value_)
-                sample_.add_programs(value[tag])
+            # Create Run instances
+            if attr == "_runs" and value:
+                for tag, run in value.items():
+                    value[tag] = Run(Program())
+                    for attr_, value_ in run.items():
+                        setattr(value[tag], attr_, value_)
+                    sample_.add_runs(value[tag])
 
-        setattr(sample_, attr, value)
+            # Create Program instances
+            if attr == "_programs":
+                for tag, program in value.items():
+                    value[tag] = Program()
+                    for attr_, value_ in program.items():
+                        setattr(value[tag], attr_, value_)
+                    sample_.add_programs(value[tag])
+
+            setattr(sample_, attr, value)
 
     return sample_
 
