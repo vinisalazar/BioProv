@@ -337,7 +337,6 @@ class Step(PresetProgram):
             preset_program.input_files,
             preset_program.output_files,
             preset_program.preffix_tag,
-            preset_program.generate_cmd,
         )
         self.default = default
         self.description = description

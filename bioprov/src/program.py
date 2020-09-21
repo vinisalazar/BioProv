@@ -15,7 +15,7 @@ To-do:
 import datetime
 import json
 import pandas as pd
-from bioprov.utils import Warnings, serializer, has_serializer
+from bioprov.utils import Warnings, serializer
 from bioprov.src.files import File, SeqFile
 from coolname import generate_slug
 from os import path
@@ -46,7 +46,6 @@ class Program:
         :param path_to_bin: A full _path to the program's binary. Default: get from self.name.
         :param cmd: A command string to call the program. Default: build from self._path and self.params.
         :param version: Version of the program.
-        :param version_param: the parameter passed to the program to return the version.
         """
         self.name = name
         self.params = parse_params(params)
@@ -104,7 +103,7 @@ class Program:
 
         # Update self._run, run self.run() and update self._run again.
         run_ = Run(self, sample=sample)
-        self.run_ = run_.run(_print=_print)
+        self.run_ = run_.run(_sample=sample, _print=True)
         return run_
 
     def serializer(self):
@@ -286,6 +285,7 @@ class Run(Program):
             str_ += "\nCommand is:\n{}".format(self.program.cmd)
             print(str_)
 
+        # Check and update command before running
         if not isinstance(self.program.cmd, str):
             self.program.generate_cmd()
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
@@ -332,7 +332,6 @@ class PresetProgram(Program):
         input_files=None,
         output_files=None,
         preffix_tag=None,
-        generate_cmd=False,
     ):
         """
         :param name: Instance of bioprov.Program
@@ -348,7 +347,6 @@ class PresetProgram(Program):
         :param preffix_tag: A value in the input_files argument, which corresponds
                             to a key in self.sample.files. All file names of output
                             files will be stemmed from this file, hence 'preffix'.
-        :param generate_cmd: Generates generic command, independent of sample.
         """
         super().__init__(name, params)
         self.sample = sample
@@ -360,9 +358,7 @@ class PresetProgram(Program):
         self.output_files = output_files
         self.preffix_tag = preffix_tag
         self.ready = False
-
-        if generate_cmd:
-            self.generate_cmd()
+        self.generate_cmd()
 
         if self.sample is not None:
             self.create_func(sample=self.sample, preffix_tag=self.preffix_tag)
