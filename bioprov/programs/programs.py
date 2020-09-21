@@ -15,12 +15,14 @@ from bioprov.src.program import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, Warnings
 
 
-def prodigal():
+def prodigal(sample=None):
     """
+    :param sample: Instance of BioProv.Sample.
     :return: Instance of PresetProgram containing Prodigal.
     """
     _prodigal = PresetProgram(
-        program=Program("prodigal"),
+        name="prodigal",
+        sample=sample,
         input_files={"-i": "assembly"},
         output_files={
             "-a": ("proteins", "_proteins.faa"),

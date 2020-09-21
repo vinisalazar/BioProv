@@ -98,6 +98,8 @@ class SeqFile(File):
     This class support records parsed with the BioPython.SeqIO module.
     """
 
+    seqfile_formats = ("fasta",)
+
     def __init__(
         self, path, tag=None, document=None, import_records=True, format="fasta",
     ):
@@ -150,6 +152,12 @@ class SeqFile(File):
     def import_records(self):
         assert self.exists, "Cannot import, file does not exist."
         self.records = SeqIO.to_dict(self._generator)
+
+    def serializer(self):
+        serial_out = self.__dict__
+        key = "records"
+        if key in serial_out.keys():
+            serial_out[key] = {}
 
 
 class AlignFile(File):

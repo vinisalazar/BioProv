@@ -52,18 +52,18 @@ def test_integration(debug=False):
 
     # Run Program on sample
     _ = program_.run(sample=sample)
-    run = program_.run_
+    run_ = program_.run_
 
     # Assert block
     assert protein_file.exists
-    assert run.status is "Finished"
+    assert run_.status is "Finished"
 
     # Clean up
     remove(str(sample.files["proteins"]))
 
     # Return (useful for debugging)
     if debug:
-        return sample, program_, run
+        return sample, program_, run_
 
 
 def test_CLI():

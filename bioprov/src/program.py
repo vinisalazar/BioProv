@@ -38,7 +38,6 @@ class Program:
         path_to_bin=None,
         version=None,
         cmd=None,
-        version_param=" -v",
     ):
         """
         :param name: Name of the program being called.
@@ -67,9 +66,6 @@ class Program:
             self.path = self._getoutput
         if cmd is None:
             self.cmd = self.generate_cmd()
-        if version is None:
-            if name is not None:
-                self.version = getoutput(self.name + version_param).strip()
 
     def __repr__(self):
         return f"Program '{self.name}' with {len(self.params)} parameter(s)."
@@ -108,8 +104,7 @@ class Program:
 
         # Update self._run, run self.run() and update self._run again.
         run_ = Run(self, sample=sample)
-        run_.run(_print=_print)
-        self.run_ = run_
+        self.run_ = run_.run(_print=_print)
         return run_
 
     def serializer(self):
@@ -290,6 +285,9 @@ class Run(Program):
                 str_ += "."
             str_ += "\nCommand is:\n{}".format(self.program.cmd)
             print(str_)
+
+        if not isinstance(self.program.cmd, str):
+            self.program.generate_cmd()
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
         self.started, start = True, time()
@@ -307,7 +305,7 @@ class Run(Program):
         self.finished = True
         self.status = self._finished_to_status(self.finished)
 
-        return self.stdout
+        return self
 
     def serializer(self):
         # The following lines prevent RecursionError
@@ -328,7 +326,7 @@ class PresetProgram(Program):
 
     def __init__(
         self,
-        program=None,
+        name=None,
         params=None,
         sample=None,
         input_files=None,
@@ -337,7 +335,7 @@ class PresetProgram(Program):
         generate_cmd=False,
     ):
         """
-        :param program: Instance of bioprov.Program
+        :param name: Instance of bioprov.Program
         :param params: Dictionary of parameters.
         :param sample: An instance of Sample or Project.
         :param input_files: A dictionary consisting of Parameter keys as keys and a File.tag
@@ -352,16 +350,7 @@ class PresetProgram(Program):
                             files will be stemmed from this file, hence 'preffix'.
         :param generate_cmd: Generates generic command, independent of sample.
         """
-        if program is None:
-            self.program = Program.__init__(self, params)
-            self.params = parse_params(params)
-        else:
-            assert isinstance(program, Program), Warnings()["incorrect_type"](
-                program, Program
-            )
-            self.program = program
-            self.params = program.params
-        self.name = self.program.name
+        super().__init__(name, params)
         self.sample = sample
         if input_files is None:
             input_files = dict()
@@ -370,22 +359,13 @@ class PresetProgram(Program):
         self.input_files = input_files
         self.output_files = output_files
         self.preffix_tag = preffix_tag
-        self.generic_cmd = None
         self.ready = False
 
         if generate_cmd:
             self.generate_cmd()
 
         if self.sample is not None:
-            self.create_func(self.preffix_tag)
-
-    def __repr__(self):
-        str_ = "PresetProgram '{0}'".format(self.program.name)
-        if self.generic_cmd:
-            str_ += " with the following command for each sample:\n'{0}'".format(
-                self.generic_cmd
-            )
-        return str_
+            self.create_func(sample=self.sample, preffix_tag=self.preffix_tag)
 
     def _parse_input_files(self):
         """
@@ -410,12 +390,12 @@ class PresetProgram(Program):
             param = Parameter(
                 key=k, value=str(self.sample.files[tag]), kind="input", tag=tag
             )
-            self.program.add_parameter(param)
+            self.add_parameter(param)
 
     def _parse_output_files(self):
         """
-        Adds output files to self.sample and self.program.
-        :return: Updates self.program with the output files as parameters and0
+        Adds output files to self.sample and self.
+        :return: Updates self with the output files as parameters and
                  updates the 'files' attribute of self.sample.files.
         """
         if self.preffix_tag is None:
@@ -436,7 +416,7 @@ class PresetProgram(Program):
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
-                self.program.add_parameter(param)
+                self.add_parameter(param)
         except ValueError:
             raise Exception(
                 "Please check the output files dictionary:\n'{}'\n"
@@ -478,19 +458,17 @@ class PresetProgram(Program):
 
     def validate_program(self):
         """
-        Checks type of self.program
+        Checks type of self
         :return:
         """
-        assert isinstance(self.program, Program), Warnings()["incorrect_type"](
-            self.program, Program
-        )
+        assert isinstance(self, Program), Warnings()["incorrect_type"](self, Program)
 
     def generate_cmd(self, from_files=True):
         """
         Generates a wildcard command string, independent of samples.
         :param from_files: Generate command from self.input_files and self.output_files (recommended) If False,
         will generate from parameter dictionary instead.
-        :return: Updates self.generic_cmd.
+        :return: Updates self.cmd.
         """
         self.validate_program()
 
@@ -503,10 +481,10 @@ class PresetProgram(Program):
             else:
                 pass
         # Now parse resulting output
-        generic_cmd = generate_param_str(params_)
+        generic_cmd = " ".join([self.path, generate_param_str(params_)]).strip()
 
         # Update self
-        self.generic_cmd = generic_cmd
+        self.cmd = generic_cmd
 
     def run(self, sample=None, _print=True, preffix_tag=None):
         """
@@ -522,8 +500,8 @@ class PresetProgram(Program):
             preffix_tag = self.preffix_tag
         if not self.ready:
             self.create_func(sample, preffix_tag)
-        self.program.run_ = self.program.run(sample=sample, _print=_print)
-        return self.program.run_
+        # Update self._run, run self.run() and update self._run again.
+        Program.run(self, sample=sample, _print=_print)
 
 
 def parse_params(params, program=None):
@@ -1121,9 +1099,15 @@ def dict_to_sample(json_dict):
             # Create File instances
             if attr == "files":
                 for tag, file in value.items():
-                    value[tag] = File(file["path"])
-                    for attr_, value_ in file.items():
-                        setattr(value[tag], attr_, value_)
+                    if file is not None:
+                        if "format" in file.keys():
+                            if file["format"] in SeqFile.seqfile_formats:
+                                value[tag] = SeqFile(path=file["path"])
+                        else:
+                            value[tag] = File(file["path"])
+                        for attr_, value_ in file.items():
+                            if getattr(value[tag], attr_, value_) is None:
+                                setattr(value[tag], attr_, value_)
 
             # Create Run instances
             if attr == "_runs" and value:

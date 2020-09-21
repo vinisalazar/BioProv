@@ -191,7 +191,7 @@ class Workflow:
             if k in steps_to_run:
                 for _, sample in tqdm(self.sampleset.items()):
                     _run = step.run(sample, _print=self.verbose)
-                    if not _run.stderr:  # Add to successes if no standard error.
+                    if not step.run_.stderr:  # Add to successes if no standard error.
                         step.successes += 1
             else:
                 if self.verbose:
@@ -330,8 +330,8 @@ class Step(PresetProgram):
     def __init__(
         self, preset_program, default=False, description="",
     ):
-        super(Step, self).__init__(
-            preset_program.program,
+        super().__init__(
+            preset_program.name,
             preset_program.params,
             preset_program.sample,
             preset_program.input_files,
@@ -339,7 +339,6 @@ class Step(PresetProgram):
             preset_program.preffix_tag,
             preset_program.generate_cmd,
         )
-        self.name = self.program.name
         self.default = default
         self.description = description
         self.successes = 0

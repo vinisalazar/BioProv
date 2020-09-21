@@ -20,9 +20,8 @@ def test_prodigal():
     :return:
     """
     s = Sample("Synechococcus", files={"assembly": synechococcus_genome})
-    p = prodigal()
-    p.create_func(s, preffix_tag="assembly")
-    p.run()
+    p_ = prodigal(s)
+    p_.run()
     pass
 
 
