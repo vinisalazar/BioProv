@@ -190,7 +190,7 @@ class Workflow:
         for k, step in self.steps.items():
             if k in steps_to_run:
                 for _, sample in tqdm(self.sampleset.items()):
-                    _run = step.run(sample, _print=self.verbose)
+                    _run = step.run(sample=sample, _print=self.verbose)
                     if not step.run_.stderr:  # Add to successes if no standard error.
                         step.successes += 1
             else:

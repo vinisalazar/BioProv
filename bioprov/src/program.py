@@ -75,7 +75,9 @@ class Program:
 
         :return: command string
         """
-        return " ".join([self.path, self.param_str]).strip()
+        cmd = " ".join([self.path, self.param_str]).strip()
+        self.cmd = cmd
+        return cmd
 
     def add_parameter(self, parameter, _print=True):
         """
@@ -89,7 +91,7 @@ class Program:
         parameter.program = self
         self.params[k] = parameter
         self.param_str = generate_param_str(self.params)
-        self.cmd = self.generate_cmd()
+        self.generate_cmd()
         if _print:
             print(f"Added parameter {k} with value '{v}' to program {self.name}")
 
@@ -192,7 +194,7 @@ class Parameter:
     pass
 
 
-class Run(Program):
+class Run:
     """
     Class for holding Run information about a selected Program.
     """
@@ -204,7 +206,7 @@ class Run(Program):
         """
         self.program = program
         if self.program is None:
-            self.program = Program.__init__(self, params)
+            self.program = Program.__init__(self.program, params)
             self.params = parse_params(params)
         else:
             self.program = program
@@ -285,9 +287,6 @@ class Run(Program):
             str_ += "\nCommand is:\n{}".format(self.program.cmd)
             print(str_)
 
-        # Check and update command before running
-        if not isinstance(self.program.cmd, str):
-            self.program.generate_cmd()
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
         self.started, start = True, time()
@@ -481,6 +480,7 @@ class PresetProgram(Program):
 
         # Update self
         self.cmd = generic_cmd
+        return generic_cmd
 
     def run(self, sample=None, _print=True, preffix_tag=None):
         """
