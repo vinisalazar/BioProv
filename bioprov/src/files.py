@@ -87,10 +87,6 @@ class File:
         return serializer(self)
 
 
-class BLASTFile(File):
-    pass
-
-
 class SeqFile(File):
     """
     Class for holding sequence file and sequence information. Inherits from File.
@@ -98,37 +94,72 @@ class SeqFile(File):
     This class support records parsed with the BioPython.SeqIO module.
     """
 
-    seqfile_formats = ("fasta",)
+    seqfile_formats = (
+        "fasta",
+        "clustal",
+        "fastq",
+        "fastq-sanger",
+        "fastq-solexa",
+        "fastq-illumina",
+        "genbank",
+        "gb",
+        "nexus",
+        "stockholm",
+        "swiss",
+        "tab",
+        "qual",
+    )
 
     def __init__(
-        self, path, tag=None, format="fasta", document=None, import_records=True,
+        self,
+        path,
+        tag=None,
+        format="fasta",
+        parser="seq",
+        document=None,
+        import_records=False,
+        calculate_seqstats=False,
     ):
         """
         :param path: A UNIX-like file _path.
         :param tag: optional tag describing the file.
         :param format: Format to be parsed by SeqIO.parse()
+        :param parser: Bio parser to be used. Can be 'seq' (default) to be parsed by SeqIO or 'align'
+                     to be parsed with AlignIO.
         :param document: prov.model.ProvDocument.
-        :param import_records: Whether to import sequence data as Bio.SeqRecord.SeqRecord
+        :param import_records: Whether to import sequence data as Bio objects
+        :param calculate_seqstats: Whether to calculate SeqStats
         """
+        format_l = format.lower()
+        assert format in SeqFile.seqfile_formats, Warnings()["choices"](
+            format, "format", SeqFile.seqfile_formats
+        )
         super().__init__(path, tag, document)
-        self.format = format
-        self._generator = None
+        self.format = format_l
         self.records = None
+        self._generator = None
         self._seqstats = None
+        self._parser = parser
 
         if self.exists:
             self._seqrecordgenerator()
         else:
             import_records = False
+            calculate_seqstats = False
 
         if import_records:
             self.import_records()
+
+        if calculate_seqstats:
+            self._seqstats = _calculate_seqstats(self.generator)
 
     def _seqrecordgenerator(self):
         """
         Runs _seqrecordgenerator with the format.
         """
-        self._generator = seqrecordgenerator(self.path, format=self.format)
+        self._generator = seqrecordgenerator(
+            self.path, format=self.format, parser=self._parser
+        )
 
     @property
     def generator(self):
@@ -160,16 +191,6 @@ class SeqFile(File):
         if key in serial_out.keys() and serial_out[key] is not None:
             serial_out[key] = [v.description for k, v in serial_out[key].items()]
         return serializer(serial_out)
-
-
-class AlignFile(File):
-    """
-    Class for holding alignment file and alignment information. Inherits from File.
-
-    This class support records parsed with the BioPython.AlignIO module.
-    """
-
-    pass
 
 
 def _calculate_seqstats(
@@ -265,19 +286,24 @@ def calculate_N50(array):
         return new_array[ix]
 
 
-def seqrecordgenerator(path, format, kind="seq"):
+def seqrecordgenerator(path, format, parser="seq"):
     """
     :param path: Path to file.
     :param format: format to pass to SeqIO.parse().
-    :param kind: Whether to import records with SeqIO (default) or AlignIO
+    :param parser: Whether to import records with SeqIO (default) or AlignIO
     :return: A generator of SeqRecords.
     """
+    parser_l = parser.lower()
+    available_parsers = ("seq", "align")
+    assert parser in available_parsers, Warnings()["choices"](
+        parser, available_parsers, "parser"
+    )
     kind_dict = {
         "seq": lambda _path, _format: SeqIO.parse(path, format=format),
         "align": lambda _path, _format: AlignIO.parse(path, format=format),
     }
     try:
-        records = kind_dict[kind](path, format)
+        records = kind_dict[parser_l](path, format)
         return records
     except FileNotFoundError:
         raise

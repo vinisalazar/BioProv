@@ -76,6 +76,9 @@ class Warnings:
         "invalid_tax_rank": lambda tax_rank: "Rank '{}' not in ranks, choose from:\n{}".format(
             tax_rank, tax_ranks
         ),
+        "choices": lambda x, choices, argument: "Argument '{}' of value '{}' is invalid, please select from: {}".format(
+            argument, x, choices
+        ),
         "number_success": lambda success, total: "Ran successfully for {}/{} samples.".format(
             str(success), str(total),
         ),

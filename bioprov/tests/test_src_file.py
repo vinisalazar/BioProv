@@ -59,7 +59,7 @@ def test_SeqFile():
     :return:
     """
     tag = "Synechococcus elongatus PCC 6301"
-    genome = SeqFile(synechococcus_genome, tag)
+    genome = SeqFile(synechococcus_genome, tag, import_records=True)
     nf_genome, nf_tag = generate_slug(2), generate_slug(2)
     nf_genome = SeqFile(nf_genome, nf_tag)
 
