@@ -11,7 +11,7 @@ Contains the File class and related functions.
 import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
-from Bio import SeqIO
+from Bio import SeqIO, AlignIO
 from bioprov.utils import get_size, Warnings, serializer
 from prov.model import ProvEntity
 
@@ -101,12 +101,13 @@ class SeqFile(File):
     seqfile_formats = ("fasta",)
 
     def __init__(
-        self, path, tag=None, document=None, import_records=True, format="fasta",
+        self, path, tag=None, format="fasta", document=None, import_records=True,
     ):
         """
         :param path: A UNIX-like file _path.
-        :param format: Format to be parsed by SeqIO.parse()
         :param tag: optional tag describing the file.
+        :param format: Format to be parsed by SeqIO.parse()
+        :param document: prov.model.ProvDocument.
         :param import_records: Whether to import sequence data as Bio.SeqRecord.SeqRecord
         """
         super().__init__(path, tag, document)
@@ -156,8 +157,9 @@ class SeqFile(File):
     def serializer(self):
         serial_out = self.__dict__
         key = "records"
-        if key in serial_out.keys():
-            serial_out[key] = {}
+        if key in serial_out.keys() and serial_out[key] is not None:
+            serial_out[key] = [v.description for k, v in serial_out[key].items()]
+        return serializer(serial_out)
 
 
 class AlignFile(File):
@@ -263,14 +265,19 @@ def calculate_N50(array):
         return new_array[ix]
 
 
-def seqrecordgenerator(path, format):
+def seqrecordgenerator(path, format, kind="seq"):
     """
     :param path: Path to file.
     :param format: format to pass to SeqIO.parse().
+    :param kind: Whether to import records with SeqIO (default) or AlignIO
     :return: A generator of SeqRecords.
     """
+    kind_dict = {
+        "seq": lambda _path, _format: SeqIO.parse(path, format=format),
+        "align": lambda _path, _format: AlignIO.parse(path, format=format),
+    }
     try:
-        records = SeqIO.parse(path, format=format)
+        records = kind_dict[kind](path, format)
         return records
     except FileNotFoundError:
         raise
