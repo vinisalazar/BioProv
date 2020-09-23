@@ -1,6 +1,7 @@
 ## Changelog
 
 ### v0.1.3
+* Patching more JSON IO bugs [ ]
 * Add more Provenance classes [ ]
 * Improve docs and docstrings [ ]
 * Write Prov document with complete workflow [ ]

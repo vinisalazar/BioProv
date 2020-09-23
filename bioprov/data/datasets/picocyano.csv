@@ -1,3 +1,3 @@
-sample-id,assembly-file,taxon
+sample-id,assembly,taxon
 GCF_000010065.1_ASM1006v1,bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna,Synechococcus elongatus PCC 6301
 GCF_000007925.1_ASM792v1,bioprov/data/genomes/GCF_000007925.1_ASM792v1_genomic.fna,Prochlorococcus marinus CCMP1375

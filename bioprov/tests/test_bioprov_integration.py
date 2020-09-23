@@ -12,6 +12,7 @@ Integration testing for drafting new ideas.
 import bioprov as bp
 import pytest
 from os import remove
+from bioprov.data import picocyano_dataset
 
 
 def test_integration(debug=False):
@@ -51,8 +52,7 @@ def test_integration(debug=False):
     )  # And another with add_file()
 
     # Run Program on sample
-    _ = program_.run(sample=sample)
-    run_ = program_.run_
+    run_ = program_.run(sample=sample)
 
     # Assert block
     assert protein_file.exists

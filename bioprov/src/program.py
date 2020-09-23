@@ -54,11 +54,11 @@ class Program:
         self.path = path_to_bin
         self.version = version
         self.cmd = cmd
-        self.run_ = Run(self)
         self._getoutput = getoutput("which {}".format(self.name))
         self.found = (
             "command not found" not in self._getoutput and self._getoutput != ""
         )
+        self._runs = None
         if tag is None:
             self.tag = self.name
         if path_to_bin is None:
@@ -68,6 +68,24 @@ class Program:
 
     def __repr__(self):
         return f"Program '{self.name}' with {len(self.params)} parameter(s)."
+
+    @property
+    def runs(self):
+        if self._runs is None:
+            self._runs = dict()
+        return self._runs
+
+    @runs.setter
+    def runs(self, value):
+        self._runs = value
+
+    def add_runs(self, runs):
+        """
+        Sample method to add runs.
+        :param runs: See input to add_runs function.
+        :return: Adds runs to Sample
+        """
+        add_runs(self, runs)
 
     def generate_cmd(self):
         """
@@ -88,7 +106,6 @@ class Program:
         :return:
         """
         k, v = parameter.key, parameter.value
-        parameter.program = self
         self.params[k] = parameter
         self.param_str = generate_param_str(self.params)
         self.generate_cmd()
@@ -103,15 +120,17 @@ class Program:
         :return: An instance of Run class.
         """
 
-        # Update self._run, run self.run() and update self._run again.
+        # Creates Run instance with self
         run_ = Run(self, sample=sample)
-        self.run_ = run_.run(_sample=sample, _print=True)
+        run_.run(_sample=sample, _print=True)
+        self.add_runs(run_)
         return run_
 
     def serializer(self):
         serial_out = self.__dict__
-        if "run_" in serial_out.keys():
-            del serial_out["run_"]
+        key = "sample"
+        if key in serial_out.keys():
+            del serial_out[key]
         return serializer(serial_out)
 
 
@@ -125,7 +144,6 @@ class Parameter:
         key=None,
         value=None,
         tag=None,
-        program=None,
         cmd_string=None,
         description=None,
         kind=None,
@@ -136,7 +154,6 @@ class Parameter:
         :param key: Key of the parameter, e.g. '-h' for help command.
         :param value: Value of the parameter.
         :param tag: A tag of the parameter.
-        :param program: The program to which the parameter belongs to. Must be an instance of the Program class.
         :param cmd_string: String representation of the parameter in a command.
         :param description: description of the parameter.
         :param kind: Kind of parameter. May be 'input', 'output', 'misc', or None.
@@ -148,7 +165,6 @@ class Parameter:
         :param position: Index of insertion of parameter in command-line if it is a positional argument.
         """
         self.key = key
-        self.program = program
         self.value = value
         self.tag = tag
         self.cmd_string = cmd_string
@@ -179,17 +195,7 @@ class Parameter:
                     self.cmd_string = self.value
 
     def __repr__(self):
-        return self.cmd_string
-        # # I am leaving this commented for now as I may reimplement it later. Still deciding.
-        # if self.value == "":
-        #     str_ = f"Parameter {self.key} with no value."
-        # else:
-        #     str_ = f"Parameter {self.key} with value {self.value}."
-        # if self.description is not None:
-        #     str_ += " Description: " + f"'{self.description}.'"
-        # if self.kind is not None:
-        #     str_ += " Kind: " + f"'{self.kind}."
-        # return str_
+        return "Parameter with value '{}'".format(self.cmd_string)
 
     pass
 
@@ -199,22 +205,16 @@ class Run:
     Class for holding Run information about a selected Program.
     """
 
-    def __init__(self, program=None, params=None, sample=None):
+    def __init__(self, program, sample=None):
         """
         :param program: An instance of bioprov.Program.
         :param sample: An instance of bioprov.Sample
         """
-        self.program = program
-        if self.program is None:
-            self.program = Program.__init__(self.program, params)
-            self.params = parse_params(params)
-        else:
-            self.program = program
-            self.params = program.params
-
-        assert isinstance(self.program, Program), Warnings()["incorrect_type"](
-            self.program, Program
+        assert isinstance(program, Program), Warnings()["incorrect_type"](
+            program, Program
         )
+        self.program = program
+        self.params = program.params
         self.sample = sample
         self.cmd = self.program.cmd
 
@@ -223,6 +223,9 @@ class Run:
         self.stdin = None
         self.stdout = None
         self.stderr = None
+
+        # This parameter will suppress from writing stdout if it is too long.
+        self._auto_suppress_stdout = True
 
         # Time status
         self.start_time = None
@@ -308,11 +311,21 @@ class Run:
 
     def serializer(self):
         # The following lines prevent RecursionError
-        serial_out = self.__dict__
-        for key in ("sample", "program"):
+        serial_out = dict(self.__dict__)
+        for key in ("stdout", "program", "sample"):
             if key in serial_out.keys():
-                del serial_out[key]
-        return serializer(serial_out)
+                if key == "stdout":
+                    if (
+                        serial_out[key] is not None
+                        and len(serial_out[key]) > 5000
+                        and self._auto_suppress_stdout
+                    ):
+                        del serial_out[key]
+                else:
+                    del serial_out[key]
+
+        serial_out = serializer(serial_out)
+        return serial_out
 
 
 class PresetProgram(Program):
@@ -500,26 +513,23 @@ class PresetProgram(Program):
         Program.run(self, sample=sample, _print=_print)
 
 
-def parse_params(params, program=None):
+def parse_params(params):
     """
     Function used to parse parameter input.
     :param params: An instance or iterator of Parameter instances or a dictionary.
-    :param program: an instance of Program, if the case.
     :return: Parsed parameters to serve as attribute to a Program or Run instance.
     """
     params_ = dict()
     if isinstance(params, dict):
         for k, v in params.items():
             if isinstance(v, Parameter):
-                v.program, v.tag = v.program, v.program
                 params_[k] = v
             else:
-                params_[k] = Parameter(k, v, program=program)
+                params_[k] = Parameter(k, v)
     elif isinstance(params, (list, tuple)):
         for param in params:
             params_[param.key] = param
     elif isinstance(params, Parameter):
-        params.program = program
         params_ = {params.key: params}
     elif params is None:
         pass
@@ -607,11 +617,7 @@ def add_runs(object_, runs):
     """
 
     # Assert it is adding to correct object
-    assert isinstance(
-        object_, (Sample, Project)
-    ), "Can't add file to type '{}'. Can only add file to Sample or Project object.".format(
-        type(object_)
-    )
+    assert isinstance(object_, Program), Warnings()["incorrect_type"](object_, Program)
 
     # If a single item, make into tuple and assert correct type
     if isinstance(runs, Run):
@@ -670,7 +676,6 @@ class Sample:
             attributes = dict()
         self.attributes = attributes
         self._programs = None
-        self._runs = None
 
     def __repr__(self):
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
@@ -702,14 +707,6 @@ class Sample:
         """
         add_files(self, files)
 
-    def add_runs(self, runs):
-        """
-        Sample method to add runs.
-        :param runs: See input to add_runs function.
-        :return: Adds runs to Sample
-        """
-        add_runs(self, runs)
-
     def serializer(self):
         """
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
@@ -735,18 +732,11 @@ class Sample:
         :param _print: Whether to print output of Program.
         :return: Runs the program for Sample.
         """
-        run = program.run(sample=self, _print=print)
+        program.run(sample=self, _print=print)
+        self.add_programs(program)
 
         if program not in self.programs:
             self.programs[program.name] = program
-        if run not in self.runs:
-            self.runs[str(len(self.runs) + 1)] = run
-
-    @property
-    def runs(self):
-        if self._runs is None:
-            self._runs = dict()
-        return self._runs
 
     @property
     def programs(self):
@@ -1105,19 +1095,18 @@ def dict_to_sample(json_dict):
                             if getattr(value[tag], attr_, value_) is None:
                                 setattr(value[tag], attr_, value_)
 
-            # Create Run instances
-            if attr == "_runs" and value:
-                for tag, run in value.items():
-                    value[tag] = Run(Program())
-                    for attr_, value_ in run.items():
-                        setattr(value[tag], attr_, value_)
-                    sample_.add_runs(value[tag])
-
             # Create Program instances
             if attr == "_programs":
                 for tag, program in value.items():
                     value[tag] = Program()
                     for attr_, value_ in program.items():
+                        # Create Run instances
+                        if attr_ == "_runs" and value_:
+                            for tag_, run in value_.items():
+                                value[tag] = Run(Program())
+                                for run_attr_, run_value_ in run.items():
+                                    setattr(value[tag], run_attr_, run_value_)
+                                value[tag].add_runs(value[tag])
                         setattr(value[tag], attr_, value_)
                     sample_.add_programs(value[tag])
 

@@ -189,7 +189,10 @@ class SeqFile(File):
         serial_out = self.__dict__
         key = "records"
         if key in serial_out.keys() and serial_out[key] is not None:
-            serial_out[key] = [v.description for k, v in serial_out[key].items()]
+            if isinstance(serial_out[key], list):
+                pass
+            else:
+                serial_out[key] = [v.description for k, v in serial_out[key].items()]
         return serializer(serial_out)
 
 

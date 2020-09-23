@@ -8,10 +8,11 @@ __version__ = "0.1.3"
 """
 Testing for the Sample module.
 """
-from os import remove, path
+from os import remove
 from bioprov import Sample, Project, SeqFile, read_csv, from_json
 from bioprov.src.program import dict_to_sample, json_to_dict
 from bioprov.data import synechococcus_genome, picocyano_dataset
+from bioprov.programs import prodigal
 
 # Sample attributes for testing
 attributes = {
@@ -66,7 +67,7 @@ def test_from_df():
     :return:
     """
     sampleset_ = read_csv(
-        picocyano_dataset, index_col="sample-id", sequencefile_cols="assembly-file",
+        picocyano_dataset, index_col="sample-id", sequencefile_cols="assembly",
     )
     assert len(sampleset_) > 0
 
@@ -98,16 +99,17 @@ def test_json_Sample():
     remove(str(sample.files["json"]))
 
 
-def test_json_Project():
-    """
-    Testing for JSON methods in Project class.
-    :return:
-    """
-    ss = read_csv(picocyano_dataset, sequencefile_cols="assembly-file",)
-    ss.tag = "Synechococcus"
-    ss.to_json()
-    json_out = ss.tag + ".json"
-    assert path.isfile(json_out), f"Did not create JSON output for Project '{ss.tag}'."
-    ss = from_json(json_out)
-    assert isinstance(ss, Project)
-    remove(json_out)
+def test_project_json():
+    project = read_csv(
+        picocyano_dataset,
+        sequencefile_cols="assembly",
+        tag="gentax_picocyano",
+        import_data=True,
+    )
+
+    for k, sample in project.items():
+        sample.add_programs(prodigal(sample=sample))
+        sample.run_programs()
+
+    project.to_json()
+    # remove("./gentax_picocyano.json")

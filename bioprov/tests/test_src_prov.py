@@ -16,7 +16,7 @@ from bioprov.data import picocyano_dataset
 from bioprov.src.prov import EnvProv, BioProvDocument, BioProvProject
 
 project = read_csv(
-    picocyano_dataset, sequencefile_cols="assembly-file", tag="picocyanobacteria"
+    picocyano_dataset, sequencefile_cols="assembly", tag="picocyanobacteria"
 )
 
 

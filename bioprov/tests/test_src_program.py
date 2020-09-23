@@ -95,7 +95,7 @@ def test_parse_params():
     """
     params = {
         "-i": "some_file.fna",
-        "-a": Parameter("-a", "some_other_file.faa", "some other file"),
+        "-a": Parameter(key="-a", value="some_other_file.faa", tag="some other file"),
     }
     dict_ = parse_params(params)
     assert isinstance(dict_, dict), "Parameter dictionary did not build correctly."
