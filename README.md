@@ -93,4 +93,6 @@ Contributions are welcome!
 
 ### Changelog - v0.1.2
 * Refactor functions in src.files module [x]
-* Add support for BioPython AlignIO module [ ]
+* Add support for BioPython AlignIO module [x]
+* Patching src.program module [x]
+* Improving JSON serializers [x]
