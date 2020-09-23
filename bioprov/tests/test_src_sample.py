@@ -111,5 +111,15 @@ def test_project_json():
         sample.add_programs(prodigal(sample=sample))
         sample.run_programs()
 
-    project.to_json()
-    # remove("./gentax_picocyano.json")
+    # Test export
+    json_out = "./gentax_picocyano.json"
+    project.to_json(json_out)
+
+    # Test import
+    project = from_json(json_out)
+    json_out_2 = "./gentax_picocyano_copy.json"
+    project.to_json(json_out_2)
+
+    # Clean up
+    remove(json_out)
+    remove(json_out_2)

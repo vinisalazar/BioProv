@@ -320,7 +320,7 @@ class Run:
                         and len(serial_out[key]) > 5000
                         and self._auto_suppress_stdout
                     ):
-                        del serial_out[key]
+                        serial_out[key] = None
                 else:
                     del serial_out[key]
 
@@ -1082,35 +1082,50 @@ def dict_to_sample(json_dict):
 
         # Don't try to create instances if values are not dictionaries
         if value is not None:
-            # Create File instances
             if attr == "files":
                 for tag, file in value.items():
                     if file is not None:
                         if "format" in file.keys():
                             if file["format"] in SeqFile.seqfile_formats:
-                                value[tag] = SeqFile(path=file["path"])
+                                if (
+                                    "records" in file.keys()
+                                    and file["records"] is not None
+                                ):
+                                    import_records = True
+                                else:
+                                    import_records = False
+                                value[tag] = SeqFile(
+                                    path=file["path"],
+                                    tag=file["tag"],
+                                    import_records=import_records,
+                                )
                         else:
-                            value[tag] = File(file["path"])
+                            value[tag] = File(file["path"], tag=file["tag"])
                         for attr_, value_ in file.items():
                             if getattr(value[tag], attr_, value_) is None:
                                 setattr(value[tag], attr_, value_)
+                        sample_.add_files(value[tag])
 
             # Create Program instances
-            if attr == "_programs":
+            elif attr == "_programs":
                 for tag, program in value.items():
                     value[tag] = Program()
-                    for attr_, value_ in program.items():
+                    for program_attr_, program_value_ in program.items():
                         # Create Run instances
-                        if attr_ == "_runs" and value_:
-                            for tag_, run in value_.items():
-                                value[tag] = Run(Program())
-                                for run_attr_, run_value_ in run.items():
-                                    setattr(value[tag], run_attr_, run_value_)
-                                value[tag].add_runs(value[tag])
-                        setattr(value[tag], attr_, value_)
+                        if program_attr_ == "_runs" and program_value_:
+                            for run_tag_, run_ in program_value_.items():
+                                program_value_[run_tag_] = Run(
+                                    value[tag], sample=sample_
+                                )
+                                for run_attr_, run_value_ in run_.items():
+                                    setattr(
+                                        program_value_[run_tag_], run_attr_, run_value_
+                                    )
+                                value[tag].add_runs(program_value_[run_tag_])
+                        setattr(value[tag], program_attr_, program_value_)
                     sample_.add_programs(value[tag])
-
-            setattr(sample_, attr, value)
+            else:
+                setattr(sample_, attr, value)
 
     return sample_
 
