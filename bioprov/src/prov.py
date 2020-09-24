@@ -96,7 +96,7 @@ class BioProvProject(BioProvDocument):
         self._add_relationships()
 
     def __repr__(self):
-        return "BioProvProject describing Project '{}' with '{}' samples.".format(
+        return "BioProvProject describing Project '{}' with {} samples.".format(
             self.project.tag, len(self.project)
         )
 

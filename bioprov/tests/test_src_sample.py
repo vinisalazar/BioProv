@@ -9,7 +9,15 @@ __version__ = "0.1.3"
 Testing for the Sample module.
 """
 from os import remove
-from bioprov import Sample, Project, SeqFile, read_csv, from_json
+from bioprov import (
+    Sample,
+    Project,
+    SeqFile,
+    read_csv,
+    write_json,
+    from_json,
+    BioProvProject,
+)
 from bioprov.src.program import dict_to_sample, json_to_dict
 from bioprov.data import synechococcus_genome, picocyano_dataset
 from bioprov.programs import prodigal
@@ -99,27 +107,53 @@ def test_json_Sample():
     remove(str(sample.files["json"]))
 
 
-def test_project_json():
-    project = read_csv(
-        picocyano_dataset,
-        sequencefile_cols="assembly",
-        tag="gentax_picocyano",
-        import_data=True,
-    )
+def test_project_json_and_prov():
+    def import_project():
+        _project = read_csv(
+            picocyano_dataset,
+            sequencefile_cols="assembly",
+            tag="gentax_picocyano",
+            import_data=True,
+        )
 
-    for k, sample in project.items():
-        sample.add_programs(prodigal(sample=sample))
-        sample.run_programs()
+        return _project
+
+    def add_and_run_programs(_project):
+        for k, sample in _project.items():
+            sample.add_programs(prodigal(sample=sample))
+            sample.run_programs()
+
+    def export_json(path, _project):
+        return _project.to_json(path)
+
+    def import_json(path):
+        return from_json(path)
+
+    def create_prov(_project):
+        return BioProvProject(_project)
+
+    def export_prov_json(_path, _projectprov):
+        json = _projectprov.ProvDocument.serialize()
+        write_json(json, _path=_path)
+
+    project = import_project()
+    add_and_run_programs(project)
 
     # Test export
     json_out = "./gentax_picocyano.json"
-    project.to_json(json_out)
+    export_json(json_out, project)
 
     # Test import
-    project = from_json(json_out)
+    project = import_json(json_out)
     json_out_2 = "./gentax_picocyano_copy.json"
-    project.to_json(json_out_2)
+    export_json(json_out_2, project)
+
+    prov = create_prov(project)
+    prov_json_out = "./gentax_picocyano_prov.json"
+    export_prov_json(prov_json_out, prov)
+
+    # breakpoint()
 
     # Clean up
-    remove(json_out)
-    remove(json_out_2)
+    for f in (json_out, json_out_2, prov_json_out):
+        remove(f)

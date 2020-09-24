@@ -149,9 +149,10 @@ class SeqFile(File):
 
         if import_records:
             self.import_records()
+            calculate_seqstats = True
 
         if calculate_seqstats:
-            self._seqstats = _calculate_seqstats(self.generator)
+            self._seqstats = _calculate_seqstats(self.records)
 
     def _seqrecordgenerator(self):
         """
@@ -248,7 +249,7 @@ def _calculate_seqstats(
     if megabases:
         total_bps /= 10e5
 
-    return SeqStats(number_seqs, total_bps, mean_bp, min_bp, max_bp, N50, GC)
+    return SeqStats(number_seqs, total_bps, mean_bp, min_bp, max_bp, N50, GC).__dict__
 
 
 @dataclass
