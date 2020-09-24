@@ -1,10 +1,12 @@
 ## Changelog
 
-### v0.1.3
-* Patching more JSON IO bugs [ ]
+### v0.1.4
 * Add more Provenance classes [ ]
 * Improve docs and docstrings [ ]
 * Write Prov document with complete workflow [ ]
+
+### v0.1.3
+* Patching more JSON IO bugs [x]
 
 ### v0.1.2
 * Refactor functions in src.files module [x]

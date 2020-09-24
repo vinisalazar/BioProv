@@ -732,7 +732,7 @@ class Sample:
         :param _print: Whether to print output of Program.
         :return: Runs the program for Sample.
         """
-        program.run(sample=self, _print=print)
+        program.run(sample=self, _print=_print)
         self.add_programs(program)
 
         if program not in self.programs:
