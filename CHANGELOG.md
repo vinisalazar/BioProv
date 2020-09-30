@@ -4,6 +4,7 @@
 * Add more Provenance classes [ ]
 * Improve docs and docstrings [ ]
 * Write Prov document with complete workflow [ ]
+* Fix PresetProgram.add_parameter bug [ ]
 
 ### v0.1.3
 * Patching more JSON IO bugs [x]

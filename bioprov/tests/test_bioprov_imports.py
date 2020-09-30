@@ -33,7 +33,7 @@ def test_import_classes_and_functions():
     try:
         from bioprov import (
             Config,
-            default_config,
+            config,
             File,
             Program,
             Parameter,

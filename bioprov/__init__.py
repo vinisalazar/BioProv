@@ -11,7 +11,7 @@ Init module for package bioprov.
 Inherits objects from the src/ package.
 """
 
-from .src.config import Config, default_config
+from .src.config import Config, config
 from .src.files import File, SeqFile
 from .src.program import (
     Program,

@@ -105,6 +105,9 @@ class Program:
         :param _print: whether to print the parameter has been added.
         :return:
         """
+        assert isinstance(parameter, Parameter), Warnings()["incorrect_type"](
+            parameter, Parameter
+        )
         k, v = parameter.key, parameter.value
         self.params[k] = parameter
         self.param_str = generate_param_str(self.params)
@@ -195,7 +198,7 @@ class Parameter:
                     self.cmd_string = self.value
 
     def __repr__(self):
-        return "Parameter with value '{}'".format(self.cmd_string)
+        return "Parameter with command string '{}'".format(self.cmd_string)
 
     pass
 
@@ -473,6 +476,8 @@ class PresetProgram(Program):
 
     def generate_cmd(self, from_files=True):
         """
+        To-do: improve this function
+
         Generates a wildcard command string, independent of samples.
         :param from_files: Generate command from self.input_files and self.output_files (recommended) If False,
         will generate from parameter dictionary instead.
@@ -485,7 +490,11 @@ class PresetProgram(Program):
         for k, parameter in params_.items():
             # Replace file names with place holders.
             if parameter.kind in ("input", "output"):
-                parameter.value = "sample.files['{}']".format(parameter.tag)
+                try:
+                    parameter.value = str(self.sample.files["{}"].format(parameter.tag))
+                except AttributeError:
+                    print("Warning: no sample associated with program.")
+                    pass  # Suppress bug for now.
             else:
                 pass
         # Now parse resulting output
@@ -509,6 +518,7 @@ class PresetProgram(Program):
             preffix_tag = self.preffix_tag
         if not self.ready:
             self.create_func(sample, preffix_tag)
+            
         # Update self._run, run self.run() and update self._run again.
         Program.run(self, sample=sample, _print=_print)
 

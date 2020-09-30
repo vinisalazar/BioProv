@@ -11,7 +11,7 @@ Contains the Workflow class and related functions.
 import argparse
 import pandas as pd
 from glob import glob
-from bioprov import from_df, default_config
+from bioprov import from_df, config
 from bioprov.utils import Warnings
 from bioprov.src.program import PresetProgram
 from os import path
@@ -139,7 +139,7 @@ class Workflow:
             "-c",
             "--cpus",
             help="Default is set in BioProv config (half of the CPUs).",
-            default=default_config.threads,
+            default=config.threads,
         )
         parser.add_argument(
             "--verbose",

@@ -16,7 +16,7 @@ with the BioProv CLI application (recommended).
 """
 
 from os import path, getcwd, mkdir
-from bioprov import default_config, from_df
+from bioprov import config, from_df
 from bioprov.programs import kaiju, kaiju2table
 from bioprov.utils import Warnings, tax_ranks
 from tqdm import tqdm
@@ -43,7 +43,7 @@ class KaijuWorkflow:
         kaijudb=None,
         nodes=None,
         names=None,
-        threads=default_config.threads,
+        threads=config.threads,
         _tag=None,
         verbose=False,
         resume=True,
@@ -211,7 +211,7 @@ class KaijuWorkflow:
             "-p",
             "--threads",
             help="Number of threads. Default is set in BioProv config (half of the threads).",
-            default=default_config.threads,
+            default=config.threads,
         )
         return _parser
 
