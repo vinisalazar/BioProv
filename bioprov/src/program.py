@@ -491,7 +491,7 @@ class PresetProgram(Program):
             # Replace file names with place holders.
             if parameter.kind in ("input", "output"):
                 try:
-                    parameter.value = str(self.sample.files["{}"].format(parameter.tag))
+                    parameter.value = str(self.sample.files["{}".format(parameter.tag])
                 except AttributeError:
                     print("Warning: no sample associated with program.")
                     pass  # Suppress bug for now.
@@ -518,7 +518,7 @@ class PresetProgram(Program):
             preffix_tag = self.preffix_tag
         if not self.ready:
             self.create_func(sample, preffix_tag)
-            
+
         # Update self._run, run self.run() and update self._run again.
         Program.run(self, sample=sample, _print=_print)
 
