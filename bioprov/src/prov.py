@@ -201,6 +201,12 @@ class EnvProv:
             self.user = self.env_dict["USER"]
             self.env_namespace = Namespace("env", str(self))
 
+    def _build_prov_attributes(self):
+        """
+        Adds self.env_dict to self.env_namespace.
+        """
+        return build_prov_attributes(self.env_dict, self.env_namespace)
+
 
 def build_prov_attributes(dictionary, namespace):
     """
