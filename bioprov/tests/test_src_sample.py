@@ -107,7 +107,7 @@ def test_json_Sample():
     remove(str(sample.files["json"]))
 
 
-def test_project_json_and_prov():
+def test_project_json_and_prov(debug=False):
     def import_project():
         _project = read_csv(
             picocyano_dataset,
@@ -157,3 +157,7 @@ def test_project_json_and_prov():
     # Clean up
     for f in (json_out, json_out_2, prov_json_out):
         remove(f)
+
+    # Useful for debugging
+    if debug:
+        return project, prov

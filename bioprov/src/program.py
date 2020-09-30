@@ -491,7 +491,7 @@ class PresetProgram(Program):
             # Replace file names with place holders.
             if parameter.kind in ("input", "output"):
                 try:
-                    parameter.value = str(self.sample.files["{}".format(parameter.tag])
+                    parameter.value = str(self.sample.files["{}".format(parameter.tag)])
                 except AttributeError:
                     print("Warning: no sample associated with program.")
                     pass  # Suppress bug for now.
