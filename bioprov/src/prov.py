@@ -12,7 +12,7 @@ settings, and stores them. It is invoked to export provenance objects.
 """
 from os import environ
 from bioprov import Project
-from bioprov.utils import Warnings
+from bioprov.utils import Warnings, is_serializable_type
 from prov.model import ProvDocument, Namespace, QualifiedName
 
 
@@ -76,7 +76,9 @@ class BioProvProject(BioProvDocument):
     Class containing base provenance information for a Project.
     """
 
-    def __init__(self, project, _add_project_namespaces=True, **kwargs):
+    def __init__(
+        self, project, _add_project_namespaces=True, add_attributes=True, **kwargs
+    ):
         """
         Constructs base provenance for a Project.
         :param project: Project being processed.
@@ -93,6 +95,7 @@ class BioProvProject(BioProvDocument):
         self.project = project
         self.samples_entity = None
         self.activities = None
+        self.add_attributes = add_attributes
 
         # Add default namespaces
         if _add_project_namespaces:
@@ -116,17 +119,32 @@ class BioProvProject(BioProvDocument):
         self._add_activities_namespace()
 
     def _add_project_namespace(self):
-        self.ProvDocument.add_namespace("project", str(self.project))
-        self.project.entity = self.ProvDocument.entity(
-            "project:{}".format(self.project)
+        self.project.namespace = self.ProvDocument.add_namespace(
+            "project", str(self.project)
         )
-        # Check if project_csv exists
-        if "project_csv" in self.project.files.keys():
-            self.project_file_entity = self.ProvDocument.entity(
-                "project:{}".format(self.project.files["project_csv"])
+        if self.add_attributes:
+            self.project.entity = self.ProvDocument.entity(
+                "project:{}".format(self.project),
+                other_attributes=build_prov_attributes(
+                    {
+                        k: v
+                        for k, v in self.project.__dict__.items()
+                        if k not in ("_samples", "files")
+                    },
+                    self.project.namespace,
+                ),
             )
         else:
-            pass
+            self.project.entity = self.ProvDocument.entity(
+                "project:{}".format(self.project)
+            )
+        # # Check if project_csv exists
+        # if "project_csv" in self.project.files.keys():
+        #     self.project_file_entity = self.ProvDocument.entity(
+        #         "project:{}".format(self.project.files["project_csv"])
+        #     )
+        # else:
+        #     pass
 
     def _add_samples_namespace(self):
 
@@ -135,10 +153,47 @@ class BioProvProject(BioProvDocument):
             "Samples associated with bioprov Project '{}'".format(self.project.tag),
         )
 
-        # Samples
-        self.samples_entity = self.ProvDocument.entity(
-            "samples:{}".format(str(self.project))
-        )
+        for _, sample in self.project.items():
+
+            # Sample PROV attributes: bundle, namespace, entity
+            sample.ProvBundle = self.ProvDocument.bundle(
+                "samples:{}".format(sample.name)
+            )
+            sample.ProvBundle.set_default_namespace(sample.name)
+            sample.ProvEntity = sample.ProvBundle.entity(sample.name)
+
+            # Files PROV attributes: namespace, entities
+            files_namespace_prefix = "{}.files".format(sample.name)
+            sample.ProvBundle.add_namespace(
+                files_namespace_prefix,
+                "Files associated with Sample {}".format(sample.name),
+            )
+            for key, file in sample.files.items():
+                file.namespace = sample.ProvBundle.add_namespace(
+                    file.name, str(file.path)
+                )
+                file.ProvEntity = sample.ProvBundle.entity(
+                    "{}:{}".format(files_namespace_prefix, file.name),
+                    other_attributes=build_prov_attributes(
+                        file.__dict__, file.namespace
+                    ),
+                )
+                sample.ProvBundle.wasDerivedFrom(
+                    file.ProvEntity, sample.ProvEntity,
+                )
+
+            # Programs PROV attributes: namespace, entities
+            programs_namespace_prefix = "{}.programs".format(sample.name)
+            for key, program in sample.programs.items():
+                program.namespace = sample.ProvBundle.add_namespace(
+                    program.name, str(program)
+                )
+                last_run = program.runs[str(len(program.runs))]
+                program.ProvActivity = sample.ProvBundle.activity(
+                    "{}:{}".format(programs_namespace_prefix, program.name),
+                    startTime=last_run.start_time,
+                    endTime=last_run.end_time,
+                )
 
     def _add_activities_namespace(self):
         """
@@ -168,19 +223,19 @@ class BioProvProject(BioProvDocument):
         pass
         # Relating project with user, project file, and sample
         # self.ProvDocument.wasAttributedTo(
-        #     self.project.entity, "user:{}".format(self.user)
+        #     self.project.ProvEntity, "user:{}".format(self.user)
         # )
         # # Add activities
         # for key, activity in self.activities.items():
         #     self.ProvDocument.wasAssociatedWith(activity, "user:{}".format(self.user))
         # self.ProvDocument.wasGeneratedBy(
-        #     self.project.entity, self.activities["import_Project"]
+        #     self.project.ProvEntity, self.activities["import_Project"]
         # )
         # if self.project_file_entity is not None:
         #     self.ProvDocument.used(
         #         self.activities["import_Project"], self.project_file_entity
         #     )
-        # self.ProvDocument.used(self.activities["import_Sample"], self.project.entity)
+        # self.ProvDocument.used(self.activities["import_Sample"], self.project.ProvEntity)
         # self.ProvDocument.wasGeneratedBy(
         #     self.samples_entity, self.activities["import_Sample"]
         # )
@@ -247,7 +302,12 @@ def build_prov_attributes(dictionary, namespace):
 
     attributes = []
     for k, v in dictionary.items():
-        q = QualifiedName(namespace, str(k))
-        attributes.append((q, v))
+        if k == "namespace":
+            continue
+        else:
+            if not is_serializable_type(v):
+                v = str(v)
+            q = QualifiedName(namespace, str(k))
+            attributes.append((q, v))
 
     return attributes
