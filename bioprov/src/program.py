@@ -200,7 +200,8 @@ class Parameter:
     def __repr__(self):
         return "Parameter with command string '{}'".format(self.cmd_string)
 
-    pass
+    def serializer(self):
+        return self.__dict__
 
 
 class Run:
@@ -1104,6 +1105,9 @@ def dict_to_sample(json_dict):
                                     import_records = True
                                 else:
                                     import_records = False
+
+                                # To-do: don't import records again (slow)
+                                # Get them straight from the JSON file.
                                 value[tag] = SeqFile(
                                     path=file["path"],
                                     tag=file["tag"],
@@ -1121,6 +1125,13 @@ def dict_to_sample(json_dict):
                 for tag, program in value.items():
                     value[tag] = Program()
                     for program_attr_, program_value_ in program.items():
+
+                        # Create Parameter attributes
+                        if program_attr_ == "params" and program_value_:
+                            parameter = Parameter()
+                            for param_attr_, param_value_ in program_value_.items():
+                                setattr(parameter, param_attr_, param_value_)
+
                         # Create Run instances
                         if program_attr_ == "_runs" and program_value_:
                             for run_tag_, run_ in program_value_.items():
