@@ -119,6 +119,7 @@ class SeqFile(File):
         document=None,
         import_records=False,
         calculate_seqstats=False,
+        calculate_seqstats_kwargs=None,
     ):
         """
         :param path: A UNIX-like file _path.
@@ -129,6 +130,7 @@ class SeqFile(File):
         :param document: prov.model.ProvDocument.
         :param import_records: Whether to import sequence data as Bio objects
         :param calculate_seqstats: Whether to calculate SeqStats
+        :param calculate_seqstats_kwargs: Params to pass to self._calculate_SeqStats
         """
         format_l = format.lower()
         assert format in SeqFile.seqfile_formats, Warnings()["choices"](
@@ -140,6 +142,13 @@ class SeqFile(File):
         self._generator = None
         self._seqstats = None
         self._parser = parser
+        self.number_seqs: int
+        self.total_bps: int
+        self.mean_bp: float
+        self.min_bp: int
+        self.max_bp: int
+        self.N50: int
+        self.GC: float
 
         if self.exists:
             self._seqrecordgenerator()
@@ -152,7 +161,7 @@ class SeqFile(File):
             calculate_seqstats = True
 
         if calculate_seqstats:
-            self._seqstats = _calculate_seqstats(self.records)
+            self._seqstats = self._calculate_seqstats(self.records)
 
     def _seqrecordgenerator(self):
         """
@@ -175,7 +184,7 @@ class SeqFile(File):
     @property
     def seqstats(self):
         if self._seqstats is None:
-            self._seqstats = _calculate_seqstats(self.records)
+            self._seqstats = self._calculate_seqstats()
         return self._seqstats
 
     @seqstats.setter
@@ -196,60 +205,66 @@ class SeqFile(File):
                 serial_out[key] = str(serial_out)
         return serializer(serial_out)
 
+    def _calculate_seqstats(
+        self, calculate_gc=True, megabases=False, percentage=False, decimals=5,
+    ):
+        """
+        :param seqrecord_dict: Dict of SeqRecord entries, from SeqFile.records.
+        :param calculate_gc: Whether to calculate GC content. Disabled if amino acid file.
+        :param megabases: Whether to convert number of sequences to megabases.
+        :param percentage: Whether to convert GC content to percentage (value * 100)
+        :param decimals: Number of decimals to round.
+        :return: SeqStats instance.
+        """
+        assert isinstance(self.records, dict), Warnings()["incorrect_type"](
+            self.records, dict
+        )
 
-def _calculate_seqstats(
-    seqrecord_dict, calculate_gc=True, megabases=False, percentage=False, decimals=5
-):
-    """
-    :param seqrecord_dict: Dict of SeqRecord entries, from SeqFile.records.
-    :param calculate_gc: Whether to calculate GC content. Disabled if amino acid file.
-    :param megabases: Whether to convert number of sequences to megabases.
-    :param percentage: Whether to convert GC content to percentage (value * 100)
-    :param decimals: Number of decimals to round.
-    :return: SeqStats instance.
-    """
-    assert isinstance(seqrecord_dict, dict), Warnings()["incorrect_type"](
-        seqrecord_dict, dict
-    )
+        bp_array, GC = [], 0
+        aminoacids = "LMFWKQESPVIYHRND"
 
-    bp_array, GC = [], 0
-    aminoacids = "LMFWKQESPVIYHRND"
+        # We use enumerate to check the first item for amino acids.
+        for ix, (key, SeqRecord) in enumerate(self.records.items()):
+            if ix == 0:
+                seq = str(SeqRecord.seq)
+                if any(i in aminoacids for i in seq):
+                    calculate_gc = False
 
-    # We use enumerate to check the first item for amino acids.
-    for ix, (key, SeqRecord) in enumerate(seqrecord_dict.items()):
-        if ix == 0:
-            seq = str(SeqRecord.seq)
-            if any(i in aminoacids for i in seq):
-                calculate_gc = False
+            # Add length of sequences (number of base pairs)
+            bp_array.append(len(SeqRecord.seq))
 
-        # Add length of sequences (number of base pairs)
-        bp_array.append(len(SeqRecord.seq))
+            # Only count if there are no aminoacids.
+            if calculate_gc:
+                GC += SeqRecord.seq.upper().count("G")
+                GC += SeqRecord.seq.upper().count("C")
 
-        # Only count if there are no aminoacids.
+        # Convert to array
+        bp_array = np.array(bp_array)
+        number_seqs = len(bp_array)
+        total_bps = bp_array.sum()
+        mean_bp = round(bp_array.mean(), decimals)
+        N50 = calculate_N50(bp_array)
+        min_bp = bp_array.min()
+        max_bp = bp_array.max()
+
         if calculate_gc:
-            GC += SeqRecord.seq.upper().count("G")
-            GC += SeqRecord.seq.upper().count("C")
+            GC = round(GC / total_bps, decimals)
+            if percentage:
+                GC *= 100
+        else:
+            GC = np.nan
 
-    # Convert to array
-    bp_array = np.array(bp_array)
-    number_seqs = len(bp_array)
-    total_bps = bp_array.sum()
-    mean_bp = round(bp_array.mean(), decimals)
-    N50 = calculate_N50(bp_array)
-    min_bp = bp_array.min()
-    max_bp = bp_array.max()
+        if megabases:
+            total_bps /= 10e5
 
-    if calculate_gc:
-        GC = round(GC / total_bps, decimals)
-        if percentage:
-            GC *= 100
-    else:
-        GC = np.nan
+        self._seqstats = SeqStats(
+            number_seqs, total_bps, mean_bp, min_bp, max_bp, N50, GC
+        )
 
-    if megabases:
-        total_bps /= 10e5
+        for k, value in self._seqstats.__dict__.items():
+            setattr(self, k, value)
 
-    return SeqStats(number_seqs, total_bps, mean_bp, min_bp, max_bp, N50, GC).__dict__
+        return self._seqstats
 
 
 @dataclass
