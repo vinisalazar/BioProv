@@ -203,6 +203,10 @@ class SeqFile(File):
                 serial_out[key] = [v.description for k, v in serial_out[key].items()]
             else:
                 serial_out[key] = str(serial_out)
+
+        for key in ("namespace", "ProvEntity"):
+            if key in serial_out.keys():
+                del serial_out[key]
         return serializer(serial_out)
 
     def _calculate_seqstats(
