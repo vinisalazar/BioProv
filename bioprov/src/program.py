@@ -23,6 +23,7 @@ from pathlib import Path
 from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
+from collections import OrderedDict
 
 
 class Program:
@@ -144,8 +145,8 @@ class Parameter:
 
     def __init__(
         self,
-        key=None,
-        value=None,
+        key,
+        value="",
         tag=None,
         cmd_string=None,
         description=None,
@@ -268,12 +269,14 @@ class Run:
         dict_ = {True: "Finished", False: "Pending"}
         return dict_[finished_status]
 
-    def run(self, _sample=None, _print=True):
+    def run(self, _sample=None, _print=True, _print_stdout=False, _print_stderr=False):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
         :type _print: bool
         :param _sample: self.sample
+        :param _print_stdout: Whether to print the stdout of the Program.
+        :param _print_stderr: Whether to print the stderr of the Program.
         :return: self.stdout
         """
         if _sample is None:
@@ -310,6 +313,12 @@ class Run:
         self.duration = duration
         self.finished = True
         self.status = self._finished_to_status(self.finished)
+
+        # These are useful for quick debugging.
+        if _print_stdout:
+            print(self.stdout)
+        if _print_stderr:
+            print(self.stderr)
 
         return self
 
@@ -530,7 +539,7 @@ def parse_params(params):
     :param params: An instance or iterator of Parameter instances or a dictionary.
     :return: Parsed parameters to serve as attribute to a Program or Run instance.
     """
-    params_ = dict()
+    params_ = OrderedDict()
     if isinstance(params, dict):
         for k, v in params.items():
             if isinstance(v, Parameter):
