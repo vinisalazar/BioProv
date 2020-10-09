@@ -16,7 +16,7 @@ import datetime
 import json
 import pandas as pd
 from bioprov.utils import Warnings, serializer
-from bioprov.src.files import File, SeqFile
+from bioprov.src.files import File, SeqFile, SeqStats
 from coolname import generate_slug
 from os import path
 from pathlib import Path
@@ -200,7 +200,8 @@ class Parameter:
     def __repr__(self):
         return "Parameter with command string '{}'".format(self.cmd_string)
 
-    pass
+    def serializer(self):
+        return self.__dict__
 
 
 class Run:
@@ -1104,14 +1105,26 @@ def dict_to_sample(json_dict):
                                     import_records = True
                                 else:
                                     import_records = False
+
+                                # To-do: don't import records again (slow)
+                                # Get them straight from the JSON file.
                                 value[tag] = SeqFile(
-                                    path=file["path"],
-                                    tag=file["tag"],
-                                    import_records=import_records,
+                                    path=file["path"], tag=file["tag"],
                                 )
+                                if import_records:
+                                    for (
+                                        seqstats_attr_
+                                    ) in SeqStats.__dataclass_fields__.keys():
+                                        setattr(
+                                            value[tag],
+                                            seqstats_attr_,
+                                            file[seqstats_attr_],
+                                        )
                         else:
                             value[tag] = File(file["path"], tag=file["tag"])
                         for attr_, value_ in file.items():
+                            if attr_ == "records":
+                                continue
                             if getattr(value[tag], attr_, value_) is None:
                                 setattr(value[tag], attr_, value_)
                         sample_.add_files(value[tag])
@@ -1121,6 +1134,13 @@ def dict_to_sample(json_dict):
                 for tag, program in value.items():
                     value[tag] = Program()
                     for program_attr_, program_value_ in program.items():
+
+                        # Create Parameter attributes
+                        if program_attr_ == "params" and program_value_:
+                            parameter = Parameter()
+                            for param_attr_, param_value_ in program_value_.items():
+                                setattr(parameter, param_attr_, param_value_)
+
                         # Create Run instances
                         if program_attr_ == "_runs" and program_value_:
                             for run_tag_, run_ in program_value_.items():
