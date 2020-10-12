@@ -145,7 +145,7 @@ class Parameter:
 
     def __init__(
         self,
-        key,
+        key=None,
         value="",
         tag=None,
         cmd_string=None,
