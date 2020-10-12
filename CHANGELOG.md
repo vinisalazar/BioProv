@@ -1,10 +1,15 @@
 ## Changelog
 
-### v0.1.4
+### v0.1.5
 * Add more Provenance classes [ ]
 * Improve docs and docstrings [ ]
 * Write Prov document with complete workflow [ ]
-* Fix PresetProgram.add_parameter bug [ ]
+
+### v0.1.4
+* Fix PresetProgram.add_parameter bug [x]
+* Add basic Tutorial [x]
+* Refactor SeqStats data class [x]
+* Improve Provenance classes [x]
 
 ### v0.1.3
 * Patching more JSON IO bugs [x]
