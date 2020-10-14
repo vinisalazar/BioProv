@@ -1,0 +1,180 @@
+{
+   "tag": "introduction",
+   "files": {},
+   "_samples": {
+      "Synechococcus_elongatus_PCC_6301": {
+         "name": "Synechococcus_elongatus_PCC_6301",
+         "tag": null,
+         "files": {
+            "assembly": {
+               "path": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna",
+               "name": "GCF_000010065.1_ASM1006v1_genomic",
+               "basename": "GCF_000010065.1_ASM1006v1_genomic.fna",
+               "directory": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes",
+               "extension": ".fna",
+               "tag": "assembly",
+               "attributes": {},
+               "_exists": true,
+               "_size": "2.6 MB",
+               "raw_size": 2730026,
+               "_document": null,
+               "_entity": null
+            },
+            "GATTACA_count": {
+               "path": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+               "name": "GATTACA_count",
+               "basename": "GATTACA_count.txt",
+               "directory": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes",
+               "extension": ".txt",
+               "tag": "GATTACA_count",
+               "attributes": {},
+               "_exists": true,
+               "_size": "3.0 bytes",
+               "raw_size": 3,
+               "_document": null,
+               "_entity": null
+            }
+         },
+         "attributes": {
+            "ncbi_accession": "GCF_000010065.1",
+            "ncbi_database": "assembly"
+         },
+         "_programs": {
+            "grep": {
+               "name": "grep",
+               "params": {
+                  "-c": {
+                     "key": "-c",
+                     "value": "",
+                     "tag": "-c",
+                     "cmd_string": "-c ",
+                     "description": null,
+                     "kind": null,
+                     "dict": {
+                        "-c": ""
+                     },
+                     "keyword_argument": true,
+                     "position": -1
+                  },
+                  "'GATTACA'": {
+                     "key": "'GATTACA'",
+                     "value": "",
+                     "tag": "'GATTACA'",
+                     "cmd_string": "'GATTACA' ",
+                     "description": null,
+                     "kind": null,
+                     "dict": {
+                        "'GATTACA'": ""
+                     },
+                     "keyword_argument": true,
+                     "position": -1
+                  },
+                  "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna": {
+                     "key": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna",
+                     "value": "",
+                     "tag": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna",
+                     "cmd_string": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna ",
+                     "description": null,
+                     "kind": null,
+                     "dict": {
+                        "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna": ""
+                     },
+                     "keyword_argument": true,
+                     "position": -1
+                  },
+                  "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt": {
+                     "key": "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+                     "value": "",
+                     "tag": "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+                     "cmd_string": "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt ",
+                     "description": null,
+                     "kind": null,
+                     "dict": {
+                        "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt": ""
+                     },
+                     "keyword_argument": true,
+                     "position": -1
+                  }
+               },
+               "param_str": "-c 'GATTACA' /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna > /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+               "tag": "grep",
+               "path": "/usr/bin/grep",
+               "version": null,
+               "cmd": "/usr/bin/grep -c 'GATTACA' /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna > /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+               "_getoutput": "/usr/bin/grep",
+               "found": true,
+               "_runs": {
+                  "1": {
+                     "params": {
+                        "-c": {
+                           "key": "-c",
+                           "value": "",
+                           "tag": "-c",
+                           "cmd_string": "-c ",
+                           "description": null,
+                           "kind": null,
+                           "dict": {
+                              "-c": ""
+                           },
+                           "keyword_argument": true,
+                           "position": -1
+                        },
+                        "'GATTACA'": {
+                           "key": "'GATTACA'",
+                           "value": "",
+                           "tag": "'GATTACA'",
+                           "cmd_string": "'GATTACA' ",
+                           "description": null,
+                           "kind": null,
+                           "dict": {
+                              "'GATTACA'": ""
+                           },
+                           "keyword_argument": true,
+                           "position": -1
+                        },
+                        "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna": {
+                           "key": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna",
+                           "value": "",
+                           "tag": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna",
+                           "cmd_string": "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna ",
+                           "description": null,
+                           "kind": null,
+                           "dict": {
+                              "/Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna": ""
+                           },
+                           "keyword_argument": true,
+                           "position": -1
+                        },
+                        "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt": {
+                           "key": "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+                           "value": "",
+                           "tag": "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+                           "cmd_string": "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt ",
+                           "description": null,
+                           "kind": null,
+                           "dict": {
+                              "> /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt": ""
+                           },
+                           "keyword_argument": true,
+                           "position": -1
+                        }
+                     },
+                     "cmd": "/usr/bin/grep -c 'GATTACA' /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna > /Users/vini/anaconda3/envs/bioprov/lib/python3.7/site-packages/bioprov/data/genomes/GATTACA_count.txt",
+                     "process": "<subprocess.Popen object at 0x7fc20bce4e90>",
+                     "stdin": null,
+                     "stdout": "b''",
+                     "stderr": "b''",
+                     "_auto_suppress_stdout": true,
+                     "start_time": "Mon Oct 12 23:27:18 2020",
+                     "end_time": "Mon Oct 12 23:27:18 2020",
+                     "duration": "0:00:00.170295",
+                     "started": true,
+                     "finished": true,
+                     "_status": "Finished"
+                  }
+               }
+            }
+         }
+      }
+   }
+}

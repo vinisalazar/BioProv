@@ -24,7 +24,7 @@ copyright = "2020, Vini Salazar"
 author = "Vini Salazar"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.2"
+release = "v0.1.5"
 
 
 # -- General configuration ---------------------------------------------------
@@ -56,7 +56,7 @@ html_theme = "sphinx_rtd_theme"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+html_static_path = []
 
 
 def skip(app, what, name, obj, would_skip, options):

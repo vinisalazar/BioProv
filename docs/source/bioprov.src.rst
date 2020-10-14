@@ -36,14 +36,6 @@ bioprov.src.prov module
    :undoc-members:
    :show-inheritance:
 
-bioprov.src.program module
--------------------------
-
-.. automodule:: bioprov.src.program
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bioprov.src.workflow module
 ---------------------------
 
