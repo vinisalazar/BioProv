@@ -5,6 +5,7 @@ __pycache__/
 .idea/
 .DS_Store
 bioprov/data/genomes/*genomic_*
+docs/tutorials/*.json
 
 # C extensions
 *.so
