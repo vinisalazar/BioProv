@@ -1,9 +1,13 @@
 ## Changelog
 
-### v0.1.5
+### v0.1.6
 * Add more Provenance classes [ ]
 * Improve docs and docstrings [ ]
 * Write Prov document with complete workflow [ ]
+
+### v0.1.5
+* Add W3C-PROV tutorial [x]
+* Small tweaks to default arguments in Program and File module [x]
 
 ### v0.1.4
 * Fix PresetProgram.add_parameter bug [x]
