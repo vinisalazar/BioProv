@@ -6,7 +6,9 @@
 [![License](https://img.shields.io/github/license/vinisalazar/bioprov)](https://img.shields.io/github/license/vinisalazar/bioprov)
 [![Requirements Status](https://requires.io/github/vinisalazar/BioProv/requirements.svg?branch=master)](https://requires.io/github/vinisalazar/BioProv/requirements/?branch=master)
 
-BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of biological data. It enables you to quickly write workflows and to describe relationships between samples, files, users and processes. 
+BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of biological data. It enables you to quickly write workflows and to describe relationships between samples, files, users and processes.
+
+Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detailed introduction. 
 
 ```
 >>> import bioprov as bp
