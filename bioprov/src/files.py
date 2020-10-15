@@ -119,7 +119,6 @@ class SeqFile(File):
         document=None,
         import_records=False,
         calculate_seqstats=False,
-        calculate_seqstats_kwargs=None,
     ):
         """
         :param path: A UNIX-like file _path.
@@ -130,7 +129,6 @@ class SeqFile(File):
         :param document: prov.model.ProvDocument.
         :param import_records: Whether to import sequence data as Bio objects
         :param calculate_seqstats: Whether to calculate SeqStats
-        :param calculate_seqstats_kwargs: Params to pass to self._calculate_SeqStats
         """
         format_l = format.lower()
         assert format in SeqFile.seqfile_formats, Warnings()["choices"](
@@ -213,7 +211,6 @@ class SeqFile(File):
         self, calculate_gc=True, megabases=False, percentage=False, decimals=5,
     ):
         """
-        :param seqrecord_dict: Dict of SeqRecord entries, from SeqFile.records.
         :param calculate_gc: Whether to calculate GC content. Disabled if amino acid file.
         :param megabases: Whether to convert number of sequences to megabases.
         :param percentage: Whether to convert GC content to percentage (value * 100)
