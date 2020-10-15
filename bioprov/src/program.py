@@ -437,7 +437,7 @@ class PresetProgram(Program):
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
-                self.add_parameter(param)
+                self.add_parameter(param, _print=False)
         except ValueError:
             raise Exception(
                 "Please check the output files dictionary:\n'{}'\n"
@@ -785,6 +785,8 @@ class Project:
         :param samples: An iterator of Sample objects.
         :param tag: A tag to describe the Project.
         """
+        if tag is None:
+            tag = generate_slug(2)
         self.tag = tag
         self.files = dict()
         samples = self.is_iterator(
@@ -956,7 +958,7 @@ def to_json(object_, dictionary, _path=None, _print=True):
     :return: Writes JSON output
     """
     if _path is None:
-        assert object_.tag is not None
+        assert object_.tag is not None, "Please tag your project to export it!"
         _path = f"./{object_.tag}.json"
 
     if "json" not in object_.files.keys():
