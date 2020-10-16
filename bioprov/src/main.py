@@ -108,7 +108,7 @@ class Program:
         self.cmd = cmd
         return cmd
 
-    def add_parameter(self, parameter, _print=True):
+    def add_parameter(self, parameter, _print=False):
         """
         Adds a parameter to the current instance and updates the command.
 
@@ -1166,6 +1166,7 @@ def json_to_dict(json_file):
     return dict_
 
 
+# this function is hideous. it must be improved.
 def dict_to_sample(json_dict):
     """
     Converts a JSON dictionary to a sample instance.
@@ -1221,9 +1222,12 @@ def dict_to_sample(json_dict):
 
                         # Create Parameter attributes
                         if program_attr_ == "params" and program_value_:
-                            parameter = Parameter()
-                            for param_attr_, param_value_ in program_value_.items():
-                                setattr(parameter, param_attr_, param_value_)
+                            for key, param in program_value_.items():
+                                parameter = Parameter()
+                                for param_attr_, param_value_ in param.items():
+                                    setattr(parameter, param_attr_, param_value_)
+
+                                value[tag].add_parameter(parameter)
 
                         # Create Run instances
                         if program_attr_ == "_runs" and program_value_:

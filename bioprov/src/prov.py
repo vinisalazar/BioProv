@@ -185,7 +185,7 @@ class BioProvDocument:
                     self._activities[program.name], f"users:{last_run.user}"
                 )
 
-                # # Relationships based on Parameters
+                # Relationships based on Parameters
                 # inputs = [parameter for parameter in program.params]
 
     def _add_activities_namespace(self):
