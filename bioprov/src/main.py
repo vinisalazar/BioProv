@@ -826,6 +826,10 @@ class Project:
         samples = self.build_sample_dict(samples)
         self._samples = samples
 
+        # environments are stored based on the user name
+        # avoid duplicated user names!
+        self.envs = {config.user: config.env}
+
     def __len__(self):
         return len(self._samples)
 
@@ -942,7 +946,7 @@ class Project:
 
     def to_df(self):
         """
-        Creates a Pandas DataFrame from sample files and attributes.
+        Creates a Pandas DataFrame from Sample files and attributes.
         :return: pd.DataFrame
         """
         rows = [sample.to_series() for _, sample in self.items()]
@@ -950,27 +954,33 @@ class Project:
         df.set_index("name", inplace=True)
         return df
 
-    def to_csv(self, path=None, sep=",", **kwargs):
+    def to_csv(self, path_=None, sep=",", **kwargs):
         """
         Writes a tab-delimited file of sample files and attributes using the to_df method.
         :return:
         """
-        ext_dict = {",": ".csv", "\t": ".tsv"}
 
+        # automatic file extensions FTW
         def get_ext(sep_):
+            ext_dict = {",": ".csv", "\t": ".tsv"}
             try:
-                ext = ext_dict[sep_]
+                ext_ = ext_dict[sep_]
             except KeyError:
-                ext = ".txt"
-            return ext
+                ext_ = ".txt"
+            return ext_
 
-        if path is None:
-            path = "./" + self.tag + get_ext(sep)
+        ext = get_ext(sep)
 
+        # default output is working directory
+        if path_ is None:
+            path_ = "./" + self.tag + ext
+
+        # avoid duplicated extensions
+        path_ = path_.replace(ext + ext, ext)
+
+        # finally, write
         df = self.to_df()
-        df.to_csv(
-            path, sep=sep,
-        )
+        df.to_csv(path_, sep=sep, **kwargs)
 
 
 def add_files(object_, files):
