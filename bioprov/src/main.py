@@ -24,6 +24,7 @@ This class also contains functions to read and write objects in JSON and tab-del
 import datetime
 import json
 import pandas as pd
+from bioprov import config
 from bioprov.utils import Warnings, serializer
 from bioprov.src.files import File, SeqFile, SeqStats
 from coolname import generate_slug
@@ -250,6 +251,9 @@ class Run:
         self.started = False
         self.finished = False
         self.status = self._finished_to_status(self.finished)
+
+        # User who ran the task
+        self.user = config.user
 
     def __repr__(self):
         str_ = f"Run of Program '{self.program.name}' with {len(self.params)} parameter(s)."

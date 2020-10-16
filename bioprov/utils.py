@@ -9,6 +9,7 @@ Helper functions.
 """
 import sys
 from pathlib import Path
+from prov.model import Namespace, QualifiedName
 
 
 def convert_bytes(num):
@@ -134,3 +135,33 @@ def has_serializer(object_):
 def is_serializable_type(type_):
     serializable_types = (float, int, str, bool, type(None))
     return isinstance(type_, serializable_types)
+
+
+def build_prov_attributes(dictionary, namespace):
+    """
+    Inserting attributes into a Provenance object can be tricky. We need a NameSpace for said object,
+    and attributes must be named correctly. This helper function builds a dictionary of attributes
+    properly formatted to be inserted into a namespace.
+
+    :param dictionary: dict with object attributes.
+    :param namespace: instance of Namespace.
+    :return: List of tuples (QualifiedName, value)
+    """
+
+    # Check arg types
+    assert isinstance(namespace, Namespace), Warnings()["incorrect_type"](
+        namespace, Namespace
+    )
+    assert isinstance(dictionary, dict), Warnings()["incorrect_type"](dictionary, dict)
+
+    attributes = []
+    for k, v in dictionary.items():
+        if k == "namespace":
+            continue
+        else:
+            if not is_serializable_type(v):
+                v = str(v)
+            q = QualifiedName(namespace, str(k))
+            attributes.append((q, v))
+
+    return attributes

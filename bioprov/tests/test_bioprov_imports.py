@@ -32,8 +32,11 @@ def test_import_classes_and_functions():
     """
     try:
         from bioprov import (
+            BioProvDocument,
+            BioProvProject,
             Config,
             config,
+            EnvProv,
             File,
             Program,
             Parameter,

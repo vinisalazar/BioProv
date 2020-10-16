@@ -11,9 +11,9 @@ This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
 from os import environ
-from bioprov import Project
-from bioprov.utils import Warnings, is_serializable_type
-from prov.model import ProvDocument, Namespace, QualifiedName
+from bioprov import Project, EnvProv
+from bioprov.utils import Warnings, build_prov_attributes
+from prov.model import ProvDocument, Namespace
 
 
 class BioProvDocument:
@@ -240,74 +240,3 @@ class BioProvProject(BioProvDocument):
         #     self.samples_entity, self.activities["import_Sample"]
         # )
         # self.ProvDocument.wasAttributedTo(self.env_entity, self.user_agent)
-
-
-class EnvProv:
-    """
-    Class containing provenance information about the current environment
-    """
-
-    def __init__(self):
-
-        """
-        Class constructor. All attributes are empty and are initialized with self.update()
-        """
-        self.env_set = None
-        self.env_hash = None
-        self.env_dict = None
-        self.user = None
-        self.env_namespace = None
-        self.update()
-
-    def __repr__(self):
-        return "Environment_hash_{}".format(self.env_hash)
-
-    def update(self):
-        """
-        Checks current environment and updates attributes using the os.environ module.
-        :return: Sets attributes to self.
-        """
-        env_set = frozenset(environ.items())
-        env_hash = hash(env_set)
-        if env_hash != self.env_hash:
-            self.env_set = env_set
-            self.env_hash = env_hash
-            self.env_dict = dict(self.env_set)
-            self.user = self.env_dict["USER"]
-            self.env_namespace = Namespace("env", str(self))
-
-    def _build_prov_attributes(self):
-        """
-        Adds self.env_dict to self.env_namespace.
-        """
-        return build_prov_attributes(self.env_dict, self.env_namespace)
-
-
-def build_prov_attributes(dictionary, namespace):
-    """
-    Inserting attributes into a Provenance object can be tricky. We need a NameSpace for said object,
-    and attributes must be named correctly. This helper function builds a dictionary of attributes
-    properly formatted to be inserted into a namespace.
-
-    :param dictionary: dict with object attributes.
-    :param namespace: instance of Namespace.
-    :return: List of tuples (QualifiedName, value)
-    """
-
-    # Check arg types
-    assert isinstance(namespace, Namespace), Warnings()["incorrect_type"](
-        namespace, Namespace
-    )
-    assert isinstance(dictionary, dict), Warnings()["incorrect_type"](dictionary, dict)
-
-    attributes = []
-    for k, v in dictionary.items():
-        if k == "namespace":
-            continue
-        else:
-            if not is_serializable_type(v):
-                v = str(v)
-            q = QualifiedName(namespace, str(k))
-            attributes.append((q, v))
-
-    return attributes
