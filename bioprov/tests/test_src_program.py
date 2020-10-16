@@ -12,7 +12,7 @@ Testing for Program module
     - Run class
 """
 
-from bioprov.src.program import (
+from bioprov.src.main import (
     generate_param_str,
     Parameter,
     parse_params,

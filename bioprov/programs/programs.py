@@ -11,7 +11,7 @@ Module for holding preset instances of the Program class.
 
 from os import path
 from bioprov import config, File
-from bioprov.src.program import Parameter, Program, PresetProgram
+from bioprov.src.main import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, Warnings
 
 

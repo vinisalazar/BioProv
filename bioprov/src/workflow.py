@@ -13,7 +13,7 @@ import pandas as pd
 from glob import glob
 from bioprov import from_df, config
 from bioprov.utils import Warnings
-from bioprov.src.program import PresetProgram
+from bioprov.src.main import PresetProgram
 from os import path
 from tqdm import tqdm
 

@@ -13,7 +13,7 @@ Inherits objects from the src/ package.
 
 from .src.config import Config, config
 from .src.files import File, SeqFile
-from .src.program import (
+from .src.main import (
     Program,
     PresetProgram,
     Parameter,

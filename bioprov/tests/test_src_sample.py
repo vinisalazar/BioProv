@@ -18,7 +18,7 @@ from bioprov import (
     from_json,
     BioProvProject,
 )
-from bioprov.src.program import dict_to_sample, json_to_dict
+from bioprov.src.main import dict_to_sample, json_to_dict
 from bioprov.data import synechococcus_genome, picocyano_dataset
 from bioprov.programs import prodigal
 
