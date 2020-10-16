@@ -19,13 +19,16 @@ class Config:
     Class to define package level variables and settings.
     """
 
-    def __init__(self, threads=0):
-        self.data_dir = data_dir
-        self.genomes_dir = genomes_dir
-        if not threads:  # By default, use half of processors.
-            self.threads = str(int(os.cpu_count() / 2))
+    def __init__(self, threads=str(int(os.cpu_count() / 2))):
+
+        # This is duplication is to orde
+        self.user = None
         self.env = EnvProv()
         self.user = self.env.user
+        self.threads = threads
+        self.data = data_dir
+        self.genomes = genomes_dir
+        # By default, use half of processors.
 
     pass
 

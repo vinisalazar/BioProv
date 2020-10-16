@@ -10,6 +10,8 @@ BioProv command-line application. This module holds the main executable.
 
 import argparse
 import sys
+import bioprov.src.config as bp_config_module
+from bioprov.src.config import config
 from bioprov.workflows import WorkflowOptionsParser, genome_annotation, KaijuWorkflow
 from bioprov.utils import parser_help
 
@@ -20,20 +22,33 @@ def main():
     Calls the subparsers defined in the Workflows module.
     """
     bioprov_parser = argparse.ArgumentParser(
-        description="BioProv command-line application. Choose a workflow to begin.",
+        description="BioProv command-line application. Choose a command to begin.\n"
     )
-    subparsers = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
-    _ = subparsers.add_parser("genome_annotation")
-    _ = subparsers.add_parser("kaiju")
-    subparsers.choices["genome_annotation"] = genome_annotation().parser
-    subparsers.choices["kaiju"] = KaijuWorkflow.parser()
+    bioprov_parser.add_argument(
+        "--show_config", help="Show location of config file", action="store_true"
+    )
+    workflows = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
+    _ = workflows.add_parser("genome_annotation")
+    _ = workflows.add_parser("kaiju")
+    workflows.choices["genome_annotation"] = genome_annotation().parser
+    workflows.choices["kaiju"] = KaijuWorkflow.parser()
 
     # Refactoring to subparsers
     args = None
-    if len(sys.argv) == 1 or sys.argv[1] == "-h" or sys.argv == "--help":
+    if len(sys.argv) == 1 or sys.argv[1] == "-h" or sys.argv[1] == "--help":
         parser_help(bioprov_parser)
     else:
         args = bioprov_parser.parse_args()
+    if args.show_config:
+        print(
+            "This is the location of the config module.\n"
+            "Edit it to alter your BioProv settings.\n\n",
+            "'{}'\n".format(bp_config_module.__file__),
+        )
+        print("These are your configuration settings:")
+        print("\n".join(" " + k + ": " + str(v) for k, v in config.__dict__.items()),)
+
+        sys.exit(0)
 
     parser = WorkflowOptionsParser()
     parser.parse_options(args)

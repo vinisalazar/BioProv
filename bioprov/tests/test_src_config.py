@@ -10,6 +10,7 @@ Testing for the Config module.
 """
 
 from bioprov import Config
+from os import environ
 
 
 def test_Config():
@@ -18,5 +19,7 @@ def test_Config():
     :return:
     """
     config = Config()
-    assert config.genomes_dir.exists()
-    assert config.data_dir.exists()
+    assert config.env.env_set == frozenset(environ.items())
+    assert config.user == config.env.user
+    assert config.genomes.exists()
+    assert config.data.exists()
