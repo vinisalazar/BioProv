@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.5"
+__version__ = "0.1.6"
 
 """
 BioProv command-line application. This module holds the main executable.
@@ -15,6 +15,10 @@ from bioprov.utils import parser_help
 
 
 def main():
+    """
+    Main function to run the BioProv command-line application.
+    Calls the subparsers defined in the Workflows module.
+    """
     bioprov_parser = argparse.ArgumentParser(
         description="BioProv command-line application. Choose a workflow to begin.",
     )
