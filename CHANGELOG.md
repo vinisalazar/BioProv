@@ -1,9 +1,15 @@
 ## Changelog
 
-### v0.1.6
+### v0.1.7 
 * Add more Provenance classes [ ]
 * Improve docs and docstrings [ ]
 * Write Prov document with complete workflow [ ]
+
+### v0.1.6
+* Refactor config and prov modules [x]
+* Add CLI options to show config [x]
+* Rename src.program to src.main [x]
+* Refactoring tests: joining src.program and src.sample tests into src.main [x]
 
 ### v0.1.5
 * Add W3C-PROV tutorial [x]
