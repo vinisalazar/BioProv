@@ -64,7 +64,12 @@ class EnvProv:
             self.env_set = env_set
             self.env_hash = env_hash
             self.env_dict = dict(self.env_set)
-            self.user = self.env_dict["USER"]
+
+            # this is only to prevent build errors
+            try:
+                self.user = self.env_dict["USER"]
+            except KeyError:
+                self.env_dict["USER"] = "unknown"
             self.env_namespace = Namespace("env", str(self))
 
     def _build_prov_attributes(self):
