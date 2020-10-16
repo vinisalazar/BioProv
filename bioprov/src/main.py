@@ -5,12 +5,21 @@ __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.6"
 
 """
-Contains the Program, Parameter and Run class and related functions.
 
-Contains the Sample and Project classes and related functions.
+Main source module. Contains the main BioProv classes.
 
-To-do:
-    - implement ParameterDict
+Activity classes:
+    - Program
+    - Parameter
+    - Run
+    
+    
+Entity classes:
+    - Project
+    - Sample
+
+This class also contains functions to read and write objects in JSON and tab-delimited formats.
+
 """
 import datetime
 import json
@@ -772,6 +781,24 @@ class Sample:
         :return:
         """
         return to_json(self, self.serializer(), _path, _print=_print)
+
+    def _to_row(self):
+        """
+        Creates a pd.Series object from the sample files and attributes.
+
+        :return: pd.Series
+        """
+        series = {}
+        for k, v in self.__dict__.items():
+            if v is None or not v:
+                continue
+            if isinstance(v, dict) and len(v) > 0:
+                for k_, v_ in v.items():
+                    series[k_] = v_
+            else:
+                series[k] = v
+
+        return pd.Series(series)
 
 
 class Project:
