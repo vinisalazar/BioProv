@@ -312,10 +312,7 @@ class Step(PresetProgram):
     """
 
     def __init__(
-        self,
-        preset_program,
-        default=False,
-        description="",
+        self, preset_program, default=False, description="",
     ):
         super().__init__(
             preset_program.name,

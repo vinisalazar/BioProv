@@ -148,8 +148,7 @@ class KaijuWorkflow:
         :return: instance of argparse.ArgumentParser.
         """
         _parser = argparse.ArgumentParser(
-            "kaiju",
-            description=KaijuWorkflow.description,
+            "kaiju", description=KaijuWorkflow.description,
         )
         _parser.add_argument(
             "-i",
@@ -169,10 +168,7 @@ class KaijuWorkflow:
             default=None,
         )
         _parser.add_argument(
-            "-db",
-            "--kaiju_db",
-            help="Kaiju database file.",
-            required=True,
+            "-db", "--kaiju_db", help="Kaiju database file.", required=True,
         )
         _parser.add_argument(
             "-no",

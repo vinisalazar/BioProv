@@ -1184,8 +1184,7 @@ def dict_to_sample(json_dict):
                                 # To-do: don't import records again (slow)
                                 # Get them straight from the JSON file.
                                 value[tag] = SeqFile(
-                                    path=file["path"],
-                                    tag=file["tag"],
+                                    path=file["path"], tag=file["tag"],
                                 )
                                 if import_records:
                                     for (

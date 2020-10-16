@@ -21,10 +21,7 @@ class BioProvDocument:
     """
 
     def __init__(
-        self,
-        project,
-        _add_project_namespaces=True,
-        add_attributes=False,
+        self, project, _add_project_namespaces=True, add_attributes=False,
     ):
         """
         Constructs base provenance for a Project.
@@ -101,8 +98,7 @@ class BioProvDocument:
     def _add_samples_namespace(self):
 
         self.ProvDocument.add_namespace(
-            "samples",
-            f"Samples associated with bioprov Project '{self.project.tag}'",
+            "samples", f"Samples associated with bioprov Project '{self.project.tag}'",
         )
 
     def _iter_envs_and_users(self):
@@ -140,8 +136,7 @@ class BioProvDocument:
             # Files PROV attributes: namespace, entities
             files_namespace_prefix = f"{sample.name}.files"
             sample.ProvBundle.add_namespace(
-                files_namespace_prefix,
-                f"Files associated with Sample {sample.name}",
+                files_namespace_prefix, f"Files associated with Sample {sample.name}",
             )
             for key, file in sample.files.items():
 
@@ -165,16 +160,16 @@ class BioProvDocument:
 
                 # Adding relationships
                 sample.ProvBundle.wasDerivedFrom(
-                    self._entities[file.name],
-                    self._entities[sample.name],
+                    self._entities[file.name], self._entities[sample.name],
                 )
 
             # Programs PROV attributes: namespace, entities
             programs_namespace_prefix = f"{sample.name}.programs"
+            sample.ProvBundle.add_namespace(
+                programs_namespace_prefix,
+                f"Programs associated with Sample {sample.name}",
+            )
             for key, program in sample.programs.items():
-                program.namespace = sample.ProvBundle.add_namespace(
-                    program.name, str(program)
-                )
                 last_run = program.runs[str(len(program.runs))]
                 self._activities[program.name] = sample.ProvBundle.activity(
                     f"{programs_namespace_prefix}:{program.name}",
@@ -205,11 +200,11 @@ class BioProvDocument:
                         file_obj = [
                             file_
                             for _, file_ in sample.files.items()
-                            if str(file) == value
+                            if str(file_) == value
                         ]
                         if file_obj:
                             file_obj = file_obj[0]
-                            sample.ProvBundle.wasGeneratedBy(
+                            sample.ProvBundle.used(
                                 self._entities[file_obj.name],
                                 self._activities[program.name],
                             )
@@ -219,11 +214,11 @@ class BioProvDocument:
                         file_obj = [
                             file_
                             for _, file_ in sample.files.items()
-                            if str(file) == value
+                            if str(file_) == value
                         ]
                         if file_obj:
                             file_obj = file_obj[0]
-                            sample.ProvBundle.used(
+                            sample.ProvBundle.wasGeneratedBy(
                                 self._entities[file_obj.name],
                                 self._activities[program.name],
                             )
