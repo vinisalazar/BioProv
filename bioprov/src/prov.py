@@ -15,73 +15,17 @@ from bioprov.utils import Warnings, build_prov_attributes
 from prov.model import ProvDocument
 
 
-# class BioProvDocument:
-#     """
-#     Class containing base provenance information for a Prov ProvDocument.
-#
-#     Adds two default namespaces: 'user', with present user and associated ProvAgent, and 'environment', with
-#     present environment variables and associated ProvEntity
-#     """
-#
-#     def __init__(self, _add_default_namespaces=True, _add_environ_attributes=True):
-#         """
-#         Constructor for the base provenance class.
-#         Creates a prov.model.ProvDocument instance and loads the main attributes.
-#         :param _add_default_namespaces: Whether to add namespaces when initiating.
-#         """
-#
-#         # Initialize ProvDocument
-#         self.ProvDocument = ProvDocument()
-#         self.env = EnvProv()
-#         self.user = self.env.user
-#         self.user_agent = None
-#         self.env_entity = None
-#         self.project = None
-#         self._add_environ_attributes = _add_environ_attributes
-#
-#         if _add_default_namespaces:
-#             self._add_default_namespaces()
-#
-#     def _add_environ_namespace(self):
-#         self.ProvDocument.add_namespace(self.env.env_namespace)
-#         if self._add_environ_attributes:
-#             self.env_entity = self.ProvDocument.entity(
-#                 "env:{}".format(self.env),
-#                 other_attributes=build_prov_attributes(
-#                     self.env.env_dict, self.env.env_namespace
-#                 ),
-#             )
-#         else:
-#             self.env_entity = self.ProvDocument.entity("env:{}".format(self.env),)
-#
-#     def _add_user_namespace(self):
-#         self.ProvDocument.add_namespace("user", self.user)
-#         self.user_agent = self.ProvDocument.agent("user:{}".format(self.user))
-#
-#     def _add_default_namespaces(self):
-#         self._add_environ_namespace()
-#         self._add_user_namespace()
-#
-#     def _update_env(self):
-#         """
-#         Updates self.env attribute with current env.
-#         :return: Updated self.env.
-#         """
-#         self.env = self.env.update()
-
-
 class BioProvDocument:
     """
     Class containing base provenance information for a Project.
     """
 
     def __init__(
-        self, project, _add_project_namespaces=True, add_attributes=True, **kwargs
+        self, project, _add_project_namespaces=True, add_attributes=False,
     ):
         """
         Constructs base provenance for a Project.
         :param project: Project being processed.
-        :param kwargs: Keyword arguments to be passed to BioProvDocument.__init__().
         """
 
         # Assert Project is good before constructing instance
@@ -90,8 +34,9 @@ class BioProvDocument:
         )
         self.ProvDocument = ProvDocument()
         self.project = project
-        self.samples_entity = None
-        self.activities = None
+        self._entities = dict()
+        self._activities = dict()
+        self._agents = dict()
         self.add_attributes = add_attributes
 
         # Add default namespaces
@@ -115,46 +60,20 @@ class BioProvDocument:
         self._add_samples_namespace()
         self._add_activities_namespace()
         self._add_env_and_user_namespace()
+        self._iter_envs_and_users()
         self._iter_samples()
 
     def _add_env_and_user_namespace(self):
         self.ProvDocument.add_namespace(
-            "envs", f"Environments associated with BioProv Project '{self.project.tag}'"
-        )
-        self.ProvDocument.add_namespace(
             "users", f"Users associated with BioProv Project '{self.project.tag}'"
         )
-
-        for _user, _env in self.project.envs.items():
-            if self.add_attributes:
-                self.ProvDocument.entity(
-                    f"envs:{_env}",
-                    other_attributes=build_prov_attributes(
-                        _env.env_dict, _env.env_namespace
-                    ),
-                )
-            else:
-                self.ProvDocument.entity(f"envs:{_env}")
-
-            self.ProvDocument.agent(f"users:{_user}")
-
-    #     def _add_environ_namespace(self):
-    #         self.ProvDocument.add_namespace(self.env.env_namespace)
-    #         if self._add_environ_attributes:
-    #             self.env_entity = self.ProvDocument.entity(
-    #                 "env:{}".format(self.env),
-    #                 other_attributes=build_prov_attributes(
-    #                     self.env.env_dict, self.env.env_namespace
-    #                 ),
-    #             )
-    #         else:
-    #             self.env_entity = self.ProvDocument.entity("env:{}".format(self.env),)
 
     def _add_project_namespace(self):
         self.project.namespace = self.ProvDocument.add_namespace(
             "project", str(self.project)
         )
         if self.add_attributes:
+            # self._entities[self.project.tag]
             self.project.entity = self.ProvDocument.entity(
                 "project:{}".format(self.project),
                 other_attributes=build_prov_attributes(
@@ -185,9 +104,24 @@ class BioProvDocument:
             "Samples associated with bioprov Project '{}'".format(self.project.tag),
         )
 
-    def _iter_envs(self):
+    def _iter_envs_and_users(self):
+
         for _user, _env in self.project.envs.items():
-            self.ProvDocument.bundle(f"users:{_user}")
+            _user_bundle = self.ProvDocument.bundle(f"users:{_user}")
+            _user_bundle.add_namespace("envs", f"Envs associated with user '{_user}'")
+
+            if self.add_attributes:
+                self._entities[_env] = _user_bundle.entity(
+                    f"envs:{_env}",
+                    other_attributes=build_prov_attributes(
+                        _env.env_dict, _env.env_namespace
+                    ),
+                )
+            else:
+                self._entities[_env] = _user_bundle.entity(f"envs:{_env}")
+
+            self._agents[_user] = _user_bundle.agent(f"users:{_user}")
+            self.ProvDocument.wasAttributedTo(self._entities[_env], self._agents[_user])
 
     def _iter_samples(self):
         for _, sample in self.project.items():
@@ -197,7 +131,12 @@ class BioProvDocument:
                 "samples:{}".format(sample.name)
             )
             sample.ProvBundle.set_default_namespace(sample.name)
-            sample.ProvEntity = sample.ProvBundle.entity(sample.name)
+            self._entities[sample.name] = sample.ProvBundle.entity(
+                f"samples:{sample.name}"
+            )
+            self.ProvDocument.wasDerivedFrom(
+                self._entities[sample.name], self.project.entity
+            )
 
             # Files PROV attributes: namespace, entities
             files_namespace_prefix = "{}.files".format(sample.name)
@@ -206,17 +145,28 @@ class BioProvDocument:
                 "Files associated with Sample {}".format(sample.name),
             )
             for key, file in sample.files.items():
+
+                # Create Namespace
                 file.namespace = sample.ProvBundle.add_namespace(
                     file.name, str(file.path)
                 )
-                file.ProvEntity = sample.ProvBundle.entity(
-                    "{}:{}".format(files_namespace_prefix, file.name),
-                    other_attributes=build_prov_attributes(
-                        file.__dict__, file.namespace
-                    ),
-                )
+
+                # Add atributes or not
+                if self.add_attributes:
+                    self._entities[file.name] = sample.ProvBundle.entity(
+                        "{}:{}".format(files_namespace_prefix, file.name),
+                        other_attributes=build_prov_attributes(
+                            file.__dict__, file.namespace
+                        ),
+                    )
+                else:
+                    self._entities[file.name] = sample.ProvBundle.entity(
+                        "{}:{}".format(files_namespace_prefix, file.name),
+                    )
+
+                # Adding relationships
                 sample.ProvBundle.wasDerivedFrom(
-                    file.ProvEntity, sample.ProvEntity,
+                    self._entities[file.name], self._entities[sample.name],
                 )
 
             # Programs PROV attributes: namespace, entities
@@ -226,14 +176,14 @@ class BioProvDocument:
                     program.name, str(program)
                 )
                 last_run = program.runs[str(len(program.runs))]
-                program.ProvActivity = sample.ProvBundle.activity(
+                self._activities[program.name] = sample.ProvBundle.activity(
                     "{}:{}".format(programs_namespace_prefix, program.name),
                     startTime=last_run.start_time,
                     endTime=last_run.end_time,
                 )
-                # self.ProvDocument.wasAssociatedWith(
-                #     program.ProvActivity, self.project.envs[last_run.user]
-                # )
+                self.ProvDocument.wasAssociatedWith(
+                    self._activities[program.name], f"users:{last_run.user}"
+                )
 
                 # # Relationships based on Parameters
                 # inputs = [parameter for parameter in program.params]
