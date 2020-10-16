@@ -186,7 +186,47 @@ class BioProvDocument:
                 )
 
                 # Relationships based on Parameters
-                # inputs = [parameter for parameter in program.params]
+                sample_files = [str(file) for _, file in sample.files.items()]
+                inputs = [
+                    parameter["value"]
+                    for _, parameter in program.params.items()
+                    if parameter["kind"] == "input"
+                ]
+                outputs = [
+                    parameter["value"]
+                    for _, parameter in program.params.items()
+                    if parameter["kind"] == "output"
+                ]
+
+                # These two for loops are nearly duplicated.
+                # It can be improved.
+                for value in inputs:
+                    if value in sample_files:
+                        file_obj = [
+                            file_
+                            for _, file_ in sample.files.items()
+                            if str(file) == value
+                        ]
+                        if file_obj:
+                            file_obj = file_obj[0]
+                            sample.ProvBundle.wasGeneratedBy(
+                                self._entities[file_obj.name],
+                                self._activities[program.name],
+                            )
+
+                for value in outputs:
+                    if value in sample_files:
+                        file_obj = [
+                            file_
+                            for _, file_ in sample.files.items()
+                            if str(file) == value
+                        ]
+                        if file_obj:
+                            file_obj = file_obj[0]
+                            sample.ProvBundle.used(
+                                self._entities[file_obj.name],
+                                self._activities[program.name],
+                            )
 
     def _add_activities_namespace(self):
         """
