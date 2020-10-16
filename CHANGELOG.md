@@ -1,11 +1,13 @@
 ## Changelog
 
 ### v0.1.7 
-* Add more Provenance classes [ ]
 * Improve docs and docstrings [ ]
 * Write Prov document with complete workflow [ ]
 
 ### v0.1.6
+* Add more Provenance classes [x]
+* Improve Provenance graph [x]
+* Add contributing guidelines [x]
 * Refactor config and prov modules [x]
 * Add CLI options to show config [x]
 * Rename src.program to src.main [x]
