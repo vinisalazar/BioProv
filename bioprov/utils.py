@@ -72,21 +72,13 @@ class Warnings:
     """
 
     _warnings = {
-        "not_exist": lambda x: "File '{}' does not exist!".format(x),
-        "sample_loading": lambda n: "Loading {} samples.".format(str(n)),
-        "invalid_tax_rank": lambda tax_rank: "Rank '{}' not in ranks, choose from:\n{}".format(
-            tax_rank, tax_ranks
-        ),
-        "choices": lambda x, choices, argument: "Argument '{}' of value '{}' is invalid, please select from: {}".format(
-            argument, x, choices
-        ),
-        "number_success": lambda success, total: "Ran successfully for {}/{} samples.".format(
-            str(success), str(total),
-        ),
-        "number_skip": lambda skip: "Skipped {} samples.".format(str(skip)),
-        "incorrect_type": lambda x, type_: "'{}' is of type '{}'; it must be an instance of '{}'".format(
-            x, type(x), type_
-        ),
+        "not_exist": lambda x: f"File '{x}' does not exist!",
+        "sample_loading": lambda n: f"Loading {str(n)} samples.",
+        "invalid_tax_rank": lambda tax_rank: f"Rank '{tax_rank}' not in ranks, choose from:\n{tax_ranks}",
+        "choices": lambda x, choices, argument: f"Argument '{argument}' of value '{x}' is invalid, please select from: {choices}",
+        "number_success": lambda success, total: f"Ran successfully for {str(success)}/{str(total)} samples.",
+        "number_skip": lambda skip: f"Skipped {str(skip)} samples.",
+        "incorrect_type": lambda x, type_: f"'{x}' is of type '{type(x)}'; it must be an instance of '{type_}'",
     }
 
     def __init__(self):

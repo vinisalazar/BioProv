@@ -80,7 +80,7 @@ class File:
     @property
     def entity(self):
         if self._entity is None:
-            ProvEntity(self._document, identifier="files:{}".format(self.basename))
+            ProvEntity(self._document, identifier=f"files:{self.basename}")
         return self._entity
 
     def serializer(self):
@@ -208,7 +208,11 @@ class SeqFile(File):
         return serializer(serial_out)
 
     def _calculate_seqstats(
-        self, calculate_gc=True, megabases=False, percentage=False, decimals=5,
+        self,
+        calculate_gc=True,
+        megabases=False,
+        percentage=False,
+        decimals=5,
     ):
         """
         :param calculate_gc: Whether to calculate GC content. Disabled if amino acid file.

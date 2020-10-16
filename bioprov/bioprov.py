@@ -43,7 +43,7 @@ def main():
         print(
             "This is the location of the config module.\n"
             "Edit it to alter your BioProv settings.\n\n",
-            "'{}'\n".format(bp_config_module.__file__),
+            f"'{bp_config_module.__file__}'\n",
         )
         print("These are your configuration settings:")
         print(dict_to_string(config.__dict__))

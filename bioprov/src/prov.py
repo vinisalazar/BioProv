@@ -21,7 +21,10 @@ class BioProvDocument:
     """
 
     def __init__(
-        self, project, _add_project_namespaces=True, add_attributes=False,
+        self,
+        project,
+        _add_project_namespaces=True,
+        add_attributes=False,
     ):
         """
         Constructs base provenance for a Project.
@@ -75,7 +78,7 @@ class BioProvDocument:
         if self.add_attributes:
             # self._entities[self.project.tag]
             self.project.entity = self.ProvDocument.entity(
-                "project:{}".format(self.project),
+                f"project:{self.project}",
                 other_attributes=build_prov_attributes(
                     {
                         k: v
@@ -86,9 +89,7 @@ class BioProvDocument:
                 ),
             )
         else:
-            self.project.entity = self.ProvDocument.entity(
-                "project:{}".format(self.project)
-            )
+            self.project.entity = self.ProvDocument.entity(f"project:{self.project}")
         # # Check if project_csv exists
         # if "project_csv" in self.project.files.keys():
         #     self.project_file_entity = self.ProvDocument.entity(
@@ -101,7 +102,7 @@ class BioProvDocument:
 
         self.ProvDocument.add_namespace(
             "samples",
-            "Samples associated with bioprov Project '{}'".format(self.project.tag),
+            f"Samples associated with bioprov Project '{self.project.tag}'",
         )
 
     def _iter_envs_and_users(self):
@@ -127,9 +128,7 @@ class BioProvDocument:
         for _, sample in self.project.items():
 
             # Sample PROV attributes: bundle, namespace, entity
-            sample.ProvBundle = self.ProvDocument.bundle(
-                "samples:{}".format(sample.name)
-            )
+            sample.ProvBundle = self.ProvDocument.bundle(f"samples:{sample.name}")
             sample.ProvBundle.set_default_namespace(sample.name)
             self._entities[sample.name] = sample.ProvBundle.entity(
                 f"samples:{sample.name}"
@@ -139,10 +138,10 @@ class BioProvDocument:
             )
 
             # Files PROV attributes: namespace, entities
-            files_namespace_prefix = "{}.files".format(sample.name)
+            files_namespace_prefix = f"{sample.name}.files"
             sample.ProvBundle.add_namespace(
                 files_namespace_prefix,
-                "Files associated with Sample {}".format(sample.name),
+                f"Files associated with Sample {sample.name}",
             )
             for key, file in sample.files.items():
 
@@ -154,30 +153,31 @@ class BioProvDocument:
                 # Add atributes or not
                 if self.add_attributes:
                     self._entities[file.name] = sample.ProvBundle.entity(
-                        "{}:{}".format(files_namespace_prefix, file.name),
+                        f"{files_namespace_prefix}:{file.name}",
                         other_attributes=build_prov_attributes(
                             file.__dict__, file.namespace
                         ),
                     )
                 else:
                     self._entities[file.name] = sample.ProvBundle.entity(
-                        "{}:{}".format(files_namespace_prefix, file.name),
+                        f"{files_namespace_prefix}:{file.name}",
                     )
 
                 # Adding relationships
                 sample.ProvBundle.wasDerivedFrom(
-                    self._entities[file.name], self._entities[sample.name],
+                    self._entities[file.name],
+                    self._entities[sample.name],
                 )
 
             # Programs PROV attributes: namespace, entities
-            programs_namespace_prefix = "{}.programs".format(sample.name)
+            programs_namespace_prefix = f"{sample.name}.programs"
             for key, program in sample.programs.items():
                 program.namespace = sample.ProvBundle.add_namespace(
                     program.name, str(program)
                 )
                 last_run = program.runs[str(len(program.runs))]
                 self._activities[program.name] = sample.ProvBundle.activity(
-                    "{}:{}".format(programs_namespace_prefix, program.name),
+                    f"{programs_namespace_prefix}:{program.name}",
                     startTime=last_run.start_time,
                     endTime=last_run.end_time,
                 )
@@ -197,9 +197,7 @@ class BioProvDocument:
         if len(self.ProvDocument.namespaces) == 0:
             self.ProvDocument.add_namespace(
                 "activities",
-                "Activities associated with bioprov Project '{}'".format(
-                    self.project.tag
-                ),
+                f"Activities associated with bioprov Project '{self.project.tag}'",
             )
 
         # # Activities

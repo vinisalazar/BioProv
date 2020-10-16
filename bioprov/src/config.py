@@ -51,7 +51,7 @@ class EnvProv:
         self.update()
 
     def __repr__(self):
-        return "Environment_hash_{}".format(self.env_hash)
+        return f"Environment_hash_{self.env_hash}"
 
     def update(self):
         """
