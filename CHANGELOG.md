@@ -1,8 +1,11 @@
 ## Changelog
 
+### v0.1.8 
+* TBD
+
 ### v0.1.7 
-* Improve docs and docstrings [ ]
-* Write Prov document with complete workflow [ ]
+* Refactor f-strings [x]
+* Draft of complete Prov document (all relationships) [x]
 
 ### v0.1.6
 * Add more Provenance classes [x]
