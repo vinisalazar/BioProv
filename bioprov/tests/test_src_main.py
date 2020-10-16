@@ -35,7 +35,7 @@ from bioprov import (
     read_csv,
     write_json,
     from_json,
-    BioProvProject,
+    BioProvDocument,
 )
 from bioprov.src.main import dict_to_sample, json_to_dict
 from bioprov.data import synechococcus_genome, picocyano_dataset
@@ -251,7 +251,7 @@ def test_project_json_and_prov(debug=False):
         return from_json(path)
 
     def create_prov(_project):
-        return BioProvProject(_project)
+        return BioProvDocument(_project)
 
     def export_prov_json(_path, _projectprov):
         json = _projectprov.ProvDocument.serialize()

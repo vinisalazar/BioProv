@@ -25,6 +25,6 @@ from .src.main import (
     from_json,
     write_json,
 )
-from .src.prov import BioProvDocument, BioProvProject
+from .src.prov import BioProvDocument, BioProvDocument
 
 name = "bioprov"

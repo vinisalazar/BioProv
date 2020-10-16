@@ -7,13 +7,14 @@ __version__ = "0.1.6"
 
 """
 Testing for prov module.
-    - BioProvProject class
+    - BioProvDocument class
 """
 
 from os import environ
 from bioprov import read_csv
 from bioprov.data import picocyano_dataset
-from bioprov.src.prov import EnvProv, BioProvDocument, BioProvProject
+from bioprov.src.prov import BioProvDocument
+from bioprov.src.config import EnvProv
 
 project = read_csv(
     picocyano_dataset, sequencefile_cols="assembly", tag="picocyanobacteria"
@@ -38,12 +39,4 @@ def test_BioProvDocument():
     Tests the construction of an instance of BioProvDocument.
     :return:
     """
-    _ = BioProvDocument()
-
-
-def test_BioProvProject():
-    """
-    Tests the construction of an instance of BioProvProject.
-    :return:
-    """
-    _ = BioProvProject(project)
+    _ = BioProvDocument(project)

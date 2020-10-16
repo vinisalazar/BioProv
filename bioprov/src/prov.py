@@ -10,68 +10,67 @@ Module containing base provenance attributes.
 This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
-from os import environ
-from bioprov import Project, EnvProv
+from bioprov import Project
 from bioprov.utils import Warnings, build_prov_attributes
-from prov.model import ProvDocument, Namespace
+from prov.model import ProvDocument
+
+
+# class BioProvDocument:
+#     """
+#     Class containing base provenance information for a Prov ProvDocument.
+#
+#     Adds two default namespaces: 'user', with present user and associated ProvAgent, and 'environment', with
+#     present environment variables and associated ProvEntity
+#     """
+#
+#     def __init__(self, _add_default_namespaces=True, _add_environ_attributes=True):
+#         """
+#         Constructor for the base provenance class.
+#         Creates a prov.model.ProvDocument instance and loads the main attributes.
+#         :param _add_default_namespaces: Whether to add namespaces when initiating.
+#         """
+#
+#         # Initialize ProvDocument
+#         self.ProvDocument = ProvDocument()
+#         self.env = EnvProv()
+#         self.user = self.env.user
+#         self.user_agent = None
+#         self.env_entity = None
+#         self.project = None
+#         self._add_environ_attributes = _add_environ_attributes
+#
+#         if _add_default_namespaces:
+#             self._add_default_namespaces()
+#
+#     def _add_environ_namespace(self):
+#         self.ProvDocument.add_namespace(self.env.env_namespace)
+#         if self._add_environ_attributes:
+#             self.env_entity = self.ProvDocument.entity(
+#                 "env:{}".format(self.env),
+#                 other_attributes=build_prov_attributes(
+#                     self.env.env_dict, self.env.env_namespace
+#                 ),
+#             )
+#         else:
+#             self.env_entity = self.ProvDocument.entity("env:{}".format(self.env),)
+#
+#     def _add_user_namespace(self):
+#         self.ProvDocument.add_namespace("user", self.user)
+#         self.user_agent = self.ProvDocument.agent("user:{}".format(self.user))
+#
+#     def _add_default_namespaces(self):
+#         self._add_environ_namespace()
+#         self._add_user_namespace()
+#
+#     def _update_env(self):
+#         """
+#         Updates self.env attribute with current env.
+#         :return: Updated self.env.
+#         """
+#         self.env = self.env.update()
 
 
 class BioProvDocument:
-    """
-    Class containing base provenance information for a Prov ProvDocument.
-
-    Adds two default namespaces: 'user', with present user and associated ProvAgent, and 'environment', with
-    present environment variables and associated ProvEntity
-    """
-
-    def __init__(self, _add_default_namespaces=True, _add_environ_attributes=True):
-        """
-        Constructor for the base provenance class.
-        Creates a prov.model.ProvDocument instance and loads the main attributes.
-        :param _add_default_namespaces: Whether to add namespaces when initiating.
-        """
-
-        # Initialize ProvDocument
-        self.ProvDocument = ProvDocument()
-        self.env = EnvProv()
-        self.user = self.env.user
-        self.user_agent = None
-        self.env_entity = None
-        self.project = None
-        self._add_environ_attributes = _add_environ_attributes
-
-        if _add_default_namespaces:
-            self._add_default_namespaces()
-
-    def _add_environ_namespace(self):
-        self.ProvDocument.add_namespace(self.env.env_namespace)
-        if self._add_environ_attributes:
-            self.env_entity = self.ProvDocument.entity(
-                "env:{}".format(self.env),
-                other_attributes=build_prov_attributes(
-                    self.env.env_dict, self.env.env_namespace
-                ),
-            )
-        else:
-            self.env_entity = self.ProvDocument.entity("env:{}".format(self.env),)
-
-    def _add_user_namespace(self):
-        self.ProvDocument.add_namespace("user", self.user)
-        self.user_agent = self.ProvDocument.agent("user:{}".format(self.user))
-
-    def _add_default_namespaces(self):
-        self._add_environ_namespace()
-        self._add_user_namespace()
-
-    def _update_env(self):
-        """
-        Updates self.env attribute with current env.
-        :return: Updated self.env.
-        """
-        self.env = self.env.update()
-
-
-class BioProvProject(BioProvDocument):
     """
     Class containing base provenance information for a Project.
     """
@@ -85,13 +84,11 @@ class BioProvProject(BioProvDocument):
         :param kwargs: Keyword arguments to be passed to BioProvDocument.__init__().
         """
 
-        # Inherit attributes from BioProvDocument
-        super().__init__(**kwargs)
-
         # Assert Project is good before constructing instance
         assert isinstance(project, Project), Warnings()["incorrect_type"](
             project, Project
         )
+        self.ProvDocument = ProvDocument()
         self.project = project
         self.samples_entity = None
         self.activities = None
@@ -105,7 +102,7 @@ class BioProvProject(BioProvDocument):
         self._add_relationships()
 
     # def __repr__(self):
-    #     return "BioProvProject describing Project '{}' with {} samples.".format(
+    #     return "BioProvDocument describing Project '{}' with {} samples.".format(
     #         self.project.tag, len(self.project)
     #     )
 
@@ -117,6 +114,41 @@ class BioProvProject(BioProvDocument):
         self._add_project_namespace()
         self._add_samples_namespace()
         self._add_activities_namespace()
+        self._add_env_and_user_namespace()
+        self._iter_samples()
+
+    def _add_env_and_user_namespace(self):
+        self.ProvDocument.add_namespace(
+            "envs", f"Environments associated with BioProv Project '{self.project.tag}'"
+        )
+        self.ProvDocument.add_namespace(
+            "users", f"Users associated with BioProv Project '{self.project.tag}'"
+        )
+
+        for _user, _env in self.project.envs.items():
+            if self.add_attributes:
+                self.ProvDocument.entity(
+                    f"envs:{_env}",
+                    other_attributes=build_prov_attributes(
+                        _env.env_dict, _env.env_namespace
+                    ),
+                )
+            else:
+                self.ProvDocument.entity(f"envs:{_env}")
+
+            self.ProvDocument.agent(f"users:{_user}")
+
+    #     def _add_environ_namespace(self):
+    #         self.ProvDocument.add_namespace(self.env.env_namespace)
+    #         if self._add_environ_attributes:
+    #             self.env_entity = self.ProvDocument.entity(
+    #                 "env:{}".format(self.env),
+    #                 other_attributes=build_prov_attributes(
+    #                     self.env.env_dict, self.env.env_namespace
+    #                 ),
+    #             )
+    #         else:
+    #             self.env_entity = self.ProvDocument.entity("env:{}".format(self.env),)
 
     def _add_project_namespace(self):
         self.project.namespace = self.ProvDocument.add_namespace(
@@ -153,6 +185,11 @@ class BioProvProject(BioProvDocument):
             "Samples associated with bioprov Project '{}'".format(self.project.tag),
         )
 
+    def _iter_envs(self):
+        for _user, _env in self.project.envs.items():
+            self.ProvDocument.bundle(f"users:{_user}")
+
+    def _iter_samples(self):
         for _, sample in self.project.items():
 
             # Sample PROV attributes: bundle, namespace, entity
@@ -194,6 +231,12 @@ class BioProvProject(BioProvDocument):
                     startTime=last_run.start_time,
                     endTime=last_run.end_time,
                 )
+                # self.ProvDocument.wasAssociatedWith(
+                #     program.ProvActivity, self.project.envs[last_run.user]
+                # )
+
+                # # Relationships based on Parameters
+                # inputs = [parameter for parameter in program.params]
 
     def _add_activities_namespace(self):
         """
