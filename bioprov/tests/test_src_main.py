@@ -66,7 +66,7 @@ def test_Program():
     some_random_program = Program(slug)
     assert (
         not some_random_program.found
-    ), "You shouldn't have a program called {} lying around!".format(slug)
+    ), f"You shouldn't have a program called {slug} lying around!"
 
 
 def test_Parameter():
@@ -196,7 +196,9 @@ def test_from_df():
     :return:
     """
     sampleset_ = read_csv(
-        picocyano_dataset, index_col="sample-id", sequencefile_cols="assembly",
+        picocyano_dataset,
+        index_col="sample-id",
+        sequencefile_cols="assembly",
     )
     assert len(sampleset_) > 0
 
