@@ -65,7 +65,7 @@ class Program:
         self.path = path_to_bin
         self.version = version
         self.cmd = cmd
-        self._getoutput = getoutput("which {}".format(self.name))
+        self._getoutput = getoutput(f"which {self.name}")
         self.found = (
             "command not found" not in self._getoutput and self._getoutput != ""
         )
@@ -209,7 +209,7 @@ class Parameter:
                     self.cmd_string = self.value
 
     def __repr__(self):
-        return "Parameter with command string '{}'".format(self.cmd_string)
+        return f"Parameter with command string '{self.cmd_string}'"
 
     def serializer(self):
         return self.__dict__
@@ -276,7 +276,7 @@ class Run:
     @staticmethod
     def _finished_to_status(finished_status):
         """
-        :bool finished_status: 
+        :bool finished_status:
         :return: String representation of status.
         """
         dict_ = {True: "Finished", False: "Pending"}
@@ -298,16 +298,14 @@ class Run:
         # Declare process and start time
         assert (
             self.program.found
-        ), "Cannot find program {}. Make sure it is on your $PATH.".format(
-            self.program.name
-        )
+        ), f"Cannot find program {self.program.name}. Make sure it is on your $PATH."
         if _print:
             str_ = f"Running program '{self.program.name}'"
             if _sample is not None:
                 str_ += f" for sample {_sample.name}."
             else:
                 str_ += "."
-            str_ += "\nCommand is:\n{}".format(self.program.cmd)
+            str_ += f"\nCommand is:\n{self.program.cmd}"
             print(str_)
 
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
@@ -412,9 +410,7 @@ class PresetProgram(Program):
                 file_ = self.sample.files[tag]
             except KeyError:
                 raise Exception(
-                    "Key '{}' not found in files dictionary of sample '{}':\n'{}'".format(
-                        tag, self.sample.name, self.sample.files
-                    )
+                    f"Key '{tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'"
                 )
 
             # If in sample, check if it exists
@@ -440,9 +436,7 @@ class PresetProgram(Program):
                 preffix, _ = path.splitext(str(self.sample.files[self.preffix_tag]))
             except KeyError:
                 raise Exception(
-                    "Key '{}' not found in files dictionary of sample '{}':\n'{}'".format(
-                        self.preffix_tag, self.sample.name, self.sample.files
-                    )
+                    f"Key '{self.preffix_tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'"
                 )
         try:
             for key, (tag, suffix) in self.output_files.items():
@@ -514,7 +508,7 @@ class PresetProgram(Program):
             # Replace file names with place holders.
             if parameter.kind in ("input", "output"):
                 try:
-                    parameter.value = str(self.sample.files["{}".format(parameter.tag)])
+                    parameter.value = str(self.sample.files[f"{parameter.tag}"])
                 except AttributeError:
                     print("Warning: no sample associated with program.")
                     pass  # Suppress bug for now.
@@ -618,9 +612,7 @@ def add_programs(object_, programs):
     # Assert it is adding to correct object
     assert isinstance(
         object_, (Sample, Project)
-    ), "Can't add file to type '{}'. Can only add file to Sample or Project object.".format(
-        type(object_)
-    )
+    ), f"Can't add file to type '{type(object_)}'. Can only add file to Sample or Project object."
 
     # If a single item, make into tuple and assert correct type
     if isinstance(programs, Program):
@@ -756,7 +748,7 @@ class Sample:
             for _, p in self.programs.items():
                 self._run_program(p, _print=_print)
         else:
-            print("No programs to run for Sample '{}'".format(self.name))
+            print(f"No programs to run for Sample '{self.name}'")
 
     def _run_program(self, program, _print=True):
         """
@@ -883,7 +875,7 @@ class Project:
         if sample.name is None:
             slug = generate_slug(2)
             sample.name = slug
-            print("No sample name set. Setting random name: {}".format(sample.name))
+            print(f"No sample name set. Setting random name: {sample.name}")
 
         return sample
 
@@ -994,9 +986,7 @@ def add_files(object_, files):
     # Assert it is adding to correct object
     assert isinstance(
         object_, (Sample, Project)
-    ), "Can't add file to type '{}'. Can only add file to Sample or Project object.".format(
-        type(object_)
-    )
+    ), f"Can't add file to type '{type(object_)}'. Can only add file to Sample or Project object."
 
     # If it is a dict, we convert to File instances
     if isinstance(files, dict):
@@ -1193,7 +1183,8 @@ def dict_to_sample(json_dict):
                                 # To-do: don't import records again (slow)
                                 # Get them straight from the JSON file.
                                 value[tag] = SeqFile(
-                                    path=file["path"], tag=file["tag"],
+                                    path=file["path"],
+                                    tag=file["tag"],
                                 )
                                 if import_records:
                                     for (

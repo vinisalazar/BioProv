@@ -88,10 +88,12 @@ def prokka(
     prefix = _sample.name.replace(" ", "_")
     if output_path is None:
         output_path = path.join(
-            str(_sample.files[assembly].directory), "{}_prokka".format(prefix)
+            str(_sample.files[assembly].directory), f"{prefix}_prokka"
         )
 
-    _prokka = Program("prokka",)
+    _prokka = Program(
+        "prokka",
+    )
     params = (
         Parameter(key="--prefix", value=prefix, kind="misc"),
         Parameter(key="--outdir", value=output_path, kind="output"),
@@ -102,7 +104,7 @@ def prokka(
         _prokka.add_parameter(param, _print=False)
 
     if path.isdir(output_path):
-        print("Warning: {} directory exists. Will overwrite.".format(output_path))
+        print(f"Warning: {output_path} directory exists. Will overwrite.")
         _prokka.add_parameter(Parameter(key="--force", value="", kind="misc"))
 
     # Add files according to their extension # To-do: add support for SeqFile
@@ -124,7 +126,7 @@ def prokka(
         _ = func(file_)  # Add file based on extension
 
     if add_param_str:  # Any additional parameters are added here.
-        _prokka.cmd += " {}".format(add_param_str)
+        _prokka.cmd += f" {add_param_str}"
 
     # Input goes here, must be last positionally.
     _prokka.add_parameter(
@@ -160,7 +162,10 @@ def kaiju(
     """
     kaiju_out_name = _sample.name + "_kaiju.out"
     if output_path is None:
-        output_path = path.join(_sample.files[r1].directory, kaiju_out_name,)
+        output_path = path.join(
+            _sample.files[r1].directory,
+            kaiju_out_name,
+        )
     else:
         output_path = path.join(output_path, kaiju_out_name)
     _sample.add_files(File(output_path, tag="kaiju_output"))
@@ -179,7 +184,7 @@ def kaiju(
         kaiju_.add_parameter(p, _print=False)
 
     if add_param_str:
-        kaiju_.cmd += " {}".format(add_param_str)
+        kaiju_.cmd += f" {add_param_str}"
 
     return kaiju_
 
@@ -207,8 +212,8 @@ def kaiju2table(
     # Assertion statement for rank argument.
     assert_tax_rank(rank), Warnings()["invalid_tax_rank"](rank)
 
-    kaiju_report_suffix = "kaiju_report_{}".format(rank)
-    kaiju_report_out = "{}_{}".format(_sample.name, kaiju_report_suffix)
+    kaiju_report_suffix = f"kaiju_report_{rank}"
+    kaiju_report_out = f"{_sample.name}_{kaiju_report_suffix}"
 
     # Format output_path
     if output_path is None:
@@ -229,9 +234,9 @@ def kaiju2table(
         kaiju2table_.add_parameter(p, _print=False)
 
     # Add final parameter:
-    kaiju2table_.cmd += " {}".format(str(_sample.files[kaiju_output]))
+    kaiju2table_.cmd += f" {str(_sample.files[kaiju_output])}"
 
     if add_param_str:
-        kaiju2table_.cmd += " {}".format(add_param_str)
+        kaiju2table_.cmd += f" {add_param_str}"
 
     return kaiju2table_

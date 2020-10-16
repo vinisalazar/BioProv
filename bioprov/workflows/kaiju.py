@@ -73,9 +73,9 @@ class KaijuWorkflow:
         # Asserting columns are correct
         df = pd.read_csv(input_file, sep="\t")
         for column in ("sample-id", "R1", "R2"):
-            assert column in df.columns, "Column '{}' not present in {}.".format(
-                column, input_file
-            )
+            assert (
+                column in df.columns
+            ), f"Column '{column}' not present in {input_file}."
 
         # Assert all files exist
         for ix, row in df[["R1", "R2"]].iterrows():
@@ -83,9 +83,7 @@ class KaijuWorkflow:
                 file_ = row[column]
                 assert path.isfile(
                     file_
-                ), "File '{}' was not found! Make sure all file paths are correct in input file.".format(
-                    file_
-                )
+                ), f"File '{file_}' was not found! Make sure all file paths are correct in input file."
 
         print(Warnings()["sample_loading"](len(df)))
 
@@ -118,7 +116,7 @@ class KaijuWorkflow:
                 print("Creating Kaiju reports.")
             for rank in tax_ranks:
                 if verbose:
-                    print("Creating report for {} rank.".format(rank))
+                    print(f"Creating report for {rank} rank.")
                 kaiju2table_ = kaiju2table(
                     _sample=sample,
                     rank=rank,
@@ -150,7 +148,8 @@ class KaijuWorkflow:
         :return: instance of argparse.ArgumentParser.
         """
         _parser = argparse.ArgumentParser(
-            "kaiju", description=KaijuWorkflow.description,
+            "kaiju",
+            description=KaijuWorkflow.description,
         )
         _parser.add_argument(
             "-i",
@@ -170,7 +169,10 @@ class KaijuWorkflow:
             default=None,
         )
         _parser.add_argument(
-            "-db", "--kaiju_db", help="Kaiju database file.", required=True,
+            "-db",
+            "--kaiju_db",
+            help="Kaiju database file.",
+            required=True,
         )
         _parser.add_argument(
             "-no",

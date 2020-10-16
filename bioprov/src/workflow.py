@@ -40,7 +40,7 @@ class Workflow:
         verbose=None,
         threads=None,
         sep="\t",
-        **kwargs
+        **kwargs,
     ):
         """
         :param name: Name of the workflow, with no spaces.
@@ -96,9 +96,7 @@ class Workflow:
             _input_types = ("directory", "dataframe")
             assert (
                 self.input_type in _input_types
-            ), "Input type '{}' is invalid, choose from {}".format(
-                self.input_type, _input_types
-            )
+            ), f"Input type '{self.input_type}' is invalid, choose from {_input_types}"
             self.generate_sampleset()
 
         # Only generate parser if there is a name, description, and steps.
@@ -127,13 +125,11 @@ class Workflow:
         parser.add_argument(
             "-i",
             "--input",
-            help="""
+            help=f"""
             Input file, may be a tab delimited file or a directory.\
-            If a file, must contain column '{}' for sample ID and '{}' for files.\
+            If a file, must contain column '{self.index_col}' for sample ID and '{self.file_columns}' for files.\
             See program help for information.
-            """.format(
-                self.index_col, self.file_columns
-            ),
+            """,
         )
         parser.add_argument(
             "-c",
@@ -151,9 +147,7 @@ class Workflow:
         parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
         parser.add_argument(
             "--steps",
-            help="A comma-delimited string of which steps will be run in the workflow.\nPossible steps:\n{}".format(
-                list(self.steps.keys())
-            ),
+            help=f"A comma-delimited string of which steps will be run in the workflow.\nPossible steps:\n{list(self.steps.keys())}",
             default=self.default_steps,
         ),
 
@@ -182,9 +176,7 @@ class Workflow:
             steps_to_run = steps_to_run.split(",")
         assert len(
             steps_to_run
-        ), "Invalid steps to run:\n'{}'\nPlease provide a comma-delimited string.".format(
-            steps_to_run
-        )
+        ), f"Invalid steps to run:\n'{steps_to_run}'\nPlease provide a comma-delimited string."
         if self.sampleset is None:
             self.generate_sampleset()
         for k, step in self.steps.items():
@@ -197,7 +189,7 @@ class Workflow:
                         step.successes += 1
             else:
                 if self.verbose:
-                    print("Skipping step '{}'".format(step.name))
+                    print(f"Skipping step '{step.name}'")
 
     def _sampleset_from_dataframe(self, df):
         """
@@ -224,9 +216,7 @@ class Workflow:
         # Make sure directory exists
         assert path.isdir(
             directory
-        ), "Input directory '{}' not found. Make sure directory exists.".format(
-            directory
-        )
+        ), f"Input directory '{directory}' not found. Make sure directory exists."
 
         # Get files with correct extensions from directory
         if isinstance(file_extensions, str):
@@ -239,9 +229,7 @@ class Workflow:
         # Make sure we got files
         assert (
             len(files) > 0
-        ), "No files found in directory '{}' with extensions: {}".format(
-            directory, file_extensions
-        )
+        ), f"No files found in directory '{directory}' with extensions: {file_extensions}"
 
         # Build dataframe from files
         df = pd.DataFrame(files)
@@ -272,9 +260,7 @@ class Workflow:
         # Assert index_col exists in df.columns
         assert (
             index_col in df.columns
-        ), "Column '{}' is not in input file '{}'. Please check file.".format(
-            self.index_col, self.input
-        )
+        ), f"Column '{self.index_col}' is not in input file '{self.input}'. Please check file."
 
         # Processing files
         if isinstance(file_columns, str):  # Make sure is a LIST
@@ -289,9 +275,7 @@ class Workflow:
         for col in self.file_columns:
             assert (
                 col in df.columns
-            ), "File column '{}' is not in input file '{}'. Please check file.".format(
-                col, self.input
-            )
+            ), f"File column '{col}' is not in input file '{self.input}'. Please check file."
 
         # Check if files exist
         for ix, row in df[file_columns].iterrows():
@@ -299,9 +283,7 @@ class Workflow:
                 file_ = row[column]
                 assert path.isfile(
                     file_
-                ), "File '{}' was not found! Make sure all file paths are correct in input file.".format(
-                    file_
-                )
+                ), f"File '{file_}' was not found! Make sure all file paths are correct in input file."
 
         sampleset = self._sampleset_from_dataframe(df)
         return sampleset
@@ -330,7 +312,10 @@ class Step(PresetProgram):
     """
 
     def __init__(
-        self, preset_program, default=False, description="",
+        self,
+        preset_program,
+        default=False,
+        description="",
     ):
         super().__init__(
             preset_program.name,
