@@ -73,7 +73,3 @@ def test_CLI():
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
     assert pytest_wrapped_e.type == SystemExit
-
-
-# Uncomment this if you want to test locally
-# genome, program, run_ = test_integration(debug=True)

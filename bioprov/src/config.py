@@ -11,7 +11,7 @@ Contains the Config class.
 import os
 from bioprov.data import data_dir, genomes_dir
 from prov.model import Namespace
-from bioprov.utils import build_prov_attributes
+from bioprov.utils import build_prov_attributes, serializer
 
 
 class Config:
@@ -72,6 +72,9 @@ class EnvProv:
         Adds self.env_dict to self.env_namespace.
         """
         return build_prov_attributes(self.env_dict, self.env_namespace)
+
+    def serializer(self):
+        return serializer(self)
 
 
 # Default config variable if not instantiating

@@ -165,3 +165,13 @@ def build_prov_attributes(dictionary, namespace):
             attributes.append((q, v))
 
     return attributes
+
+
+def dict_to_string(dictionary):
+    """
+    Converts a dictionary to string for pretty printing
+    :param dictionary: dict
+    :return: str
+    """
+    assert isinstance(dictionary, dict), Warnings()["incorrect_type"](dictionary, dict)
+    return "\n".join(" " + k + ": " + str(v) for k, v in dictionary.items())

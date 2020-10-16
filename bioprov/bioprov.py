@@ -13,7 +13,7 @@ import sys
 import bioprov.src.config as bp_config_module
 from bioprov.src.config import config
 from bioprov.workflows import WorkflowOptionsParser, genome_annotation, KaijuWorkflow
-from bioprov.utils import parser_help
+from bioprov.utils import parser_help, dict_to_string
 
 
 def main():
@@ -46,7 +46,7 @@ def main():
             "'{}'\n".format(bp_config_module.__file__),
         )
         print("These are your configuration settings:")
-        print("\n".join(" " + k + ": " + str(v) for k, v in config.__dict__.items()),)
+        print(dict_to_string(config.__dict__))
 
         sys.exit(0)
 
