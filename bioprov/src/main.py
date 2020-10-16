@@ -782,7 +782,7 @@ class Sample:
         """
         return to_json(self, self.serializer(), _path, _print=_print)
 
-    def _to_row(self):
+    def to_series(self):
         """
         Creates a pd.Series object from the sample files and attributes.
 
@@ -814,7 +814,7 @@ class Project:
         """
         if tag is None:
             tag = generate_slug(2)
-        self.tag = tag
+        self.tag = tag.replace(" ", "_")
         self.files = dict()
         samples = self.is_iterator(
             samples
@@ -935,6 +935,38 @@ class Project:
         :return:
         """
         return to_json(self, self.serializer(), _path, _print=_print)
+
+    def to_df(self):
+        """
+        Creates a Pandas DataFrame from sample files and attributes.
+        :return: pd.DataFrame
+        """
+        rows = [sample.to_series() for _, sample in self.items()]
+        df = pd.concat(rows, axis=1).T
+        df.set_index("name", inplace=True)
+        return df
+
+    def to_csv(self, path=None, sep=",", **kwargs):
+        """
+        Writes a tab-delimited file of sample files and attributes using the to_df method.
+        :return:
+        """
+        ext_dict = {",": ".csv", "\t": ".tsv"}
+
+        def get_ext(sep_):
+            try:
+                ext = ext_dict[sep_]
+            except KeyError:
+                ext = ".txt"
+            return ext
+
+        if path is None:
+            path = "./" + self.tag + get_ext(sep)
+
+        df = self.to_df()
+        df.to_csv(
+            path, sep=sep,
+        )
 
 
 def add_files(object_, files):

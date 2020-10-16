@@ -18,6 +18,7 @@ Testing for the bioprov.src.main module.
 """
 
 # To-do: organize this
+import pandas as pd
 from bioprov.src.main import (
     generate_param_str,
     Parameter,
@@ -171,6 +172,7 @@ def test_Sample():
     assert sample.files[
         "assembly"
     ].exists, f"Couldn't find file in path {synechococcus_genome}. Check bioprov's data directory."
+    assert type(sample.to_series()) == pd.Series
 
 
 def test_Project():
@@ -184,6 +186,7 @@ def test_Project():
         setattr(sample, attr, v)
 
     ss[sample.name] = sample
+    assert type(ss.to_df()) == pd.DataFrame
     assert len(ss) == 1
 
 
