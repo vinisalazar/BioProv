@@ -52,10 +52,10 @@ bioprov.tests.test\_src\_file module
    :undoc-members:
    :show-inheritance:
 
-bioprov.tests.test\_src\_program module
----------------------------------------
+bioprov.tests.test\_src\_main module
+------------------------------------
 
-.. automodule:: bioprov.tests.test_src_program
+.. automodule:: bioprov.tests.test_src_main
    :members:
    :undoc-members:
    :show-inheritance:
@@ -64,14 +64,6 @@ bioprov.tests.test\_src\_prov module
 ------------------------------------
 
 .. automodule:: bioprov.tests.test_src_prov
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bioprov.tests.test\_src\_sample module
---------------------------------------
-
-.. automodule:: bioprov.tests.test_src_sample
    :members:
    :undoc-members:
    :show-inheritance:
