@@ -20,10 +20,10 @@ bioprov.src.files module
    :undoc-members:
    :show-inheritance:
 
-bioprov.src.program module
---------------------------
+bioprov.src.main module
+-----------------------
 
-.. automodule:: bioprov.src.program
+.. automodule:: bioprov.src.main
    :members:
    :undoc-members:
    :show-inheritance:
