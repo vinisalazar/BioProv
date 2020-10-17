@@ -4,6 +4,7 @@
 * TBD
 
 ### v0.1.7 
+* Fix documentation build [x]
 * Refactor f-strings [x]
 * Draft of complete Prov document (all relationships) [x]
 
