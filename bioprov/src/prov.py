@@ -165,16 +165,24 @@ class BioProvDocument:
 
             # Programs PROV attributes: namespace, entities
             programs_namespace_prefix = f"{sample.name}.programs"
-            sample.ProvBundle.add_namespace(
+            programs_namespace = sample.ProvBundle.add_namespace(
                 programs_namespace_prefix,
                 f"Programs associated with Sample {sample.name}",
             )
             for key, program in sample.programs.items():
                 last_run = program.runs[str(len(program.runs))]
+                serialized_program = program.serializer()
+                try:
+                    del serialized_program["params"]
+                except KeyError:
+                    pass
                 self._activities[program.name] = sample.ProvBundle.activity(
                     f"{programs_namespace_prefix}:{program.name}",
                     startTime=last_run.start_time,
                     endTime=last_run.end_time,
+                    other_attributes=build_prov_attributes(
+                        serialized_program, programs_namespace
+                    ),
                 )
                 self.ProvDocument.wasAssociatedWith(
                     self._activities[program.name], f"users:{last_run.user}"

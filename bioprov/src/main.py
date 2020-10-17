@@ -59,12 +59,12 @@ class Program:
         :param version: Version of the program.
         """
         self.name = name
+        self.cmd = cmd
         self.params = parse_params(params)
         self.param_str = generate_param_str(self.params)
         self.tag = tag
         self.path = path_to_bin
         self.version = version
-        self.cmd = cmd
         self._getoutput = getoutput(f"which {self.name}")
         self.found = (
             "command not found" not in self._getoutput and self._getoutput != ""
@@ -141,10 +141,13 @@ class Program:
         return run_
 
     def serializer(self):
-        serial_out = self.__dict__
-        key = "sample"
-        if key in serial_out.keys():
-            del serial_out[key]
+        serial_out = self.__dict__.copy()
+        keys = [
+            "sample",
+        ]
+        for key in keys:
+            if key in serial_out.keys():
+                del serial_out[key]
         return serializer(serial_out)
 
 
@@ -229,9 +232,9 @@ class Run:
             program, Program
         )
         self.program = program
-        self.params = program.params
-        self.sample = sample
         self.cmd = self.program.cmd
+        self.params = self.program.params
+        self.sample = sample
 
         # Process status
         self.process = None
@@ -336,7 +339,7 @@ class Run:
     def serializer(self):
         # The following lines prevent RecursionError
         serial_out = dict(self.__dict__)
-        for key in ("stdout", "program", "sample"):
+        for key in ("stdout", "program", "sample", "params"):
             if key in serial_out.keys():
                 if key == "stdout":
                     if (
