@@ -308,7 +308,24 @@ class Run:
                 str_ += f" for sample {_sample.name}."
             else:
                 str_ += "."
-            str_ += f"\nCommand is:\n{self.program.cmd}"
+
+            # Pretty printing of commands
+            split_ = self.program.cmd.split()
+            if len(split_) >= 2:
+                if len(split_) % 2 == 1:
+                    bin_, *fmt_cmd = split_
+                    last = ""
+                else:
+                    bin_, *fmt_cmd, last = split_
+                it = iter(fmt_cmd)
+                fmt_cmd = zip(it, it)
+                fmt_cmd = " \\ \n".join(
+                    [bin_] + ["\t" + i[0] + "\t" + i[1] for i in fmt_cmd] + [last]
+                )
+                str_ += f"\nCommand is:\n{fmt_cmd}"
+            else:
+                str_ += f"\nCommand is:\n{self.program.cmd}"
+
             print(str_)
 
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
