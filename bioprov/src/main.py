@@ -311,7 +311,7 @@ class Run:
 
             # Pretty printing of commands
             split_ = self.program.cmd.split()
-            if len(split_) >= 2:
+            if len(self.program.cmd) > 80:
                 if len(split_) % 2 == 1:
                     bin_, *fmt_cmd = split_
                     last = ""
@@ -335,6 +335,10 @@ class Run:
 
         # Run process
         (self.stdout, self.stderr) = p.communicate()
+        self.stdout, self.stderr = (
+            self.stdout.decode("utf-8"),
+            self.stderr.decode("utf-8"),
+        )
 
         # Update status
         end = time()
