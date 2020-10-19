@@ -326,4 +326,8 @@ def seqrecordgenerator(path, format, parser="seq"):
         records = kind_dict[parser_l](path, format)
         return records
     except FileNotFoundError:
-        raise
+        print(Warnings()["not_exist"](path))
+        print(
+            "The file was loaded as a BioProv object, but it does not exist on the specified path."
+        )
+        return None
