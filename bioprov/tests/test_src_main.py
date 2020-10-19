@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 
 """
@@ -272,8 +272,6 @@ def test_project_json_and_prov(debug=False):
     prov = create_prov(project)
     prov_json_out = "./gentax_picocyano_prov.json"
     export_prov_json(prov_json_out, prov)
-
-    # breakpoint()
 
     # Clean up
     for f in (json_out, json_out_2, prov_json_out):
