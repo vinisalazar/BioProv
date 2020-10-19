@@ -68,7 +68,9 @@ class Program:
         self.version = version
         self._getoutput = getoutput(f"which {self.name}")
         self.found = (
-            "command not found" not in self._getoutput and self._getoutput != ""
+            "command not found" not in self._getoutput
+            and self._getoutput != ""
+            and not self._getoutput.startswith("which: no")
         )
         self._runs = None
         if tag is None:
