@@ -27,6 +27,7 @@ import pandas as pd
 from bioprov import config
 from bioprov.utils import Warnings, serializer, serializer_filter
 from bioprov.src.files import File, SeqFile, SeqStats
+from bioprov.src.config import EnvProv
 from coolname import generate_slug
 from os import path
 from pathlib import Path
@@ -1113,7 +1114,9 @@ def from_json(json_file, kind="Sample"):
         project.add_files(d["files"])
 
         for k, v in d["envs"].items():
-            project.envs[k] = v
+            project.envs[k] = EnvProv()
+            for env_attr_, attr_value_ in v.items():
+                setattr(project.envs[k], env_attr_, attr_value_)
 
         return project
 
