@@ -167,3 +167,20 @@ def dict_to_string(dictionary):
     """
     assert isinstance(dictionary, dict), Warnings()["incorrect_type"](dictionary, dict)
     return "\n".join(" " + k + ": " + str(v) for k, v in dictionary.items())
+
+
+def serializer_filter(_object, keys):
+    """
+    Filters keys from _object.__dict__ to make custom serializers.
+
+    :param _object: A bioprov object
+    :param keys: keys to be filtered.
+    :return: dict
+    """
+    serial_out = _object.__dict__.copy()
+
+    for key in keys:
+        if key in serial_out.keys():
+            del serial_out[key]
+
+    return serializer(serial_out)

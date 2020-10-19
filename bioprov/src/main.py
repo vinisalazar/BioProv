@@ -25,7 +25,7 @@ import datetime
 import json
 import pandas as pd
 from bioprov import config
-from bioprov.utils import Warnings, serializer
+from bioprov.utils import Warnings, serializer, serializer_filter
 from bioprov.src.files import File, SeqFile, SeqStats
 from coolname import generate_slug
 from os import path
@@ -142,14 +142,10 @@ class Program:
         return run_
 
     def serializer(self):
-        serial_out = self.__dict__.copy()
         keys = [
             "sample",
         ]
-        for key in keys:
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serializer(serial_out)
+        return serializer_filter(self, keys)
 
 
 class Parameter:
@@ -216,14 +212,10 @@ class Parameter:
         return f"Parameter with command string '{self.cmd_string}'"
 
     def serializer(self):
-        serial_out = self.__dict__.copy()
         keys = [
             "position",
         ]
-        for key in keys:
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serial_out
+        return serializer_filter(self, keys)
 
 
 class Run:
@@ -366,8 +358,8 @@ class Run:
         return self
 
     def serializer(self):
-        # The following lines prevent RecursionError
-        serial_out = dict(self.__dict__)
+        # Cannot apply bioprov.utils.serializer_filter to this one
+        serial_out = self.__dict__.copy()
         for key in ("stdout", "program", "sample", "params"):
             if key in serial_out.keys():
                 if key == "stdout":
@@ -773,12 +765,10 @@ class Sample:
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        serial_out = self.__dict__.copy()
-        keys = ["files_namespace_prefix"]
-        for key in keys:
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serializer(serial_out)
+        keys = [
+            "files_namespace_prefix",
+        ]
+        return serializer_filter(self, keys)
 
     def run_programs(self, _print=True):
         """

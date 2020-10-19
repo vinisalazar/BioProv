@@ -12,7 +12,7 @@ import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
 from Bio import SeqIO, AlignIO
-from bioprov.utils import get_size, Warnings, serializer
+from bioprov.utils import get_size, Warnings, serializer, serializer_filter
 from prov.model import ProvEntity
 
 
@@ -200,18 +200,8 @@ class SeqFile(File):
         self.records = SeqIO.to_dict(self._generator)
 
     def serializer(self):
-        serial_out = self.__dict__.copy()
-        key = "records"
-        if key in serial_out.keys() and serial_out[key] is not None:
-            if isinstance(serial_out[key], dict):
-                serial_out[key] = [v.description for k, v in serial_out[key].items()]
-            else:
-                serial_out[key] = str(serial_out)
-
-        for key in ("namespace", "ProvEntity"):
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serializer(serial_out)
+        keys = ("records", "namespace", "ProvEntity")
+        return serializer_filter(self, keys)
 
     def _calculate_seqstats(
         self, calculate_gc=True, megabases=False, percentage=False, decimals=5,
