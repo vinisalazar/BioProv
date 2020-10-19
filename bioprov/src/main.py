@@ -216,7 +216,14 @@ class Parameter:
         return f"Parameter with command string '{self.cmd_string}'"
 
     def serializer(self):
-        return self.__dict__
+        serial_out = self.__dict__.copy()
+        keys = [
+            "position",
+        ]
+        for key in keys:
+            if key in serial_out.keys():
+                del serial_out[key]
+        return serial_out
 
 
 class Run:
@@ -728,6 +735,9 @@ class Sample:
         self.attributes = attributes
         self._programs = None
 
+        # This is an attribute used by the src.prov module
+        self.files_namespace_prefix = None
+
     def __repr__(self):
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
         return str_
@@ -763,7 +773,12 @@ class Sample:
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        return serializer(self)
+        serial_out = self.__dict__.copy()
+        keys = ["files_namespace_prefix"]
+        for key in keys:
+            if key in serial_out.keys():
+                del serial_out[key]
+        return serializer(serial_out)
 
     def run_programs(self, _print=True):
         """
@@ -1236,6 +1251,7 @@ def dict_to_sample(json_dict):
                                 value[tag] = SeqFile(
                                     path=file["path"], tag=file["tag"],
                                 )
+                                _ = value[tag].generator
                                 if import_records:
                                     for (
                                         seqstats_attr_
@@ -1257,9 +1273,8 @@ def dict_to_sample(json_dict):
             # Create Program instances
             elif attr == "_programs":
                 for tag, program in value.items():
-                    value[tag] = Program()
+                    value[tag] = Program(program["name"])
                     for program_attr_, program_value_ in program.items():
-
                         # Create Parameter attributes
                         if program_attr_ == "params" and program_value_:
                             for key, param in program_value_.items():
