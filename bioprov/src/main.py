@@ -34,6 +34,7 @@ from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
 from collections import OrderedDict
+from prov.model import ProvEntity, ProvDocument
 
 
 class Program:
@@ -59,12 +60,12 @@ class Program:
         :param version: Version of the program.
         """
         self.name = name
+        self.cmd = cmd
         self.params = parse_params(params)
         self.param_str = generate_param_str(self.params)
         self.tag = tag
         self.path = path_to_bin
         self.version = version
-        self.cmd = cmd
         self._getoutput = getoutput(f"which {self.name}")
         self.found = (
             "command not found" not in self._getoutput and self._getoutput != ""
@@ -141,10 +142,13 @@ class Program:
         return run_
 
     def serializer(self):
-        serial_out = self.__dict__
-        key = "sample"
-        if key in serial_out.keys():
-            del serial_out[key]
+        serial_out = self.__dict__.copy()
+        keys = [
+            "sample",
+        ]
+        for key in keys:
+            if key in serial_out.keys():
+                del serial_out[key]
         return serializer(serial_out)
 
 
@@ -212,7 +216,14 @@ class Parameter:
         return f"Parameter with command string '{self.cmd_string}'"
 
     def serializer(self):
-        return self.__dict__
+        serial_out = self.__dict__.copy()
+        keys = [
+            "position",
+        ]
+        for key in keys:
+            if key in serial_out.keys():
+                del serial_out[key]
+        return serial_out
 
 
 class Run:
@@ -229,9 +240,9 @@ class Run:
             program, Program
         )
         self.program = program
-        self.params = program.params
-        self.sample = sample
         self.cmd = self.program.cmd
+        self.params = self.program.params
+        self.sample = sample
 
         # Process status
         self.process = None
@@ -305,7 +316,24 @@ class Run:
                 str_ += f" for sample {_sample.name}."
             else:
                 str_ += "."
-            str_ += f"\nCommand is:\n{self.program.cmd}"
+
+            # Pretty printing of commands
+            split_ = self.program.cmd.split()
+            if len(self.program.cmd) > 80:
+                if len(split_) % 2 == 1:
+                    bin_, *fmt_cmd = split_
+                    last = ""
+                else:
+                    bin_, *fmt_cmd, last = split_
+                it = iter(fmt_cmd)
+                fmt_cmd = zip(it, it)
+                fmt_cmd = " \\ \n".join(
+                    [bin_] + ["\t" + i[0] + "\t" + i[1] for i in fmt_cmd] + [last]
+                )
+                str_ += f"\nCommand is:\n{fmt_cmd}"
+            else:
+                str_ += f"\nCommand is:\n{self.program.cmd}"
+
             print(str_)
 
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
@@ -315,6 +343,10 @@ class Run:
 
         # Run process
         (self.stdout, self.stderr) = p.communicate()
+        self.stdout, self.stderr = (
+            self.stdout.decode("utf-8"),
+            self.stderr.decode("utf-8"),
+        )
 
         # Update status
         end = time()
@@ -336,7 +368,7 @@ class Run:
     def serializer(self):
         # The following lines prevent RecursionError
         serial_out = dict(self.__dict__)
-        for key in ("stdout", "program", "sample"):
+        for key in ("stdout", "program", "sample", "params"):
             if key in serial_out.keys():
                 if key == "stdout":
                     if (
@@ -436,7 +468,8 @@ class PresetProgram(Program):
                 preffix, _ = path.splitext(str(self.sample.files[self.preffix_tag]))
             except KeyError:
                 raise Exception(
-                    f"Key '{self.preffix_tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'"
+                    f"Key '{self.preffix_tag}' not found in files dictionary of sample '{self.sample.name}':\n"
+                    f"'{self.sample.files}'"
                 )
         try:
             for key, (tag, suffix) in self.output_files.items():
@@ -702,6 +735,9 @@ class Sample:
         self.attributes = attributes
         self._programs = None
 
+        # This is an attribute used by the src.prov module
+        self.files_namespace_prefix = None
+
     def __repr__(self):
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
         return str_
@@ -737,7 +773,12 @@ class Sample:
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        return serializer(self)
+        serial_out = self.__dict__.copy()
+        keys = ["files_namespace_prefix"]
+        for key in keys:
+            if key in serial_out.keys():
+                del serial_out[key]
+        return serializer(serial_out)
 
     def run_programs(self, _print=True):
         """
@@ -822,6 +863,10 @@ class Project:
         # avoid duplicated user names!
         self.envs = {config.user: config.env}
 
+        # PROV attributes
+        self._entity = None
+        self._document = None
+
     def __len__(self):
         return len(self._samples)
 
@@ -842,6 +887,26 @@ class Project:
 
     def __setitem__(self, key, value):
         self._samples[key] = value
+
+    @property
+    def entity(self):
+        if self._entity is None:
+            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
+        return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        self._entity = value
+
+    @property
+    def document(self):
+        if self._document is None:
+            self._document = ProvDocument()
+        return self._document
+
+    @document.setter
+    def document(self, document):
+        self._document = document
 
     def keys(self):
         return self._samples.keys()
@@ -1186,6 +1251,7 @@ def dict_to_sample(json_dict):
                                 value[tag] = SeqFile(
                                     path=file["path"], tag=file["tag"],
                                 )
+                                _ = value[tag].generator
                                 if import_records:
                                     for (
                                         seqstats_attr_
@@ -1207,9 +1273,8 @@ def dict_to_sample(json_dict):
             # Create Program instances
             elif attr == "_programs":
                 for tag, program in value.items():
-                    value[tag] = Program()
+                    value[tag] = Program(program["name"])
                     for program_attr_, program_value_ in program.items():
-
                         # Create Parameter attributes
                         if program_attr_ == "params" and program_value_:
                             for key, param in program_value_.items():

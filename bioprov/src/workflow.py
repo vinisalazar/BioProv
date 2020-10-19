@@ -130,6 +130,7 @@ class Workflow:
             If a file, must contain column '{self.index_col}' for sample ID and '{self.file_columns}' for files.\
             See program help for information.
             """,
+            required=True,
         )
         parser.add_argument(
             "-c",

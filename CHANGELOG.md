@@ -1,7 +1,12 @@
 ## Changelog
 
+### v0.1.9
+* TBD [ ]
+
 ### v0.1.8 
-* TBD
+* Improve BioProvDocument constructor [x]
+* Improve Sample and Program serializers [x]
+* Improve internal PROV relationships [x]
 
 ### v0.1.7 
 * Fix documentation build [x]

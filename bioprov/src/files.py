@@ -74,14 +74,20 @@ class File:
         return self._document
 
     @document.setter
-    def document(self, document):
-        self._document = document
+    def document(self, value):
+        self._document = value
 
     @property
     def entity(self):
         if self._entity is None:
-            ProvEntity(self._document, identifier=f"files:{self.basename}")
+            self._entity = ProvEntity(
+                self._document, identifier=f"files:{self.basename}"
+            )
         return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        self._entity = value
 
     def serializer(self):
         return serializer(self)
@@ -194,7 +200,7 @@ class SeqFile(File):
         self.records = SeqIO.to_dict(self._generator)
 
     def serializer(self):
-        serial_out = self.__dict__
+        serial_out = self.__dict__.copy()
         key = "records"
         if key in serial_out.keys() and serial_out[key] is not None:
             if isinstance(serial_out[key], dict):

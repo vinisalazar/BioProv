@@ -100,7 +100,7 @@ def serializer(object_):
     if isinstance(object_, dict):
         pass
     else:
-        object_ = object_.__dict__
+        object_ = object_.__dict__.copy()
 
     for k, v in object_.items():
         # Checks for serializer method
