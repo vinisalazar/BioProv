@@ -1112,6 +1112,9 @@ def from_json(json_file, kind="Sample"):
         project = Project(samples=samples, tag=d["tag"])
         project.add_files(d["files"])
 
+        for k, v in d["envs"].items():
+            project.envs[k] = v
+
         return project
 
 
