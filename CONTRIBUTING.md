@@ -60,8 +60,18 @@ Ready to contribute? Here's how to set up BioProv for local development.
 git clone git@github.com:your_name_here/BioProv.git
 ```
 
-* Create a development environment. This can be done many different ways, such as with
-    [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) and [venv](https://docs.python.org/3/library/venv.html). Study carefully which one works best for your purposes.
+* Create a development environment. If you aren't yet familiar, get to know [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), the software used to manage our environment.
+
+```bash
+conda env create --file environment.yml
+```
+
+In case you've already created the environment and changes have been made to it, run:
+
+```bash
+conda activate bioprov
+conda env update --file environment.yml
+```
 
 * Assuming you've created the environment, install the package locally:
 
@@ -70,12 +80,6 @@ pip install -e .
 ```
 
 This will make an "editable" version of the local installation.
-
-* Download the black code styling tool:
-
-```bash
-pip install black 
-```
 
 * Update the repository to its latest version:
 
@@ -99,7 +103,7 @@ pytest
 ```
 
 Some tests will require external tools, such as [Prodigal](https://github.com/hyattpd/Prodigal),
-you can either download them or run only a subset of tests, such as:
+and if you haven't yet, you can either download them or run only a subset of tests, such as:
 
 ```bash
 pytest bioprov/tests/test_bioprov_imports.py 
