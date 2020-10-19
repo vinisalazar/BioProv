@@ -176,14 +176,23 @@ class BioProvDocument:
                     del serialized_program["params"]
                 except KeyError:
                     pass
-                self._activities[program.name] = sample.ProvBundle.activity(
-                    f"{programs_namespace_prefix}:{program.name}",
-                    startTime=last_run.start_time,
-                    endTime=last_run.end_time,
-                    other_attributes=build_prov_attributes(
-                        serialized_program, programs_namespace
-                    ),
-                )
+
+                if self.add_attributes:
+                    self._activities[program.name] = sample.ProvBundle.activity(
+                        f"{programs_namespace_prefix}:{program.name}",
+                        startTime=last_run.start_time,
+                        endTime=last_run.end_time,
+                        other_attributes=build_prov_attributes(
+                            serialized_program, programs_namespace
+                        ),
+                    )
+                else:
+                    self._activities[program.name] = sample.ProvBundle.activity(
+                        f"{programs_namespace_prefix}:{program.name}",
+                        startTime=last_run.start_time,
+                        endTime=last_run.end_time,
+                    )
+
                 self.ProvDocument.wasAssociatedWith(
                     self._activities[program.name], f"users:{last_run.user}"
                 )
