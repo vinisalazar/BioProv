@@ -34,6 +34,7 @@ from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
 from collections import OrderedDict
+from prov.model import ProvEntity, ProvDocument
 
 
 class Program:
@@ -847,6 +848,10 @@ class Project:
         # avoid duplicated user names!
         self.envs = {config.user: config.env}
 
+        # PROV attributes
+        self._entity = None
+        self._document = None
+
     def __len__(self):
         return len(self._samples)
 
@@ -867,6 +872,26 @@ class Project:
 
     def __setitem__(self, key, value):
         self._samples[key] = value
+
+    @property
+    def entity(self):
+        if self._entity is None:
+            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
+        return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        self._entity = value
+
+    @property
+    def document(self):
+        if self._document is None:
+            self._document = ProvDocument()
+        return self._document
+
+    @document.setter
+    def document(self, document):
+        self._document = document
 
     def keys(self):
         return self._samples.keys()

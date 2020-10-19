@@ -74,14 +74,20 @@ class File:
         return self._document
 
     @document.setter
-    def document(self, document):
-        self._document = document
+    def document(self, value):
+        self._document = value
 
     @property
     def entity(self):
         if self._entity is None:
-            ProvEntity(self._document, identifier=f"files:{self.basename}")
+            self._entity = ProvEntity(
+                self._document, identifier=f"files:{self.basename}"
+            )
         return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        self._entity = value
 
     def serializer(self):
         return serializer(self)
