@@ -460,7 +460,8 @@ class PresetProgram(Program):
                 preffix, _ = path.splitext(str(self.sample.files[self.preffix_tag]))
             except KeyError:
                 raise Exception(
-                    f"Key '{self.preffix_tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'"
+                    f"Key '{self.preffix_tag}' not found in files dictionary of sample '{self.sample.name}':\n"
+                    f"'{self.sample.files}'"
                 )
         try:
             for key, (tag, suffix) in self.output_files.items():
