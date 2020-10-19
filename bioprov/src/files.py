@@ -204,7 +204,11 @@ class SeqFile(File):
         return serializer_filter(self, keys)
 
     def _calculate_seqstats(
-        self, calculate_gc=True, megabases=False, percentage=False, decimals=5,
+        self,
+        calculate_gc=True,
+        megabases=False,
+        percentage=False,
+        decimals=5,
     ):
         """
         :param calculate_gc: Whether to calculate GC content. Disabled if amino acid file.
