@@ -273,8 +273,6 @@ def test_project_json_and_prov(debug=False):
     prov_json_out = "./gentax_picocyano_prov.json"
     export_prov_json(prov_json_out, prov)
 
-    # breakpoint()
-
     # Clean up
     for f in (json_out, json_out_2, prov_json_out):
         remove(f)
