@@ -10,7 +10,6 @@ Testing for the Config module.
 """
 
 from bioprov import Config
-from bioprov.utils import dict_to_sha1
 from os import environ
 
 
