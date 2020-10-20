@@ -323,9 +323,7 @@ class Run:
                 it = iter(fmt_cmd)
                 fmt_cmd = zip(it, it)
                 fmt_cmd = " \\ \n".join(
-                    [bin_]
-                    + ["\t" + i[0] + "\t" + i[1] for i in fmt_cmd]
-                    + ["\t" + last]
+                    [bin_] + ["\t" + i[0] + " " + i[1] for i in fmt_cmd] + ["\t" + last]
                 )
                 str_ += f"\nCommand is:\n{fmt_cmd}"
             else:
