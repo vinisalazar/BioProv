@@ -1117,7 +1117,7 @@ def from_json(json_file, kind="Sample"):
             project.envs[k] = EnvProv()
             for env_attr_, attr_value_ in v.items():
                 if env_attr_ == "env_namespace":
-                    attr_value_ = Namespace("env", v["env_hash"])
+                    attr_value_ = Namespace("env", str(project.envs[k]))
                 setattr(project.envs[k], env_attr_, attr_value_)
 
         return project
