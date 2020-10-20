@@ -3,6 +3,8 @@
 ### v0.1.10
 * Refactoring hashes using hashlib [x]
 * Removing EnvProv.env_set attribute [x]
+* Implementing file hashes [x]
+* Debug EnvProv JSON deserializer [x]
 
 ### v0.1.9
 * Improve Env constructor in Project deserializer [x]
