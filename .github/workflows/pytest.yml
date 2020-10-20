@@ -1,0 +1,28 @@
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        python-version: [3.6, 3.7, 3.8]
+    name: ${{ matrix.os }} - Python ${{ matrix.python-version }} 
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup conda
+        uses: s-weigand/setup-conda@v1
+        with:
+          update-conda: true
+          python-version: ${{ matrix.python-version }}
+      - name: Install necessary dependencies
+        run: |
+          source activate base
+          conda install -y -c bioconda prodigal
+          pip install .
+      - name: Test with pytest
+        run: |
+          source activate base
+          pytest
