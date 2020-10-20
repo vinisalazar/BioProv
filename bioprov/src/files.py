@@ -8,11 +8,18 @@ __version__ = "0.1.10"
 """
 Contains the File class and related functions.
 """
+import hashlib
 import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
 from Bio import SeqIO, AlignIO
-from bioprov.utils import get_size, Warnings, serializer, serializer_filter
+from bioprov.utils import (
+    get_size,
+    Warnings,
+    serializer,
+    serializer_filter,
+    file_to_sha1,
+)
 from prov.model import ProvEntity
 
 
@@ -21,7 +28,7 @@ class File:
     Class for holding file and file information.
     """
 
-    def __init__(self, path, tag=None, document=None, attributes=None):
+    def __init__(self, path, tag=None, document=None, attributes=None, _get_hash=True):
         """
         :param path: A UNIX-like file _path.
         :param tag: optional tag describing the file.
@@ -29,6 +36,9 @@ class File:
         :param attributes: Miscellaneous attributes.
         """
         self.path = Path(path).absolute()
+        assert (
+            not self.path.is_dir()
+        ), f"The path must be to a file, not a directory, you passed:\n'{path}'"
         self.name = self.path.stem
         self.basename = self.path.name
         self.directory = self.path.parent
@@ -42,6 +52,7 @@ class File:
         self._exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
+        self.sha1 = file_to_sha1(self.path)
 
         # Provenance attributes
         self._document = document
