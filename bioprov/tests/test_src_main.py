@@ -253,7 +253,7 @@ def test_project_json_and_prov(debug=False):
         return from_json(path)
 
     def create_prov(_project):
-        return BioProvDocument(_project)
+        return BioProvDocument(_project, add_attributes=True)
 
     def export_prov_json(_path, _projectprov):
         json = _projectprov.ProvDocument.serialize()

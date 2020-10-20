@@ -40,7 +40,7 @@ def test_kaiju():
     Testing the 'kaiju' program.
     :return:
     """
-    s = Sample("Synechococcus", files={"R1": synechococcus_genome, "R2": ""})
+    s = Sample("Synechococcus", files={"R1": synechococcus_genome, "R2": "r2.fastq"})
     _ = kaiju(s)
 
 

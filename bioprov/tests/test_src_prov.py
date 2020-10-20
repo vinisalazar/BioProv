@@ -40,4 +40,6 @@ def test_BioProvDocument():
     Tests the construction of an instance of BioProvDocument.
     :return:
     """
+    # The BioProvDocument constructor with add_attributes=True
+    # is tested in the test_src_main.py module
     _ = BioProvDocument(project)
