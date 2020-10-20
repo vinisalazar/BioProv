@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.9"
+__version__ = "0.1.10"
 
 
 """
@@ -253,7 +253,7 @@ def test_project_json_and_prov(debug=False):
         return from_json(path)
 
     def create_prov(_project):
-        return BioProvDocument(_project)
+        return BioProvDocument(_project, add_attributes=True)
 
     def export_prov_json(_path, _projectprov):
         json = _projectprov.ProvDocument.serialize()

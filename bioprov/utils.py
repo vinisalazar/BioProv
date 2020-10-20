@@ -2,12 +2,15 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.9"
+__version__ = "0.1.10"
 
 """
 Helper functions.
 """
+import io
 import sys
+import json
+import hashlib
 from pathlib import Path
 from prov.model import Namespace, QualifiedName
 
@@ -41,6 +44,28 @@ def get_size(path, convert=True):
             return size
     else:
         return 0
+
+
+def file_to_sha1(path):
+    """
+    Get the sha1 of file. Returns None if it does not exist.
+    :param path: A valid file path.
+    :return: sha1 digest or None.
+    """
+    path = Path(path)
+    if path.exists():
+        sha1 = hashlib.sha1()
+        # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
+        BUF_SIZE = io.DEFAULT_BUFFER_SIZE
+        with open(path, "rb") as f:
+            while f:
+                data = f.read(BUF_SIZE)
+                if not data:
+                    break
+                sha1.update(data)
+        return sha1.hexdigest()
+    else:
+        return None
 
 
 def parser_help(parser):
@@ -184,3 +209,14 @@ def serializer_filter(_object, keys):
             del serial_out[key]
 
     return serializer(serial_out)
+
+
+def dict_to_sha1(dictionary):
+    """
+    Get sha256 hexdigest from a dictionary
+    :param dictionary: dict
+    :return: hexdigest
+    """
+    sh = hashlib.sha1(json.dumps(dictionary).encode("utf-8"))
+    digest = sh.hexdigest()
+    return digest

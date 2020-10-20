@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.9"
+__version__ = "0.1.10"
 
 
 """
@@ -40,7 +40,7 @@ def test_kaiju():
     Testing the 'kaiju' program.
     :return:
     """
-    s = Sample("Synechococcus", files={"R1": synechococcus_genome, "R2": ""})
+    s = Sample("Synechococcus", files={"R1": synechococcus_genome, "R2": "r2.fastq"})
     _ = kaiju(s)
 
 

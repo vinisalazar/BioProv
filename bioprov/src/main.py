@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.9"
+__version__ = "0.1.10"
 
 """
 
@@ -35,7 +35,7 @@ from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
 from collections import OrderedDict
-from prov.model import ProvEntity, ProvDocument
+from prov.model import ProvEntity, ProvDocument, Namespace
 
 
 class Program:
@@ -323,9 +323,7 @@ class Run:
                 it = iter(fmt_cmd)
                 fmt_cmd = zip(it, it)
                 fmt_cmd = " \\ \n".join(
-                    [bin_]
-                    + ["\t" + i[0] + "\t" + i[1] for i in fmt_cmd]
-                    + ["\t" + last]
+                    [bin_] + ["\t" + i[0] + " " + i[1] for i in fmt_cmd] + ["\t" + last]
                 )
                 str_ += f"\nCommand is:\n{fmt_cmd}"
             else:
@@ -1118,8 +1116,8 @@ def from_json(json_file, kind="Sample"):
         for k, v in d["envs"].items():
             project.envs[k] = EnvProv()
             for env_attr_, attr_value_ in v.items():
-                if env_attr_ == "env_set":
-                    attr_value_ = eval(attr_value_)
+                if env_attr_ == "env_namespace":
+                    attr_value_ = Namespace("env", str(project.envs[k]))
                 setattr(project.envs[k], env_attr_, attr_value_)
 
         return project

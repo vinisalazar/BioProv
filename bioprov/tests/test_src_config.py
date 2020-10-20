@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.9"
+__version__ = "0.1.10"
 
 
 """
@@ -19,7 +19,7 @@ def test_Config():
     :return:
     """
     config = Config()
-    assert config.env.env_set == frozenset(environ.items())
+    assert config.env.env_dict == dict(environ.items())
     assert config.user == config.env.user
     assert config.genomes.exists()
     assert config.data.exists()
