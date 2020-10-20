@@ -10,6 +10,7 @@ Testing for the Config module.
 """
 
 from bioprov import Config
+from bioprov.utils import dict_to_sha1
 from os import environ
 
 
@@ -19,7 +20,7 @@ def test_Config():
     :return:
     """
     config = Config()
-    assert config.env.env_set == frozenset(environ.items())
+    assert config.env.env_dict == dict(environ.items())
     assert config.user == config.env.user
     assert config.genomes.exists()
     assert config.data.exists()

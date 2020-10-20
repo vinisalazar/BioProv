@@ -1,7 +1,8 @@
 ## Changelog
 
 ### v0.1.10
-* TBD [ ]
+* Refactoring hashes using hashlib [x]
+* Removing EnvProv.env_set attribute [x]
 
 ### v0.1.9
 * Improve Env constructor in Project deserializer [x]

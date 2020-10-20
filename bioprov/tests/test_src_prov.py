@@ -15,6 +15,7 @@ from bioprov import read_csv
 from bioprov.data import picocyano_dataset
 from bioprov.src.prov import BioProvDocument
 from bioprov.src.config import EnvProv
+from bioprov.utils import dict_to_sha1
 
 project = read_csv(
     picocyano_dataset, sequencefile_cols="assembly", tag="picocyanobacteria"
@@ -28,8 +29,8 @@ def test_EnvProv():
     """
     env = EnvProv()
     for statement in (
-        env.env_set == frozenset(environ.items()),
-        env.env_hash == hash(env.env_set),
+        env.env_dict == dict(environ.items()),
+        env.env_hash == dict_to_sha1(env.env_dict),
     ):
         assert statement
 

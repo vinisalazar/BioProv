@@ -8,6 +8,8 @@ __version__ = "0.1.10"
 Helper functions.
 """
 import sys
+import json
+import hashlib
 from pathlib import Path
 from prov.model import Namespace, QualifiedName
 
@@ -184,3 +186,14 @@ def serializer_filter(_object, keys):
             del serial_out[key]
 
     return serializer(serial_out)
+
+
+def dict_to_sha1(dictionary):
+    """
+    Get sha256 hexdigest from a dictionary
+    :param dictionary: dict
+    :return: Hexdigest
+    """
+    sh = hashlib.sha1(json.dumps(dictionary).encode("utf-8"))
+    digest = sh.hexdigest()
+    return digest

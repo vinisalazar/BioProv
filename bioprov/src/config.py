@@ -11,7 +11,7 @@ Contains the Config class.
 import os
 from bioprov.data import data_dir, genomes_dir
 from prov.model import Namespace
-from bioprov.utils import build_prov_attributes, serializer
+from bioprov.utils import build_prov_attributes, serializer, dict_to_sha1
 
 
 class Config:
@@ -43,7 +43,6 @@ class EnvProv:
         """
         Class constructor. All attributes are empty and are initialized with self.update()
         """
-        self.env_set = None
         self.env_hash = None
         self.env_dict = None
         self.user = None
@@ -51,19 +50,18 @@ class EnvProv:
         self.update()
 
     def __repr__(self):
-        return f"Environment_hash_{self.env_hash}"
+        return f"Environment_{self.env_hash}"
 
     def update(self):
         """
         Checks current environment and updates attributes using the os.environ module.
         :return: Sets attributes to self.
         """
-        env_set = frozenset(os.environ.items())
-        env_hash = hash(env_set)
+        env_dict = dict(os.environ.items())
+        env_hash = dict_to_sha1(env_dict)
         if env_hash != self.env_hash:
-            self.env_set = env_set
+            self.env_dict = env_dict
             self.env_hash = env_hash
-            self.env_dict = dict(self.env_set)
 
             # this is only to prevent build errors
             try:
