@@ -1,7 +1,13 @@
 ## Changelog
 
-### v0.1.9
+### v0.1.10
 * TBD [ ]
+
+### v0.1.9
+* Improve Env constructor in Project deserializer [x]
+* Improve Program behaviour when dealing with not found Programs [x]
+* Implement utils.serializer_filter function [x]
+* Improve pretty printing of commands [x]
 
 ### v0.1.8 
 * Improve BioProvDocument constructor [x]
