@@ -3,7 +3,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 
 """
@@ -148,7 +148,8 @@ class KaijuWorkflow:
         :return: instance of argparse.ArgumentParser.
         """
         _parser = argparse.ArgumentParser(
-            "kaiju", description=KaijuWorkflow.description,
+            "kaiju",
+            description=KaijuWorkflow.description,
         )
         _parser.add_argument(
             "-i",
@@ -168,7 +169,10 @@ class KaijuWorkflow:
             default=None,
         )
         _parser.add_argument(
-            "-db", "--kaiju_db", help="Kaiju database file.", required=True,
+            "-db",
+            "--kaiju_db",
+            help="Kaiju database file.",
+            required=True,
         )
         _parser.add_argument(
             "-no",

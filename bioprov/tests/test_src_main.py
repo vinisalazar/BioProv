@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 
 """
@@ -196,7 +196,9 @@ def test_from_df():
     :return:
     """
     sampleset_ = read_csv(
-        picocyano_dataset, index_col="sample-id", sequencefile_cols="assembly",
+        picocyano_dataset,
+        index_col="sample-id",
+        sequencefile_cols="assembly",
     )
     assert len(sampleset_) > 0
 

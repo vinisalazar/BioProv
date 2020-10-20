@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 
 """
@@ -45,7 +45,10 @@ def test_integration(debug=False):
         program_name, params=param_i, version=version
     )  # Add one parameter with __init__ method
     param_a = bp.Parameter(
-        "-a", str(protein_file), description="proteins", kind="output",
+        "-a",
+        str(protein_file),
+        description="proteins",
+        kind="output",
     )
     program_.add_parameter(param_i), program_.add_parameter(
         param_a

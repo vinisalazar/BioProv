@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 """
 
@@ -25,8 +25,9 @@ import datetime
 import json
 import pandas as pd
 from bioprov import config
-from bioprov.utils import Warnings, serializer
+from bioprov.utils import Warnings, serializer, serializer_filter
 from bioprov.src.files import File, SeqFile, SeqStats
+from bioprov.src.config import EnvProv
 from coolname import generate_slug
 from os import path
 from pathlib import Path
@@ -68,7 +69,9 @@ class Program:
         self.version = version
         self._getoutput = getoutput(f"which {self.name}")
         self.found = (
-            "command not found" not in self._getoutput and self._getoutput != ""
+            "command not found" not in self._getoutput
+            and self._getoutput != ""
+            and not self._getoutput.startswith("which: no")
         )
         self._runs = None
         if tag is None:
@@ -142,14 +145,10 @@ class Program:
         return run_
 
     def serializer(self):
-        serial_out = self.__dict__.copy()
         keys = [
             "sample",
         ]
-        for key in keys:
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serializer(serial_out)
+        return serializer_filter(self, keys)
 
 
 class Parameter:
@@ -216,14 +215,10 @@ class Parameter:
         return f"Parameter with command string '{self.cmd_string}'"
 
     def serializer(self):
-        serial_out = self.__dict__.copy()
         keys = [
             "position",
         ]
-        for key in keys:
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serial_out
+        return serializer_filter(self, keys)
 
 
 class Run:
@@ -328,7 +323,9 @@ class Run:
                 it = iter(fmt_cmd)
                 fmt_cmd = zip(it, it)
                 fmt_cmd = " \\ \n".join(
-                    [bin_] + ["\t" + i[0] + "\t" + i[1] for i in fmt_cmd] + [last]
+                    [bin_]
+                    + ["\t" + i[0] + "\t" + i[1] for i in fmt_cmd]
+                    + ["\t" + last]
                 )
                 str_ += f"\nCommand is:\n{fmt_cmd}"
             else:
@@ -366,8 +363,8 @@ class Run:
         return self
 
     def serializer(self):
-        # The following lines prevent RecursionError
-        serial_out = dict(self.__dict__)
+        # Cannot apply bioprov.utils.serializer_filter to this one
+        serial_out = self.__dict__.copy()
         for key in ("stdout", "program", "sample", "params"):
             if key in serial_out.keys():
                 if key == "stdout":
@@ -773,12 +770,10 @@ class Sample:
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        serial_out = self.__dict__.copy()
-        keys = ["files_namespace_prefix"]
-        for key in keys:
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serializer(serial_out)
+        keys = [
+            "files_namespace_prefix",
+        ]
+        return serializer_filter(self, keys)
 
     def run_programs(self, _print=True):
         """
@@ -1120,6 +1115,13 @@ def from_json(json_file, kind="Sample"):
         project = Project(samples=samples, tag=d["tag"])
         project.add_files(d["files"])
 
+        for k, v in d["envs"].items():
+            project.envs[k] = EnvProv()
+            for env_attr_, attr_value_ in v.items():
+                if env_attr_ == "env_set":
+                    attr_value_ = eval(attr_value_)
+                setattr(project.envs[k], env_attr_, attr_value_)
+
         return project
 
 
@@ -1249,7 +1251,8 @@ def dict_to_sample(json_dict):
                                 # To-do: don't import records again (slow)
                                 # Get them straight from the JSON file.
                                 value[tag] = SeqFile(
-                                    path=file["path"], tag=file["tag"],
+                                    path=file["path"],
+                                    tag=file["tag"],
                                 )
                                 _ = value[tag].generator
                                 if import_records:

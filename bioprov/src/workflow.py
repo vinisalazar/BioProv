@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 """
 Contains the Workflow class and related functions.
@@ -313,7 +313,10 @@ class Step(PresetProgram):
     """
 
     def __init__(
-        self, preset_program, default=False, description="",
+        self,
+        preset_program,
+        default=False,
+        description="",
     ):
         super().__init__(
             preset_program.name,

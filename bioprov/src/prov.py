@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 """
 Module containing base provenance attributes.
@@ -107,7 +107,8 @@ class BioProvDocument:
 
     def _add_samples_namespace(self):
         self.ProvDocument.add_namespace(
-            "samples", f"Samples associated with bioprov Project '{self.project.tag}'",
+            "samples",
+            f"Samples associated with bioprov Project '{self.project.tag}'",
         )
 
     def _iter_envs_and_users(self):
@@ -184,14 +185,16 @@ class BioProvDocument:
 
             # Adding relationships
             sample.ProvBundle.wasDerivedFrom(
-                self._entities[file.name], self._entities[sample.name],
+                self._entities[file.name],
+                self._entities[sample.name],
             )
 
     def _create_program_entities(self, sample):
         # Programs PROV attributes: namespace, entities
         programs_namespace_prefix = f"{sample.name}.programs"
         programs_namespace = sample.ProvBundle.add_namespace(
-            programs_namespace_prefix, f"Programs associated with Sample {sample.name}",
+            programs_namespace_prefix,
+            f"Programs associated with Sample {sample.name}",
         )
         for key, program in sample.programs.items():
             last_run = program.runs[str(len(program.runs))]

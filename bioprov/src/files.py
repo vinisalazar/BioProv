@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 
 """
@@ -12,7 +12,7 @@ import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
 from Bio import SeqIO, AlignIO
-from bioprov.utils import get_size, Warnings, serializer
+from bioprov.utils import get_size, Warnings, serializer, serializer_filter
 from prov.model import ProvEntity
 
 
@@ -200,21 +200,15 @@ class SeqFile(File):
         self.records = SeqIO.to_dict(self._generator)
 
     def serializer(self):
-        serial_out = self.__dict__.copy()
-        key = "records"
-        if key in serial_out.keys() and serial_out[key] is not None:
-            if isinstance(serial_out[key], dict):
-                serial_out[key] = [v.description for k, v in serial_out[key].items()]
-            else:
-                serial_out[key] = str(serial_out)
-
-        for key in ("namespace", "ProvEntity"):
-            if key in serial_out.keys():
-                del serial_out[key]
-        return serializer(serial_out)
+        keys = ("records", "namespace", "ProvEntity")
+        return serializer_filter(self, keys)
 
     def _calculate_seqstats(
-        self, calculate_gc=True, megabases=False, percentage=False, decimals=5,
+        self,
+        calculate_gc=True,
+        megabases=False,
+        percentage=False,
+        decimals=5,
     ):
         """
         :param calculate_gc: Whether to calculate GC content. Disabled if amino acid file.
@@ -332,4 +326,8 @@ def seqrecordgenerator(path, format, parser="seq"):
         records = kind_dict[parser_l](path, format)
         return records
     except FileNotFoundError:
-        raise
+        print(Warnings()["not_exist"](path))
+        print(
+            "The file was loaded as a BioProv object, but it does not exist on the specified path."
+        )
+        return None

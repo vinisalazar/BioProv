@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.8"
+__version__ = "0.1.9"
 
 
 """
@@ -91,7 +91,9 @@ def prokka(
             str(_sample.files[assembly].directory), f"{prefix}_prokka"
         )
 
-    _prokka = Program("prokka",)
+    _prokka = Program(
+        "prokka",
+    )
     params = (
         Parameter(key="--prefix", value=prefix, kind="misc"),
         Parameter(key="--outdir", value=output_path, kind="output"),
@@ -160,7 +162,10 @@ def kaiju(
     """
     kaiju_out_name = _sample.name + "_kaiju.out"
     if output_path is None:
-        output_path = path.join(_sample.files[r1].directory, kaiju_out_name,)
+        output_path = path.join(
+            _sample.files[r1].directory,
+            kaiju_out_name,
+        )
     else:
         output_path = path.join(output_path, kaiju_out_name)
     _sample.add_files(File(output_path, tag="kaiju_output"))
