@@ -35,7 +35,7 @@ from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
 from collections import OrderedDict
-from prov.model import ProvEntity, ProvDocument
+from prov.model import ProvEntity, ProvDocument, Namespace
 
 
 class Program:
@@ -1118,6 +1118,8 @@ def from_json(json_file, kind="Sample"):
         for k, v in d["envs"].items():
             project.envs[k] = EnvProv()
             for env_attr_, attr_value_ in v.items():
+                if env_attr_ == "env_namespace":
+                    attr_value_ = Namespace("env", v["env_hash"])
                 setattr(project.envs[k], env_attr_, attr_value_)
 
         return project
