@@ -101,7 +101,8 @@ class File:
         self._entity = value
 
     def serializer(self):
-        return serializer(self)
+        keys = ("_document", "_entity")
+        return serializer_filter(self, keys)
 
 
 class SeqFile(File):
