@@ -15,24 +15,23 @@ from bioprov.src.main import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, Warnings
 
 
-def prodigal(sample=None):
+def prodigal(sample=None, input_tag="assembly"):
     """
     :param sample: Instance of BioProv.Sample.
+    :param input_tag: Instance of BioProv.Sample.
     :return: Instance of PresetProgram containing Prodigal.
     """
     _prodigal = PresetProgram(
         name="prodigal",
         sample=sample,
-        input_files={"-i": "assembly"},
+        input_files={"-i": input_tag},
         output_files={
             "-a": ("proteins", "_proteins.faa"),
             "-d": ("genes", "_genes.fna"),
             "-s": ("scores", "_scores.cds"),
         },
-        preffix_tag="assembly",
+        preffix_tag=input_tag,
     )
-
-    _prodigal.generate_cmd()
 
     return _prodigal
 
