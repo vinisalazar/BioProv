@@ -1,10 +1,14 @@
 ## Changelog
 
+### v0.1.11
+* TBD [ ]
+
 ### v0.1.10
 * Refactoring hashes using hashlib [x]
 * Removing EnvProv.env_set attribute [x]
 * Implementing file hashes [x]
 * Debug EnvProv JSON deserializer [x]
+* Updating introductory tutorial [x]
 
 ### v0.1.9
 * Improve Env constructor in Project deserializer [x]
