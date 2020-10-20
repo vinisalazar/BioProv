@@ -1,11 +1,13 @@
 ### BioProv - W3C-PROV provenance documents for bioinformatics
 
-[![PyPI Version](https://img.shields.io/pypi/v/bioprov)](https://img.shields.io/pypi/v/bioprov)
-[![Build Status](https://travis-ci.org/vinisalazar/BioProv.svg?branch=master)](https://travis-ci.org/vinisalazar/BioProv)
-[![Docs status](https://readthedocs.org/projects/bioprov/badge/?version=latest)](https://bioprov.readthedocs.io/en/latest/?badge=latest)
-[![Coverage Status](https://coveralls.io/repos/github/vinisalazar/BioProv/badge.svg?branch=master&service=github)](https://coveralls.io/github/vinisalazar/BioProv?branch=master&service=github)
-[![License](https://img.shields.io/github/license/vinisalazar/bioprov)](https://img.shields.io/github/license/vinisalazar/bioprov)
-[![Requirements Status](https://requires.io/github/vinisalazar/BioProv/requirements.svg?branch=master)](https://requires.io/github/vinisalazar/BioProv/requirements/?branch=master)
+
+|||||
+---------------|--|--|--
+Package | [![License](https://img.shields.io/github/license/vinisalazar/bioprov)](https://img.shields.io/github/license/vinisalazar/bioprov) | [![PyPI Version](https://img.shields.io/pypi/v/bioprov)](https://pypi.org/project/bioprov/) | [![Requirements Status](https://requires.io/github/vinisalazar/BioProv/requirements.svg?branch=master)](https://requires.io/github/vinisalazar/BioProv/requirements/?branch=master)
+Tests | [![Build Status](https://travis-ci.org/vinisalazar/BioProv.svg?branch=master)](https://travis-ci.org/vinisalazar/BioProv) |  [![tests](https://github.com/vinisalazar/bioprov/workflows/tests/badge.svg?branch=master)](https://github.com/vinisalazar/bioprov/actions?query=workflow%3Atests) | [![Coverage Status](https://coveralls.io/repos/github/vinisalazar/BioProv/badge.svg?branch=master&service=github)](https://coveralls.io/github/vinisalazar/BioProv?branch=master&service=github)
+Code | [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) | [![lint](https://github.com/vinisalazar/BioProv/workflows/lint/badge.svg?branch=master)](https://github.com/vinisalazar/BioProv/actions?query=workflow%3Alint)
+Docs | [![Docs status](https://readthedocs.org/projects/bioprov/badge/?version=latest)](https://bioprov.readthedocs.io/en/latest/?badge=latest) | [![binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/vinisalazar/bioprov/master?filepath=docs%2Ftutorials%2F)
+
 
 BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of biological data. It enables you to quickly write workflows and to describe relationships between samples, files, users and processes.
 
