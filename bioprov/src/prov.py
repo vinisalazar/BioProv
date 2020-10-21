@@ -11,7 +11,7 @@ This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
 from bioprov import Project
-from bioprov.utils import Warnings, build_prov_attributes
+from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
 from prov.model import ProvDocument
 
 
@@ -112,22 +112,25 @@ class BioProvDocument:
         )
 
     def _iter_envs_and_users(self):
-        for _user, _env in self.project.envs.items():
+        for _user, _env_dict in self.project.users.items():
             _user_bundle = self.ProvDocument.bundle(f"users:{_user}")
-            _user_bundle.add_namespace("envs", f"Envs associated with user '{_user}'")
-
-            if self.add_attributes:
-                self._entities[_env] = _user_bundle.entity(
-                    f"envs:{_env}",
-                    other_attributes=build_prov_attributes(
-                        _env.env_dict, _env.env_namespace
-                    ),
-                )
-            else:
-                self._entities[_env] = _user_bundle.entity(f"envs:{_env}")
-
+            _user_bundle.add_namespace(
+                "envs", f"Environments associated with User '{_user}'"
+            )
             self._agents[_user] = _user_bundle.agent(f"users:{_user}")
-            self.ProvDocument.wasAttributedTo(self._entities[_env], self._agents[_user])
+            for _env_hash, _env in _env_dict.items():
+                if self.add_attributes:
+                    self._entities[_env_hash] = _user_bundle.entity(
+                        f"envs:{_env}",
+                        other_attributes=build_prov_attributes(
+                            _env.env_dict, _env.env_namespace
+                        ),
+                    )
+                else:
+                    self._entities[_env_hash] = _user_bundle.entity(f"envs:{_env}")
+                _user_bundle.wasAttributedTo(
+                    self._entities[_env_hash], self._agents[_user]
+                )
 
     def _iter_samples(self):
         for _, sample in self.project.items():
@@ -175,7 +178,7 @@ class BioProvDocument:
                 self._entities[file.name] = sample.ProvBundle.entity(
                     f"{sample.files_namespace_prefix}:{file.name}",
                     other_attributes=build_prov_attributes(
-                        file.__dict__, file.namespace
+                        file.serializer(), file.namespace
                     ),
                 )
             else:
@@ -198,7 +201,11 @@ class BioProvDocument:
         )
         for key, program in sample.programs.items():
             last_run = program.runs[str(len(program.runs))]
-            serialized_program = program.serializer()
+
+            # We want to exclude _runs from the program serializer
+            # So we put a custom serializer filter
+            keys = ("sample", "_runs")
+            serialized_program = serializer_filter(program, keys)
             try:
                 del serialized_program["params"]
             except KeyError:
@@ -220,8 +227,8 @@ class BioProvDocument:
                     endTime=last_run.end_time,
                 )
 
-            self.ProvDocument.wasAssociatedWith(
-                self._activities[program.name], f"users:{last_run.user}"
+            self.ProvDocument.wasDerivedFrom(
+                self._activities[program.name], self._entities[last_run.env]
             )
 
             inputs, outputs = self._get_IO_from_params(program)
