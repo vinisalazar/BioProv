@@ -67,21 +67,24 @@ class BioProvDocument:
         :return:
         """
         self._add_project_namespace()
+        self._add_env_and_user_namespace()
         self._add_samples_namespace()
         self._add_activities_namespace()
-        self._add_env_and_user_namespace()
-
-    def _add_env_and_user_namespace(self):
-        self.ProvDocument.add_namespace(
-            "users", f"Users associated with BioProv Project '{self.project.tag}'"
-        )
 
     def _add_project_namespace(self):
+        """
+        Creates the Project Namespace and Project Entity.
+        # Sets the default Namespace of the BioProvDocument as the Project.
+
+        :return: updates self.project and self.ProvDocument.
+        """
         self.project.namespace = self.ProvDocument.add_namespace(
             "project", str(self.project)
         )
+        # # I may add this later
+        # self.ProvDocument.set_default_namespace(self.project.namespace)
+
         if self.add_attributes:
-            # self._entities[self.project.tag]
             self.project.entity = self.ProvDocument.entity(
                 f"project:{self.project}",
                 other_attributes=build_prov_attributes(
@@ -105,29 +108,42 @@ class BioProvDocument:
         # else:
         #     pass
 
+    def _add_env_and_user_namespace(self):
+        self.ProvDocument.add_namespace(
+            "users", f"Users associated with BioProv Project '{self.project.tag}'"
+        )
+
     def _add_samples_namespace(self):
         self.ProvDocument.add_namespace(
             "samples",
             f"Samples associated with bioprov Project '{self.project.tag}'",
         )
 
+    def _add_files_namespace(self):
+        self.ProvDocument.add_namespace(
+            "files", f"Files associated with bioprov Project '{self.project.tag}'"
+        )
+
     def _iter_envs_and_users(self):
         for _user, _env_dict in self.project.users.items():
             _user_bundle = self.ProvDocument.bundle(f"users:{_user}")
+            _user_env_preffix = f"users:{_user}.envs"
             _user_bundle.add_namespace(
-                "envs", f"Environments associated with User '{_user}'"
+                _user_env_preffix, f"Environments associated with User '{_user}'"
             )
             self._agents[_user] = _user_bundle.agent(f"users:{_user}")
             for _env_hash, _env in _env_dict.items():
                 if self.add_attributes:
                     self._entities[_env_hash] = _user_bundle.entity(
-                        f"envs:{_env}",
+                        f"{_user_env_preffix}:{_env}",
                         other_attributes=build_prov_attributes(
                             _env.env_dict, _env.env_namespace
                         ),
                     )
                 else:
-                    self._entities[_env_hash] = _user_bundle.entity(f"envs:{_env}")
+                    self._entities[_env_hash] = _user_bundle.entity(
+                        f"{_user_env_preffix}:{_env}"
+                    )
                 _user_bundle.wasAttributedTo(
                     self._entities[_env_hash], self._agents[_user]
                 )
