@@ -1,6 +1,9 @@
 ## Changelog
 
 ### v0.1.11
+* Fix Run.start_time and Run.end_time testing [ ]
+* Update README [ ]
+* Add subpackage docstrings [ ]
 * TBD [ ]
 
 ### v0.1.10
