@@ -31,8 +31,12 @@ def test_prokka():
     :return:
     """
     s = Sample("Synechococcus", files={"assembly": synechococcus_genome})
-    _ = prokka(s)
-    pass
+    prokka_program = prokka(s)
+    prokka_params = list(prokka_program.serializer()["params"].keys())
+
+    expected_params = ["--prefix", "--outdir", "--cpus", ""]
+
+    assert prokka_params == expected_params
 
 
 def test_kaiju():
@@ -41,7 +45,12 @@ def test_kaiju():
     :return:
     """
     s = Sample("Synechococcus", files={"R1": synechococcus_genome, "R2": "r2.fastq"})
-    _ = kaiju(s)
+    kaiju_program = kaiju(s)
+    kaiju_params = list(kaiju_program.serializer()["params"].keys())
+
+    expected_params = ["-t", "-i", "-j", "-f", "-z", "-o"]
+
+    assert kaiju_params == expected_params
 
 
 def test_kaiju2table():
@@ -50,4 +59,9 @@ def test_kaiju2table():
     :return:
     """
     s = Sample("Synechococcus", files={"kaiju_output": synechococcus_genome})
-    _ = kaiju2table(s)
+    kaiju2tab_program = kaiju2table(s)
+    kaiju2tab_params = list(kaiju2tab_program.serializer()["params"].keys())
+
+    expected_params = ["-o", "-t", "-n", "-r"]
+
+    assert kaiju2tab_params == expected_params
