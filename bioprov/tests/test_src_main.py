@@ -18,6 +18,7 @@ Testing for the bioprov.src.main module.
 """
 
 # To-do: organize this
+import datetime
 import pandas as pd
 from bioprov.src.main import (
     generate_param_str,
@@ -101,9 +102,15 @@ def test_Run():
     run_.run()
 
     # Check status again
+    start_time, end_time = (
+        datetime.datetime.strptime(time_, "%a %b %d %H:%M:%S %Y")
+        for time_ in (run_.start_time, run_.end_time)
+    )
+    timedelta_secs = (start_time - end_time).total_seconds()
+    duration_secs = datetime.datetime.strptime(run_.duration, "%H:%M:%S.%f").second
     assert (
-        run_.start_time == run_.end_time
-    ), "This test may fail occasionally. Run it again."  # This should be the same for the '-h' parameter.
+        timedelta_secs < 5 and duration_secs < 5
+    ), "This shouldn't take this long to run."
     assert run_.finished is True
     assert run_.status is "Finished"
 
