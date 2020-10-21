@@ -4,7 +4,7 @@
 * Fix Run.start_time and Run.end_time testing [x]
 * Update README [ ]
 * Add subpackage docstrings [ ]
-* TBD [ ]
+* Improve Program tests [x]
 
 ### v0.1.10
 * Refactoring hashes using hashlib [x]
