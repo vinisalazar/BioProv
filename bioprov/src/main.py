@@ -735,7 +735,8 @@ class Sample:
         self._programs = None
 
         # This is an attribute used by the src.prov module
-        self.files_namespace_prefix = None
+        self.namespace_preffix = f"samples:{self.name}"
+        self.files_namespace_preffix = None
 
     def __repr__(self):
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
@@ -773,7 +774,7 @@ class Sample:
         :return:
         """
         keys = [
-            "files_namespace_prefix",
+            "files_namespace_preffix",
         ]
         return serializer_filter(self, keys)
 
