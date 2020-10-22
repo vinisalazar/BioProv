@@ -1,10 +1,14 @@
 ## Changelog
 
-### v0.1.11
-* Fix Run.start_time and Run.end_time testing [x]
+### v0.1.12
 * Update README [ ]
 * Add subpackage docstrings [ ]
+
+### v0.1.11
+* Fix Run.start_time and Run.end_time testing [x]
 * Improve Program tests [x]
+* Allow users to have multiple environments [x]
+* Improving internal PROV relationships [x]
 
 ### v0.1.10
 * Refactoring hashes using hashlib [x]
