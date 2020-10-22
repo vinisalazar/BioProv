@@ -6,8 +6,9 @@ __version__ = "0.1.12"
 
 
 """
-Contains the Config class.
+Contains the Config class and other package-level settings.
 """
+
 import os
 from bioprov.data import data_dir, genomes_dir
 from prov.model import Namespace

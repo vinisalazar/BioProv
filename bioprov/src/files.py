@@ -6,9 +6,9 @@ __version__ = "0.1.12"
 
 
 """
-Contains the File class and related functions.
+Contains the File and SeqFile classes and related functions.
 """
-import hashlib
+
 import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
@@ -16,7 +16,6 @@ from Bio import SeqIO, AlignIO
 from bioprov.utils import (
     get_size,
     Warnings,
-    serializer,
     serializer_filter,
     file_to_sha1,
 )
@@ -25,7 +24,7 @@ from prov.model import ProvEntity
 
 class File:
     """
-    Class for holding file and file information.
+    Class for holding files and file information.
     """
 
     def __init__(self, path, tag=None, document=None, attributes=None, _get_hash=True):
