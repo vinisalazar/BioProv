@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.10"
+__version__ = "0.1.11"
 
 
 """
@@ -40,7 +40,7 @@ def test_File():
         "repr": f.__repr__() == str(f.path),
         # Non existing file
         "non_existing": nf.exists is False,
-        "no_size": nf.size is 0,
+        "no_size": nf.size == 0,
         "nf_repr": nf.__repr__() == str(nf.path),
         # get_size() function
         "get_size": f.size == utils.get_size(f.path),

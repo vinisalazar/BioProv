@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.10"
+__version__ = "0.1.11"
 
 """
 
@@ -260,6 +260,7 @@ class Run:
 
         # User who ran the task
         self.user = config.user
+        self.env = config.env.env_hash
 
     def __repr__(self):
         str_ = f"Run of Program '{self.program.name}' with {len(self.params)} parameter(s)."
@@ -329,6 +330,9 @@ class Run:
             else:
                 str_ += f"\nCommand is:\n{self.program.cmd}"
 
+            str_ = str_.strip()
+            if str_.endswith("\\"):
+                str_ = str_[:-1]
             print(str_)
 
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
@@ -731,7 +735,8 @@ class Sample:
         self._programs = None
 
         # This is an attribute used by the src.prov module
-        self.files_namespace_prefix = None
+        self.namespace_preffix = f"samples:{self.name}"
+        self.files_namespace_preffix = None
 
     def __repr__(self):
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
@@ -769,7 +774,7 @@ class Sample:
         :return:
         """
         keys = [
-            "files_namespace_prefix",
+            "files_namespace_preffix",
         ]
         return serializer_filter(self, keys)
 
@@ -854,11 +859,17 @@ class Project:
 
         # environments are stored based on the user name
         # avoid duplicated user names!
-        self.envs = {config.user: config.env}
+        self.users = {config.user: {config.env.env_hash: config.env}}
 
         # PROV attributes
         self._entity = None
         self._document = None
+
+    def _update_envs(self):
+        if config.env.env_hash not in self.users.values():
+            self.users[config.user][config.env.env_hash] = {
+                config.env.env_hash: config.env
+            }
 
     def __len__(self):
         return len(self._samples)
@@ -1088,7 +1099,7 @@ def to_json(object_, dictionary, _path=None, _print=True):
     return write_json(dictionary, _path, _print=_print)
 
 
-def from_json(json_file, kind="Sample"):
+def from_json(json_file, kind="Project"):
     """
     Imports Sample or Project from JSON file.
     :param json_file: A JSON file created by Sample.to_json()
@@ -1113,12 +1124,15 @@ def from_json(json_file, kind="Sample"):
         project = Project(samples=samples, tag=d["tag"])
         project.add_files(d["files"])
 
-        for k, v in d["envs"].items():
-            project.envs[k] = EnvProv()
-            for env_attr_, attr_value_ in v.items():
-                if env_attr_ == "env_namespace":
-                    attr_value_ = Namespace("env", str(project.envs[k]))
-                setattr(project.envs[k], env_attr_, attr_value_)
+        for user, env in d["users"].items():
+            for env_hash, env_dict in env.items():
+                project.users[user][env_hash] = EnvProv()
+                for env_attr_, attr_value_ in env_dict.items():
+                    if env_attr_ == "env_namespace":
+                        attr_value_ = Namespace(
+                            "env", str(project.users[user][env_hash])
+                        )
+                    setattr(project.users[user][env_hash], env_attr_, attr_value_)
 
         return project
 
