@@ -11,7 +11,7 @@ This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
 from bioprov import Project
-from bioprov.utils import Warnings, build_prov_attributes
+from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
 from prov.model import ProvDocument
 
 
@@ -67,21 +67,24 @@ class BioProvDocument:
         :return:
         """
         self._add_project_namespace()
+        self._add_env_and_user_namespace()
         self._add_samples_namespace()
         self._add_activities_namespace()
-        self._add_env_and_user_namespace()
-
-    def _add_env_and_user_namespace(self):
-        self.ProvDocument.add_namespace(
-            "users", f"Users associated with BioProv Project '{self.project.tag}'"
-        )
 
     def _add_project_namespace(self):
+        """
+        Creates the Project Namespace and Project Entity.
+        # Sets the default Namespace of the BioProvDocument as the Project.
+
+        :return: updates self.project and self.ProvDocument.
+        """
         self.project.namespace = self.ProvDocument.add_namespace(
             "project", str(self.project)
         )
+        # # I may add this later
+        # self.ProvDocument.set_default_namespace(self.project.namespace)
+
         if self.add_attributes:
-            # self._entities[self.project.tag]
             self.project.entity = self.ProvDocument.entity(
                 f"project:{self.project}",
                 other_attributes=build_prov_attributes(
@@ -105,29 +108,44 @@ class BioProvDocument:
         # else:
         #     pass
 
+    def _add_env_and_user_namespace(self):
+        self.ProvDocument.add_namespace(
+            "users", f"Users associated with BioProv Project '{self.project.tag}'"
+        )
+
     def _add_samples_namespace(self):
         self.ProvDocument.add_namespace(
             "samples",
             f"Samples associated with bioprov Project '{self.project.tag}'",
         )
 
+    def _add_files_namespace(self):
+        self.ProvDocument.add_namespace(
+            "files", f"Files associated with bioprov Project '{self.project.tag}'"
+        )
+
     def _iter_envs_and_users(self):
-        for _user, _env in self.project.envs.items():
-            _user_bundle = self.ProvDocument.bundle(f"users:{_user}")
-            _user_bundle.add_namespace("envs", f"Envs associated with user '{_user}'")
-
-            if self.add_attributes:
-                self._entities[_env] = _user_bundle.entity(
-                    f"envs:{_env}",
-                    other_attributes=build_prov_attributes(
-                        _env.env_dict, _env.env_namespace
-                    ),
+        for _user, _env_dict in self.project.users.items():
+            _user_preffix = f"users:{_user}"
+            _user_bundle = self.ProvDocument.bundle(_user_preffix)
+            _user_bundle.set_default_namespace(_user)
+            _user_bundle.add_namespace(
+                "envs", f"Environments associated with User '{_user}'"
+            )
+            self._agents[_user] = _user_bundle.agent(_user_preffix)
+            for _env_hash, _env in _env_dict.items():
+                if self.add_attributes:
+                    self._entities[_env_hash] = _user_bundle.entity(
+                        f"envs:{_env}",
+                        other_attributes=build_prov_attributes(
+                            _env.env_dict, _env.env_namespace
+                        ),
+                    )
+                else:
+                    self._entities[_env_hash] = _user_bundle.entity(f"envs:{_env}")
+                _user_bundle.wasAttributedTo(
+                    self._entities[_env_hash], self._agents[_user]
                 )
-            else:
-                self._entities[_env] = _user_bundle.entity(f"envs:{_env}")
-
-            self._agents[_user] = _user_bundle.agent(f"users:{_user}")
-            self.ProvDocument.wasAttributedTo(self._entities[_env], self._agents[_user])
 
     def _iter_samples(self):
         for _, sample in self.project.items():
@@ -142,9 +160,8 @@ class BioProvDocument:
         :param sample: instance of bioprov.Sample
         :return: updates self.ProvDocument by creating PROV objects for the sample.
         """
-
         # Sample PROV attributes: bundle, namespace, entity
-        sample.ProvBundle = self.ProvDocument.bundle(f"samples:{sample.name}")
+        sample.ProvBundle = self.ProvDocument.bundle(sample.namespace_preffix)
         sample.ProvBundle.set_default_namespace(sample.name)
         self._entities[sample.name] = sample.ProvBundle.entity(f"samples:{sample.name}")
         self.ProvDocument.wasDerivedFrom(
@@ -159,9 +176,9 @@ class BioProvDocument:
         :return: updates the sample.ProvBundle by creating PROV objects for the files.
 
         """
-        sample.files_namespace_prefix = f"{sample.name}.files"
+        sample.files_namespace_preffix = f"{sample.name}.files"
         sample.ProvBundle.add_namespace(
-            sample.files_namespace_prefix,
+            sample.files_namespace_preffix,
             f"Files associated with Sample {sample.name}",
         )
 
@@ -173,14 +190,14 @@ class BioProvDocument:
             # Add atributes or not
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(
-                    f"{sample.files_namespace_prefix}:{file.name}",
+                    f"{sample.files_namespace_preffix}:{file.name}",
                     other_attributes=build_prov_attributes(
-                        file.__dict__, file.namespace
+                        file.serializer(), file.namespace
                     ),
                 )
             else:
                 self._entities[file.name] = sample.ProvBundle.entity(
-                    f"{sample.files_namespace_prefix}:{file.name}",
+                    f"{sample.files_namespace_preffix}:{file.name}",
                 )
 
             # Adding relationships
@@ -198,7 +215,11 @@ class BioProvDocument:
         )
         for key, program in sample.programs.items():
             last_run = program.runs[str(len(program.runs))]
-            serialized_program = program.serializer()
+
+            # We want to exclude _runs from the program serializer
+            # So we put a custom serializer filter
+            keys = ("sample", "_runs")
+            serialized_program = serializer_filter(program, keys)
             try:
                 del serialized_program["params"]
             except KeyError:
@@ -220,8 +241,8 @@ class BioProvDocument:
                     endTime=last_run.end_time,
                 )
 
-            self.ProvDocument.wasAssociatedWith(
-                self._activities[program.name], f"users:{last_run.user}"
+            self.ProvDocument.wasDerivedFrom(
+                self._activities[program.name], self._entities[last_run.env]
             )
 
             inputs, outputs = self._get_IO_from_params(program)

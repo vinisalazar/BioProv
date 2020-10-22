@@ -40,7 +40,7 @@ def test_File():
         "repr": f.__repr__() == str(f.path),
         # Non existing file
         "non_existing": nf.exists is False,
-        "no_size": nf.size is 0,
+        "no_size": nf.size == 0,
         "nf_repr": nf.__repr__() == str(nf.path),
         # get_size() function
         "get_size": f.size == utils.get_size(f.path),
