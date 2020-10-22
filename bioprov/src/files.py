@@ -18,6 +18,7 @@ from bioprov.utils import (
     Warnings,
     serializer_filter,
     file_to_sha1,
+    pattern_replacer,
 )
 from prov.model import ProvEntity
 
@@ -51,7 +52,7 @@ class File:
         self._exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
-        self.sha1 = file_to_sha1(self.path)
+        self._sha1 = file_to_sha1(self.path)
 
         # Provenance attributes
         self._document = document
@@ -62,6 +63,14 @@ class File:
 
     def __str__(self):
         return self.__repr__()
+
+    @property
+    def sha1(self):
+        return file_to_sha1(self.path)
+
+    @sha1.setter
+    def sha1(self, value):
+        self._sha1 = value
 
     @property
     def exists(self):
@@ -98,6 +107,31 @@ class File:
     @entity.setter
     def entity(self, value):
         self._entity = value
+
+    def replace_path(self, old_terms, new, warnings=False):
+        """
+        Replace the current File path.
+
+        Usually used for switching between users.
+
+        :param old_terms: Terms to be replaced in the path.
+        :param new: New term.
+        :param warnings: Whether to warn if sha1 checksum differs or file does not exist.
+
+        :return: Updates self.
+        """
+        old_hash, old_exists = self._sha1, self._exists
+        self.path = Path(pattern_replacer(str(self.path), old_terms, new))
+        # To-do: replace these print statements for logger warning/debug level
+        if warnings:
+            if not self.exists and old_exists:
+                print(
+                    f"Warning: file {self.path} was marked as existing but was not found."
+                )
+            if old_hash and self.sha1 != old_hash and self.exists:
+                print(
+                    f"Warning: file {self.path} previous sha1 checksum differs from the current."
+                )
 
     def serializer(self):
         keys = ("_document", "_entity")
@@ -317,11 +351,13 @@ def calculate_N50(array):
         return new_array[ix]
 
 
-def seqrecordgenerator(path, format, parser="seq"):
+def seqrecordgenerator(path, format, parser="seq", warnings=False):
     """
     :param path: Path to file.
     :param format: format to pass to SeqIO.parse().
     :param parser: Whether to import records with SeqIO (default) or AlignIO
+    :param warnings: Whether to warn if sha1 checksum differs or file does not exist.
+
     :return: A generator of SeqRecords.
     """
     parser_l = parser.lower()
@@ -337,8 +373,43 @@ def seqrecordgenerator(path, format, parser="seq"):
         records = kind_dict[parser_l](path, format)
         return records
     except FileNotFoundError:
-        print(Warnings()["not_exist"](path))
-        print(
-            "The file was loaded as a BioProv object, but it does not exist on the specified path."
-        )
+        if warnings:
+            print(Warnings()["not_exist"](path))
+            print(
+                "The file was loaded as a BioProv object, but it does not exist on the specified path."
+            )
         return None
+
+
+def deserialize_files_dict(files_dict):
+    for tag, file in files_dict.items():
+        if file is not None:
+            if "format" in file.keys():
+                if file["format"] in SeqFile.seqfile_formats:
+                    if "records" in file.keys() and file["records"] is not None:
+                        import_records = True
+                    else:
+                        import_records = False
+
+                    # To-do: don't import records again (slow)
+                    # Get them straight from the JSON file.
+                    files_dict[tag] = SeqFile(
+                        path=file["path"],
+                        tag=file["tag"],
+                    )
+                    _ = files_dict[tag].generator
+                    if import_records:
+                        for seqstats_attr_ in SeqStats.__dataclass_fields__.keys():
+                            setattr(
+                                files_dict[tag],
+                                seqstats_attr_,
+                                file[seqstats_attr_],
+                            )
+            else:
+                files_dict[tag] = File(file["path"], tag=file["tag"])
+            for attr_, value_ in file.items():
+                if attr_ == "records":
+                    continue
+                if attr_ not in ("path",):
+                    setattr(files_dict[tag], attr_, value_)
+    return files_dict

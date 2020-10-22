@@ -8,6 +8,7 @@
 
 ### v0.1.12
 * Patching errors for JSON IO [ ]
+    * Create File and Program deserializers [ ]
 * Implement path replacing methods for multi-user support [ ]
 
 ### v0.1.11
