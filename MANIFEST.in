@@ -1,5 +1,6 @@
 recursive-include bioprov/data/ *
-exclude .coveragerc
 exclude environment.yml
+exclude .coveragerc
+exclude .readthedocs.yml
 exclude .travis.yml
 recursive-exclude .github/
