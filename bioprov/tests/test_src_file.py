@@ -104,5 +104,5 @@ def test_SeqFile():
     genome._calculate_seqstats(calculate_gc=False)
 
     # Test FileNotFound warning
-    none = seqrecordgenerator(warnings=True)
+    none = seqrecordgenerator(nf_genome.path, "fasta", warnings=True)
     assert none is None, f"{none} should be a NoneType object!"
