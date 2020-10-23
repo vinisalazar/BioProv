@@ -1,10 +1,14 @@
 ## Changelog
 
-### v0.1.14
+### To-do
 * Update README [ ]
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
 * Improve output PROVN documents [ ]
+
+### v0.1.14
+* Add BioProvDB class [x]
+* Add database methods to Project class [x]
 
 ### v0.1.13
 * Add dot attribute to BioProvDocument [x]
