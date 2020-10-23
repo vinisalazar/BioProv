@@ -153,6 +153,33 @@ class Program:
         return serializer_filter(self, keys)
 
 
+def deserialize_programs_dict(programs_dict, sample):
+    """
+    Deserialize programs from JSON format
+
+    :param programs_dict: dictionary of serialized Programs in JSON format
+    :param sample: instance of bioprov.Sample
+    :return: dictionary of Program instances
+    """
+    for tag, program in programs_dict.items():
+        programs_dict[tag] = Program(program["name"])
+        for program_attr_, program_value_ in program.items():
+            # Create Parameter attributes
+            if program_attr_ == "params" and program_value_:
+                for key, param in program_value_.items():
+                    parameter = Parameter()
+                    for param_attr_, param_value_ in param.items():
+                        setattr(parameter, param_attr_, param_value_)
+
+                    programs_dict[tag].add_parameter(parameter)
+
+            if program_attr_ == "_runs" and program_value_:
+                deserialize_runs_dict(program_value_, programs_dict, tag, sample)
+            setattr(programs_dict[tag], program_attr_, program_value_)
+
+    return programs_dict
+
+
 class Parameter:
     """
     Class holding information for parameters.
@@ -383,6 +410,26 @@ class Run:
 
         serial_out = serializer(serial_out)
         return serial_out
+
+
+def deserialize_runs_dict(runs_dict, programs_dict, tag, sample):
+
+    # To-do: replace sample for object when implementing Project.programs
+
+    """
+    Deserialize runs in JSON format.
+
+    :param runs_dict: dictionary of Runs in JSON format.
+    :param programs_dict: dictionary of Program instances to be updated.
+    :param tag: Tag of each program.
+    :param sample: Sample to be updated.
+    :return:
+    """
+    for run_tag_, run_ in runs_dict.items():
+        runs_dict[run_tag_] = Run(programs_dict[tag], sample=sample)
+        for run_attr_, run_value_ in run_.items():
+            setattr(runs_dict[run_tag_], run_attr_, run_value_)
+        programs_dict[tag].add_runs(runs_dict[run_tag_])
 
 
 class PresetProgram(Program):
@@ -1325,31 +1372,13 @@ def dict_to_sample(json_dict):
 
             # Create Program instances
             elif attr == "_programs":
-                for tag, program in value.items():
-                    value[tag] = Program(program["name"])
-                    for program_attr_, program_value_ in program.items():
-                        # Create Parameter attributes
-                        if program_attr_ == "params" and program_value_:
-                            for key, param in program_value_.items():
-                                parameter = Parameter()
-                                for param_attr_, param_value_ in param.items():
-                                    setattr(parameter, param_attr_, param_value_)
-
-                                value[tag].add_parameter(parameter)
-
-                        # Create Run instances
-                        if program_attr_ == "_runs" and program_value_:
-                            for run_tag_, run_ in program_value_.items():
-                                program_value_[run_tag_] = Run(
-                                    value[tag], sample=sample_
-                                )
-                                for run_attr_, run_value_ in run_.items():
-                                    setattr(
-                                        program_value_[run_tag_], run_attr_, run_value_
-                                    )
-                                value[tag].add_runs(program_value_[run_tag_])
-                        setattr(value[tag], program_attr_, program_value_)
-                    sample_.add_programs(value[tag])
+                deserialized_programs = deserialize_programs_dict(value, sample_)
+                deque(
+                    (
+                        sample_.add_programs(program_)
+                        for program_ in deserialized_programs.values()
+                    )
+                )
             else:
                 setattr(sample_, attr, value)
 
