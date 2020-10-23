@@ -14,5 +14,6 @@ script:
 branches:
   only:
     - master
+    - dev
 after_success:
   - coveralls

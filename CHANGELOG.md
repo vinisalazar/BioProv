@@ -2,9 +2,12 @@
 
 ### v0.1.13
 * Update README [ ]
-* Add subpackage docstrings [ ]
+* Fix documentation issues [ ]
+    * Add subpackage docstrings [ ]
 * Improve output PROVN documents [ ]
 * Add write_provn and write_dot methods to BioProvDocument [ ]
+* Update W3C-PROV tutorial [ ]
+* Improve test coverage [x]
 
 ### v0.1.12
 * Patching errors for JSON IO [x]

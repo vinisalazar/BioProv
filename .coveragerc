@@ -4,6 +4,7 @@
 [report]
 exclude_lines =
     $__
+    no cover
 
 [run]
 omit = 

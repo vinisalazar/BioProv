@@ -67,15 +67,9 @@ class EnvProv:
             # this is only to prevent build errors
             try:
                 self.user = self.env_dict["USER"]
-            except KeyError:
-                self.env_dict["USER"] = "unknown"
+            except KeyError:  # no cover
+                self.env_dict["USER"] = "unknown"  # no cover
             self.env_namespace = Namespace("env", str(self))
-
-    def _build_prov_attributes(self):
-        """
-        Adds self.env_dict to self.env_namespace.
-        """
-        return build_prov_attributes(self.env_dict, self.env_namespace)
 
     def serializer(self):
         return serializer(self)

@@ -16,7 +16,7 @@ from bioprov.workflows import WorkflowOptionsParser, genome_annotation, KaijuWor
 from bioprov.utils import parser_help, dict_to_string
 
 
-def main():
+def main(args=None):
     """
     Main function to run the BioProv command-line application.
     Calls the subparsers defined in the Workflows module.
@@ -34,12 +34,12 @@ def main():
     workflows.choices["kaiju"] = KaijuWorkflow.parser()
 
     # Refactoring to subparsers
-    args = None
-    if len(sys.argv) == 1 or sys.argv[1] == "-h" or sys.argv[1] == "--help":
-        parser_help(bioprov_parser)
-    else:
-        args = bioprov_parser.parse_args()
-    if args.show_config:
+    if args is None:
+        if len(sys.argv) == 1 or sys.argv[1] == "-h" or sys.argv[1] == "--help":
+            parser_help(bioprov_parser)
+        else:
+            args = bioprov_parser.parse_args()  # no cover
+    elif args.show_config:
         print(
             "This is the location of the config module.\n"
             "Edit it to alter your BioProv settings.\n\n",
@@ -55,4 +55,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main()  # no cover

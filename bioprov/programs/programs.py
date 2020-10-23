@@ -40,7 +40,7 @@ def prokka_():
     """
     :return: Instance of PresetProgram containing Prokka.
     """
-    _prokka = PresetProgram(program=Program("prokka"))
+    _prokka = PresetProgram(program=Program("prokka"))  # no cover
 
 
 def prokka(
@@ -103,8 +103,10 @@ def prokka(
         _prokka.add_parameter(param, _print=False)
 
     if path.isdir(output_path):
-        print(f"Warning: {output_path} directory exists. Will overwrite.")
-        _prokka.add_parameter(Parameter(key="--force", value="", kind="misc"))
+        print(f"Warning: {output_path} directory exists. Will overwrite.")  # no cover
+        _prokka.add_parameter(
+            Parameter(key="--force", value="", kind="misc")
+        )  # no cover
 
     # Add files according to their extension # To-do: add support for SeqFile
     extensions_parser = {
@@ -125,7 +127,7 @@ def prokka(
         _ = func(file_)  # Add file based on extension
 
     if add_param_str:  # Any additional parameters are added here.
-        _prokka.cmd += f" {add_param_str}"
+        _prokka.cmd += f" {add_param_str}"  # no cover
 
     # Input goes here, must be last positionally.
     _prokka.add_parameter(
@@ -166,7 +168,7 @@ def kaiju(
             kaiju_out_name,
         )
     else:
-        output_path = path.join(output_path, kaiju_out_name)
+        output_path = path.join(output_path, kaiju_out_name)  # no cover
     _sample.add_files(File(output_path, tag="kaiju_output"))
 
     kaiju_ = Program("kaiju")
@@ -183,7 +185,7 @@ def kaiju(
         kaiju_.add_parameter(p, _print=False)
 
     if add_param_str:
-        kaiju_.cmd += f" {add_param_str}"
+        kaiju_.cmd += f" {add_param_str}"  # no cover
 
     return kaiju_
 
@@ -236,6 +238,6 @@ def kaiju2table(
     kaiju2table_.cmd += f" {str(_sample.files[kaiju_output])}"
 
     if add_param_str:
-        kaiju2table_.cmd += f" {add_param_str}"
+        kaiju2table_.cmd += f" {add_param_str}"  # no cover
 
     return kaiju2table_

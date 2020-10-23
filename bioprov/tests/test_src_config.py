@@ -9,6 +9,7 @@ __version__ = "0.1.13"
 Testing for the Config module.
 """
 
+import pytest
 from bioprov import Config
 from os import environ
 
@@ -23,3 +24,4 @@ def test_Config():
     assert config.user == config.env.user
     assert config.genomes.exists()
     assert config.data.exists()
+    # assert config.env._build_prov_attributes()
