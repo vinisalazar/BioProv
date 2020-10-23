@@ -161,8 +161,9 @@ def deserialize_programs_dict(programs_dict, sample):
     :param sample: instance of bioprov.Sample
     :return: dictionary of Program instances
     """
+    deserialized_programs = dict()
     for tag, program in programs_dict.items():
-        programs_dict[tag] = Program(program["name"])
+        deserialized_programs[tag] = Program(program["name"])
         for program_attr_, program_value_ in program.items():
             # Create Parameter attributes
             if program_attr_ == "params" and program_value_:
@@ -170,14 +171,15 @@ def deserialize_programs_dict(programs_dict, sample):
                     parameter = Parameter()
                     for param_attr_, param_value_ in param.items():
                         setattr(parameter, param_attr_, param_value_)
+                    deserialized_programs[tag].add_parameter(parameter)
+            elif program_attr_ == "_runs" and program_value_:
+                deserialize_runs_dict(
+                    program_value_, deserialized_programs, tag, sample
+                )
+            else:
+                setattr(deserialized_programs[tag], program_attr_, program_value_)
 
-                    programs_dict[tag].add_parameter(parameter)
-
-            if program_attr_ == "_runs" and program_value_:
-                deserialize_runs_dict(program_value_, programs_dict, tag, sample)
-            setattr(programs_dict[tag], program_attr_, program_value_)
-
-    return programs_dict
+    return deserialized_programs
 
 
 class Parameter:
