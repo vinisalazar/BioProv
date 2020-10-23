@@ -1,8 +1,15 @@
 ## Changelog
 
-### v0.1.12
+### v0.1.13
 * Update README [ ]
 * Add subpackage docstrings [ ]
+* Improve output PROVN documents [ ]
+* Add write_provn and write_dot methods to BioProvDocument [ ]
+
+### v0.1.12
+* Patching errors for JSON IO [x]
+    * Create File, Program, Run deserializers [x]
+* Implement path replacing methods for multi-user support [x]
 
 ### v0.1.11
 * Fix Run.start_time and Run.end_time testing [x]

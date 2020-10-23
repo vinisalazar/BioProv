@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.11"
+__version__ = "0.1.12"
 
 
 """
@@ -256,9 +256,6 @@ def test_project_json_and_prov(debug=False):
     def export_json(path, _project):
         return _project.to_json(path)
 
-    def import_json(path):
-        return from_json(path)
-
     def create_prov(_project):
         return BioProvDocument(_project, add_attributes=True)
 
@@ -273,8 +270,8 @@ def test_project_json_and_prov(debug=False):
     json_out = "./gentax_picocyano.json"
     export_json(json_out, project)
 
-    # Test import
-    project = import_json(json_out)
+    from_json(json_out)
+    project = from_json(json_out, replace_path=("", ""))
     json_out_2 = "./gentax_picocyano_copy.json"
     export_json(json_out_2, project)
 

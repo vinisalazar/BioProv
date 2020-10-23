@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.11"
+__version__ = "0.1.12"
 
 """
 
@@ -21,13 +21,15 @@ Entity classes:
 This class also contains functions to read and write objects in JSON and tab-delimited formats.
 
 """
+
 import datetime
 import json
 import pandas as pd
 from bioprov import config
 from bioprov.utils import Warnings, serializer, serializer_filter
-from bioprov.src.files import File, SeqFile, SeqStats
+from bioprov.src.files import File, SeqFile, deserialize_files_dict
 from bioprov.src.config import EnvProv
+from collections import deque
 from coolname import generate_slug
 from os import path
 from pathlib import Path
@@ -149,6 +151,33 @@ class Program:
             "sample",
         ]
         return serializer_filter(self, keys)
+
+
+def deserialize_programs_dict(programs_dict, sample):
+    """
+    Deserialize programs from JSON format
+
+    :param programs_dict: dictionary of serialized Programs in JSON format
+    :param sample: instance of bioprov.Sample
+    :return: dictionary of Program instances
+    """
+    for tag, program in programs_dict.items():
+        programs_dict[tag] = Program(program["name"])
+        for program_attr_, program_value_ in program.items():
+            # Create Parameter attributes
+            if program_attr_ == "params" and program_value_:
+                for key, param in program_value_.items():
+                    parameter = Parameter()
+                    for param_attr_, param_value_ in param.items():
+                        setattr(parameter, param_attr_, param_value_)
+
+                    programs_dict[tag].add_parameter(parameter)
+
+            if program_attr_ == "_runs" and program_value_:
+                deserialize_runs_dict(program_value_, programs_dict, tag, sample)
+            setattr(programs_dict[tag], program_attr_, program_value_)
+
+    return programs_dict
 
 
 class Parameter:
@@ -381,6 +410,26 @@ class Run:
 
         serial_out = serializer(serial_out)
         return serial_out
+
+
+def deserialize_runs_dict(runs_dict, programs_dict, tag, sample):
+
+    # To-do: replace sample for object when implementing Project.programs
+
+    """
+    Deserialize runs in JSON format.
+
+    :param runs_dict: dictionary of Runs in JSON format.
+    :param programs_dict: dictionary of Program instances to be updated.
+    :param tag: Tag of each program.
+    :param sample: Sample to be updated.
+    :return:
+    """
+    for run_tag_, run_ in runs_dict.items():
+        runs_dict[run_tag_] = Run(programs_dict[tag], sample=sample)
+        for run_attr_, run_value_ in run_.items():
+            setattr(runs_dict[run_tag_], run_attr_, run_value_)
+        programs_dict[tag].add_runs(runs_dict[run_tag_])
 
 
 class PresetProgram(Program):
@@ -871,6 +920,25 @@ class Project:
                 config.env.env_hash: config.env
             }
 
+    def replace_paths(self, old_terms, new, warnings=False):
+        """
+        Runs File.replace_path(old_terms, new) on all Files in the project and each Sample.
+
+        For more information see File.replace_path() documentation.
+
+        :param old_terms: old terms to be replaced.
+        :param new: new term.
+        :param warnings: whether to activate warnings.
+
+        :return: Updates all Files associated with self.
+        """
+        for _, file in self.files.items():
+            file.replace_path(old_terms, new, warnings)
+
+        for _, sample in self.items():
+            for _, file in sample.files.items():
+                file.replace_path(old_terms, new, warnings)
+
     def __len__(self):
         return len(self._samples)
 
@@ -1099,15 +1167,25 @@ def to_json(object_, dictionary, _path=None, _print=True):
     return write_json(dictionary, _path, _print=_print)
 
 
-def from_json(json_file, kind="Project"):
+def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
     """
     Imports Sample or Project from JSON file.
+
     :param json_file: A JSON file created by Sample.to_json()
     :param kind: Whether to create a Sample or Project instance.
+    :param replace_path: A tuple or list with two strings.
+                          The first will be the old path to be replaced,
+                          and the second will be the new.
+    :param replace_home: If True, will run replace_path automatically for previous HOME paths.
+
     :return: a Sample or Project instance.
     """
+    # To-do: reimplement replace_path as a Project method.
+
     assert kind in ("Sample", "Project"), "Must specify 'Sample' or 'Project'."
     d = json_to_dict(json_file)
+
+    # will probably deprecate this
     if "name" in d.keys():  # This checks whether the file is a Sample or Project
         kind = "Sample"  # To-do: must be improved.
     else:
@@ -1115,24 +1193,60 @@ def from_json(json_file, kind="Project"):
     if kind == "Sample":
         sample_ = dict_to_sample(d)
         return sample_
+
+    # kind == "Sample" will be deprecated
+    # this function should become the following block
     elif kind == "Project":
+
+        if replace_path:
+            assert (
+                all(type(i) is str for i in replace_path) and len(replace_path) == 2
+            ), "You must prove a tuple or list with two strings to 'replace_path'"
+            # We want the old terms in a container
+            replace_path = ((replace_path[0],), replace_path[1])
+
+        # set some defaults, but if _replace_home
+        # is False, they won't be used.
+        HOME, other_HOME_variables = None, []
+        if replace_home:
+            HOME = str(Path.home())
+
         samples = dict()
         for k, v in d["_samples"].items():
             samples[k] = dict_to_sample(v)
 
         # Create Project
         project = Project(samples=samples, tag=d["tag"])
-        project.add_files(d["files"])
+
+        # Deserializing and adding project files
+        deserialized_files = deserialize_files_dict(d["files"])
+        deque((project.add_files(file_) for file_ in deserialized_files.values()))
 
         for user, env in d["users"].items():
             for env_hash, env_dict in env.items():
-                project.users[user][env_hash] = EnvProv()
+                try:
+                    project.users[user][env_hash] = EnvProv()
+                except KeyError:
+                    project.users[user] = dict()
+                    project.users[user][env_hash] = EnvProv()
                 for env_attr_, attr_value_ in env_dict.items():
                     if env_attr_ == "env_namespace":
                         attr_value_ = Namespace(
                             "env", str(project.users[user][env_hash])
                         )
+                    if replace_home:
+                        if env_attr_ == "env_dict":
+                            other_HOME_variables.append(attr_value_["HOME"])
                     setattr(project.users[user][env_hash], env_attr_, attr_value_)
+
+        if replace_home:
+            project.replace_paths(other_HOME_variables, HOME, warnings=True)
+
+        if replace_path:
+            print("Replacing paths:")
+            print(f"\tOld:\t{replace_path[0][0]}")
+            print(f"\tNew:\t{replace_path[1]}")
+            project.replace_paths(replace_path[0], replace_path[1], warnings=True)
 
         return project
 
@@ -1242,76 +1356,29 @@ def dict_to_sample(json_dict):
     :param json_dict: output of sample_from_json.
     :return: a Sample instance.
     """
+
     sample_ = Sample()
     for attr, value in json_dict.items():
 
         # Don't try to create instances if values are not dictionaries
         if value is not None:
             if attr == "files":
-                for tag, file in value.items():
-                    if file is not None:
-                        if "format" in file.keys():
-                            if file["format"] in SeqFile.seqfile_formats:
-                                if (
-                                    "records" in file.keys()
-                                    and file["records"] is not None
-                                ):
-                                    import_records = True
-                                else:
-                                    import_records = False
 
-                                # To-do: don't import records again (slow)
-                                # Get them straight from the JSON file.
-                                value[tag] = SeqFile(
-                                    path=file["path"],
-                                    tag=file["tag"],
-                                )
-                                _ = value[tag].generator
-                                if import_records:
-                                    for (
-                                        seqstats_attr_
-                                    ) in SeqStats.__dataclass_fields__.keys():
-                                        setattr(
-                                            value[tag],
-                                            seqstats_attr_,
-                                            file[seqstats_attr_],
-                                        )
-                        else:
-                            value[tag] = File(file["path"], tag=file["tag"])
-                        for attr_, value_ in file.items():
-                            if attr_ == "records":
-                                continue
-                            if getattr(value[tag], attr_, value_) is None:
-                                setattr(value[tag], attr_, value_)
-                        sample_.add_files(value[tag])
+                # Adding files
+                deserialized_files = deserialize_files_dict(value)
+                deque(
+                    (sample_.add_files(file_) for file_ in deserialized_files.values())
+                )
 
             # Create Program instances
             elif attr == "_programs":
-                for tag, program in value.items():
-                    value[tag] = Program(program["name"])
-                    for program_attr_, program_value_ in program.items():
-                        # Create Parameter attributes
-                        if program_attr_ == "params" and program_value_:
-                            for key, param in program_value_.items():
-                                parameter = Parameter()
-                                for param_attr_, param_value_ in param.items():
-                                    setattr(parameter, param_attr_, param_value_)
-
-                                value[tag].add_parameter(parameter)
-
-                        # Create Run instances
-                        if program_attr_ == "_runs" and program_value_:
-                            for run_tag_, run_ in program_value_.items():
-                                program_value_[run_tag_] = Run(
-                                    value[tag], sample=sample_
-                                )
-                                for run_attr_, run_value_ in run_.items():
-                                    setattr(
-                                        program_value_[run_tag_], run_attr_, run_value_
-                                    )
-                                value[tag].add_runs(program_value_[run_tag_])
-                        setattr(value[tag], program_attr_, program_value_)
-                    sample_.add_programs(value[tag])
+                deserialized_programs = deserialize_programs_dict(value, sample_)
+                deque(
+                    (
+                        sample_.add_programs(program_)
+                        for program_ in deserialized_programs.values()
+                    )
+                )
             else:
                 setattr(sample_, attr, value)
 

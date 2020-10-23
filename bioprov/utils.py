@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.11"
+__version__ = "0.1.12"
 
 """
 Helper functions.
@@ -220,3 +220,20 @@ def dict_to_sha1(dictionary):
     sh = hashlib.sha1(json.dumps(dictionary).encode("utf-8"))
     digest = sh.hexdigest()
     return digest
+
+
+def pattern_replacer(pattern, iterable_of_olds, new):
+    """
+    Replaces a list of old terms from a given pattern for a new term.
+
+    Used for switching file paths in the 'bioprov.src.main.from_json' module.
+
+    :param pattern: pattern to replace.
+    :param iterable_of_olds: old terms.
+    :param new: new term.
+    :return:
+    """
+    for old in iterable_of_olds:
+        pattern = pattern.replace(old, new)
+
+    return pattern
