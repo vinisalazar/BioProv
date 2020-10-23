@@ -20,12 +20,19 @@ def main(args=None):
     """
     Main function to run the BioProv command-line application.
     Calls the subparsers defined in the Workflows module.
+
+    :param args: args to call the function with. Usually is None and
+                 args are automatically extracted from the command line.
+                 Passing args is used for testing only.
     """
     bioprov_parser = argparse.ArgumentParser(
         description="BioProv command-line application. Choose a command to begin.\n"
     )
     bioprov_parser.add_argument(
         "--show_config", help="Show location of config file", action="store_true"
+    )
+    bioprov_parser.add_argument(
+        "-v", "--version", help="Show BioProv version", action="store_true"
     )
     workflows = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
     _ = workflows.add_parser("genome_annotation")
@@ -39,7 +46,8 @@ def main(args=None):
             parser_help(bioprov_parser)
         else:
             args = bioprov_parser.parse_args()  # no cover
-    elif args.show_config:
+
+    if args.show_config:
         print(
             "This is the location of the config module.\n"
             "Edit it to alter your BioProv settings.\n\n",
@@ -48,6 +56,9 @@ def main(args=None):
         print("These are your configuration settings:")
         print(dict_to_string(config.__dict__))
 
+        sys.exit(0)
+    elif args.version:
+        print(f"Local BioProv version is v{__version__}")
         sys.exit(0)
 
     parser = WorkflowOptionsParser()
