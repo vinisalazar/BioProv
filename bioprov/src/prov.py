@@ -10,7 +10,7 @@ Module containing base provenance attributes.
 This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
-from bioprov import Project
+from bioprov import Project, Parameter
 from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
 from prov.model import ProvDocument
 from prov.dot import prov_to_dot
@@ -298,10 +298,21 @@ class BioProvDocument:
         inputs, outputs = [], []
 
         for _, parameter in program.params.items():
-            if parameter["kind"] == "input":
-                inputs.append(parameter["value"])
-            elif parameter["kind"] == "output":
-                outputs.append(parameter["value"])
+            assert isinstance(parameter, Parameter), (
+                Warnings()["incorrect_type"](parameter, Parameter)
+                + "\nPlease check if Programs were correctly deserialized."
+            )
+            if parameter.kind == "input":
+                # This loop is because some positional arguments may have empty values (value stored in parameter.key)
+                if parameter.value:
+                    inputs.append(parameter.value)
+                else:
+                    inputs.append(parameter.key)
+            elif parameter.kind == "output":
+                if parameter.value:
+                    outputs.append(parameter.value)
+                else:
+                    outputs.append(parameter.key)
 
         return inputs, outputs
 
