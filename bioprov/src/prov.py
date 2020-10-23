@@ -13,6 +13,7 @@ settings, and stores them. It is invoked to export provenance objects.
 from bioprov import Project
 from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
 from prov.model import ProvDocument
+from prov.dot import prov_to_dot
 
 
 class BioProvDocument:
@@ -39,6 +40,7 @@ class BioProvDocument:
         )
         self.ProvDocument = ProvDocument()
         self.project = project
+        self._dot = prov_to_dot(self.ProvDocument)
         self._entities = dict()
         self._activities = dict()
         self._agents = dict()
@@ -56,10 +58,18 @@ class BioProvDocument:
         if _iter_samples:
             self._iter_samples()
 
-    # def __repr__(self):
-    #     return "BioProvDocument describing Project '{}' with {} samples.".format(
-    #         self.project.tag, len(self.project)
-    #     )
+    def __repr__(self):
+        return "BioProvDocument describing Project '{}' with {} samples.".format(
+            self.project.tag, len(self.project)
+        )
+
+    @property
+    def dot(self):
+        return self._dot
+
+    @dot.setter
+    def dot(self, value):
+        self._dot = value
 
     def _add_project_namespaces(self):
         """
@@ -98,15 +108,6 @@ class BioProvDocument:
             )
         else:
             self.project.entity = self.ProvDocument.entity(f"project:{self.project}")
-
-        # I may implement this check later. Related to #10
-        # # Check if project_csv exists
-        # if "project_csv" in self.project.files.keys():
-        #     self.project_file_entity = self.ProvDocument.entity(
-        #         "project:{}".format(self.project.files["project_csv"])
-        #     )
-        # else:
-        #     pass
 
     def _add_env_and_user_namespace(self):
         self.ProvDocument.add_namespace(
