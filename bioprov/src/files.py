@@ -382,6 +382,11 @@ def seqrecordgenerator(path, format, parser="seq", warnings=False):
 
 
 def deserialize_files_dict(files_dict):
+    """
+    Deserialize a dictionary of files in JSON format.
+    :param files_dict: dict of dicts.
+    :return: dict of File instances.
+    """
     for tag, file in files_dict.items():
         if file is not None:
             if "format" in file.keys():
