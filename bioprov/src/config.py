@@ -10,9 +10,12 @@ Contains the Config class and other package-level settings.
 """
 
 import os
+import bioprov
 from bioprov.data import data_dir, genomes_dir
 from prov.model import Namespace
-from bioprov.utils import build_prov_attributes, serializer, dict_to_sha1
+from bioprov.utils import serializer, dict_to_sha1
+from tinydb import TinyDB
+from pathlib import Path
 
 
 class Config:
@@ -20,18 +23,66 @@ class Config:
     Class to define package level variables and settings.
     """
 
-    def __init__(self, threads=0):
+    def __init__(self, db=None, threads=0):
+        """
+        :param db:
+        :param threads:
+        """
         # This duplication is to order the keys in the __dict__ attribute.
         self.user = None
         self.env = EnvProv()
         self.user = self.env.user
         if not threads:
             threads = str(int(os.cpu_count() / 2))
+        self.db = None
+        self.db_path = None
         self.threads = threads
         self.data = data_dir
         self.genomes = genomes_dir
+        if db is None:
+            db = Path(bioprov.__file__).parent.joinpath("db.json")
+        self.db_path = db
+        self.db = TinyDB(self.db_path)
 
-    pass
+    def db_all(self):
+        """
+        :return: List all items in BioProv database.
+        """
+        return self.db.all()
+
+    def clear_db(self, confirm=False):
+        """
+        Deletes the local BioProv database.
+        :param confirm:
+        :return:
+        """
+        proceed = True
+        if not confirm:
+
+            def _get_confirm():
+                print(
+                    f"The BioProv database at {self.db_path} containing {len(self.db_all())} projects will be erased."
+                )
+                print(
+                    "This action cannot be reversed. Are you sure you want to proceed? y/N"
+                )
+                get_confirm = input()
+                if get_confirm == "":
+                    get_confirm = "n"
+                if get_confirm.lower() in ("y", "yes"):
+                    return True
+                elif get_confirm.lower() in ("n", "no"):
+                    return False
+                else:
+                    print("Invalid option. Please pick 'y' or 'n'.")
+                    _get_confirm()
+
+            proceed = _get_confirm()
+        if proceed:
+            self.db.truncate()
+            print("Erased BioProv database.")
+        else:
+            print("Canceled operation.")
 
 
 class EnvProv:

@@ -26,7 +26,7 @@ import datetime
 import json
 import pandas as pd
 from bioprov import config
-from bioprov.utils import Warnings, serializer, serializer_filter
+from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
 from bioprov.src.files import File, SeqFile, deserialize_files_dict
 from bioprov.src.config import EnvProv
 from collections import deque
@@ -38,6 +38,7 @@ from time import time
 from types import GeneratorType
 from collections import OrderedDict
 from prov.model import ProvEntity, ProvDocument, Namespace
+from tinydb import Query
 
 
 class Program:
@@ -915,6 +916,22 @@ class Project:
         # PROV attributes
         self._entity = None
         self._document = None
+
+        self._sha1 = dict_to_sha1(self.serializer())
+
+    @property
+    def sha1(self):
+        return self._sha1
+
+    def update_db(self):
+        q = Query()
+        result = config.db.search(q.tag == self.tag)
+        if result:
+            print(f"Updating project '{self.tag}' at {config.db_path}")
+            config.db.update(self.serializer(), q.tag == self.tag)
+        else:
+            print(f"Inserting new project '{self.tag}' in {config.db_path}")
+            config.db.insert(self.serializer())
 
     def _update_envs(self):
         if config.env.env_hash not in self.users.values():
