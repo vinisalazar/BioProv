@@ -187,7 +187,7 @@ class BioProvDocument:
             # Create Namespace
             file.namespace = sample.ProvBundle.add_namespace(file.name, str(file.path))
 
-            # Add atributes or not
+            # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(
                     f"{sample.files_namespace_preffix}:{file.name}",
@@ -225,6 +225,7 @@ class BioProvDocument:
             except KeyError:
                 pass
 
+            # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._activities[program.name] = sample.ProvBundle.activity(
                     f"{programs_namespace_prefix}:{program.name}",
@@ -250,12 +251,18 @@ class BioProvDocument:
             self._add_IO_relationships(sample, program, outputs, "output")
 
     def _add_IO_relationships(self, sample, program, io_list, io_type):
+        # To-do: replace Sample for Project when implementing Project.files and programs
+
         """
-        :param sample:
-        :param io_list:
-        :param io_type:
-        :return:
+        Add PROV relationships between Program and input/output files.
+
+        :param sample: instance of bioprov.Sample
+        :param program: instance of bioprov.Program
+        :param io_list: list of input/output files
+        :param io_type: 'input' or 'output'
+        :return: Adds relationship between
         """
+
         # Small assertion block
         choices = ("input", "output")
         assert io_type in choices, Warnings()["choices"](io_type, "io_type", choices)
@@ -282,6 +289,10 @@ class BioProvDocument:
 
     @staticmethod
     def _get_IO_from_params(program):
+        """
+        :param program: instance of bioprov.Program
+        :return: list of input parameter values and list of output parameter values
+        """
         # Relationships based on Parameters
         inputs, outputs = [], []
 
