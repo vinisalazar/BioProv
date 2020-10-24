@@ -42,5 +42,6 @@ setuptools.setup(
         "pytest",
         "pytest-cov",
         "tqdm",
+        "tinydb",
     ],
 )
