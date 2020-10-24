@@ -40,6 +40,7 @@ class BioProvDocument:
         )
         self.ProvDocument = ProvDocument()
         self.project = project
+        self.project.document = self.ProvDocument
         self._dot = prov_to_dot(self.ProvDocument)
         self._entities = dict()
         self._activities = dict()
