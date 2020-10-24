@@ -1,10 +1,22 @@
 ## Changelog
 
-### v0.1.13
+### To-do
 * Update README [ ]
-* Add subpackage docstrings [ ]
+* Fix documentation issues [ ]
+    * Add subpackage docstrings [ ]
 * Improve output PROVN documents [ ]
-* Add write_provn and write_dot methods to BioProvDocument [ ]
+
+### v0.1.14
+* TBD [ ]
+
+### v0.1.13
+* Add BioProvDB class [x]
+* Add database methods to Project class [x]
+* Add BioProvDB tests [x]
+* Add dot attribute to BioProvDocument [x]
+* Update W3C-PROV tutorial [x]
+* Improve test coverage [x]
+* Debug Program deserializer [x]
 
 ### v0.1.12
 * Patching errors for JSON IO [x]

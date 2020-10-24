@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.12"
+__version__ = "0.1.13"
 
 """
 Module containing base provenance attributes.
@@ -10,9 +10,10 @@ Module containing base provenance attributes.
 This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
-from bioprov import Project
+from bioprov import Project, Parameter
 from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
 from prov.model import ProvDocument
+from prov.dot import prov_to_dot
 
 
 class BioProvDocument:
@@ -39,6 +40,8 @@ class BioProvDocument:
         )
         self.ProvDocument = ProvDocument()
         self.project = project
+        self.project.document = self.ProvDocument
+        self._dot = prov_to_dot(self.ProvDocument)
         self._entities = dict()
         self._activities = dict()
         self._agents = dict()
@@ -56,10 +59,18 @@ class BioProvDocument:
         if _iter_samples:
             self._iter_samples()
 
-    # def __repr__(self):
-    #     return "BioProvDocument describing Project '{}' with {} samples.".format(
-    #         self.project.tag, len(self.project)
-    #     )
+    def __repr__(self):
+        return "BioProvDocument describing Project '{}' with {} samples.".format(
+            self.project.tag, len(self.project)
+        )
+
+    @property
+    def dot(self):
+        return prov_to_dot(self.ProvDocument)
+
+    @dot.setter
+    def dot(self, value):
+        self._dot = value
 
     def _add_project_namespaces(self):
         """
@@ -98,15 +109,6 @@ class BioProvDocument:
             )
         else:
             self.project.entity = self.ProvDocument.entity(f"project:{self.project}")
-
-        # I may implement this check later. Related to #10
-        # # Check if project_csv exists
-        # if "project_csv" in self.project.files.keys():
-        #     self.project_file_entity = self.ProvDocument.entity(
-        #         "project:{}".format(self.project.files["project_csv"])
-        #     )
-        # else:
-        #     pass
 
     def _add_env_and_user_namespace(self):
         self.ProvDocument.add_namespace(
@@ -297,10 +299,21 @@ class BioProvDocument:
         inputs, outputs = [], []
 
         for _, parameter in program.params.items():
-            if parameter["kind"] == "input":
-                inputs.append(parameter["value"])
-            elif parameter["kind"] == "output":
-                outputs.append(parameter["value"])
+            assert isinstance(parameter, Parameter), (
+                Warnings()["incorrect_type"](parameter, Parameter)
+                + "\nPlease check if Programs were correctly deserialized."
+            )
+            if parameter.kind == "input":
+                # This loop is because some positional arguments may have empty values (value stored in parameter.key)
+                if parameter.value:
+                    inputs.append(parameter.value)
+                else:
+                    inputs.append(parameter.key)
+            elif parameter.kind == "output":
+                if parameter.value:
+                    outputs.append(parameter.value)
+                else:
+                    outputs.append(parameter.key)
 
         return inputs, outputs
 

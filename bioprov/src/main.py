@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.12"
+__version__ = "0.1.13"
 
 """
 
@@ -26,7 +26,7 @@ import datetime
 import json
 import pandas as pd
 from bioprov import config
-from bioprov.utils import Warnings, serializer, serializer_filter
+from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
 from bioprov.src.files import File, SeqFile, deserialize_files_dict
 from bioprov.src.config import EnvProv
 from collections import deque
@@ -38,6 +38,7 @@ from time import time
 from types import GeneratorType
 from collections import OrderedDict
 from prov.model import ProvEntity, ProvDocument, Namespace
+from tinydb import Query
 
 
 class Program:
@@ -161,8 +162,9 @@ def deserialize_programs_dict(programs_dict, sample):
     :param sample: instance of bioprov.Sample
     :return: dictionary of Program instances
     """
+    deserialized_programs = dict()
     for tag, program in programs_dict.items():
-        programs_dict[tag] = Program(program["name"])
+        deserialized_programs[tag] = Program(program["name"])
         for program_attr_, program_value_ in program.items():
             # Create Parameter attributes
             if program_attr_ == "params" and program_value_:
@@ -170,14 +172,15 @@ def deserialize_programs_dict(programs_dict, sample):
                     parameter = Parameter()
                     for param_attr_, param_value_ in param.items():
                         setattr(parameter, param_attr_, param_value_)
+                    deserialized_programs[tag].add_parameter(parameter)
+            elif program_attr_ == "_runs" and program_value_:
+                deserialize_runs_dict(
+                    program_value_, deserialized_programs, tag, sample
+                )
+            else:
+                setattr(deserialized_programs[tag], program_attr_, program_value_)
 
-                    programs_dict[tag].add_parameter(parameter)
-
-            if program_attr_ == "_runs" and program_value_:
-                deserialize_runs_dict(program_value_, programs_dict, tag, sample)
-            setattr(programs_dict[tag], program_attr_, program_value_)
-
-    return programs_dict
+    return deserialized_programs
 
 
 class Parameter:
@@ -913,6 +916,28 @@ class Project:
         # PROV attributes
         self._entity = None
         self._document = None
+
+        self._sha1 = dict_to_sha1(self.serializer())
+
+    @property
+    def sha1(self):
+        return self._sha1
+
+    @sha1.setter
+    def sha1(self, value):
+        self._sha1 = value
+
+    def update_db(self, db=None):
+        if db is None:
+            db = config.db
+        q = Query()
+        result = db.search(q.tag == self.tag)
+        if result:
+            print(f"Updating project '{self.tag}' at {db.db_path}")
+            config.db.update(self.serializer(), q.tag == self.tag)
+        else:
+            print(f"Inserting new project '{self.tag}' in {db.db_path}")
+            config.db.insert(self.serializer())
 
     def _update_envs(self):
         if config.env.env_hash not in self.users.values():

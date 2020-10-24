@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.12"
+__version__ = "0.1.13"
 
 
 """
@@ -10,9 +10,11 @@ Testing for the File module.
 """
 import bioprov as bp
 from bioprov import File, SeqFile, utils
+from bioprov.src.files import seqrecordgenerator
 from coolname import generate_slug
 from pathlib import Path
 from bioprov.data import synechococcus_genome
+from prov.model import ProvEntity
 
 
 def test_File():
@@ -52,6 +54,14 @@ def test_File():
     for k, statement in attributes.items():
         assert statement, f"{k} did not pass!"
 
+    # test hashes
+    nf.exists = True
+    nf.replace_path("", "", warnings=True)  # no cover
+    nf.sha1 = generate_slug(2)
+    # nf.replace_path(non_existing, bp.__file__)  # no cover
+    _ = f.entity
+    f.entity = ProvEntity(None, generate_slug(2))
+
 
 def test_SeqFile():
     """
@@ -80,3 +90,19 @@ def test_SeqFile():
     for dict_ in (existing_instance,):
         for k, statement in dict_.items():
             assert statement, f"{k} did not pass!"
+
+    # Testing generator property
+    genome.generator = None
+    _ = genome.generator
+
+    # Testing seqstats property
+    genome.seqstats = None
+    _ = genome.seqstats
+
+    # Test _calculate_seqstats args
+    genome._calculate_seqstats(percentage=True, megabases=True)
+    genome._calculate_seqstats(calculate_gc=False)
+
+    # Test FileNotFound warning
+    none = seqrecordgenerator(nf_genome.path, "fasta", warnings=True)
+    assert none is None, f"{none} should be a NoneType object!"

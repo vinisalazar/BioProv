@@ -2,13 +2,14 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.12"
+__version__ = "0.1.13"
 
 
 """
 Integration testing for drafting new ideas.
 """
 
+from argparse import Namespace
 import bioprov as bp
 import pytest
 from os import remove
@@ -75,4 +76,18 @@ def test_CLI():
     # https://medium.com/python-pandemonium/testing-sys-exit-with-pytest-10c6e5f7726f
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main()
+
     assert pytest_wrapped_e.type == SystemExit
+
+    # Test other arguments
+    args = Namespace(show_config=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main(args)
+
+    assert pytest_wrapped_e.type == SystemExit
+
+    args = Namespace(subparser_name="genome_annotation", show_config=False)
+    with pytest.raises(AttributeError) as pytest_wrapped_e:
+        main(args)
+
+    assert pytest_wrapped_e.type == AttributeError

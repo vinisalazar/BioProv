@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.12"
+__version__ = "0.1.13"
 
 
 """
@@ -17,10 +17,10 @@ from bioprov.utils import (
     get_size,
     Warnings,
     serializer_filter,
+    serializer,
     file_to_sha1,
     pattern_replacer,
 )
-from prov.model import ProvEntity
 
 
 class File:
@@ -28,11 +28,10 @@ class File:
     Class for holding files and file information.
     """
 
-    def __init__(self, path, tag=None, document=None, attributes=None, _get_hash=True):
+    def __init__(self, path, tag=None, attributes=None, _get_hash=True):
         """
         :param path: A UNIX-like file _path.
         :param tag: optional tag describing the file.
-        :param document: prov.model.ProvDocument
         :param attributes: Miscellaneous attributes.
         """
         self.path = Path(path).absolute()
@@ -55,7 +54,6 @@ class File:
         self._sha1 = file_to_sha1(self.path)
 
         # Provenance attributes
-        self._document = document
         self._entity = None
 
     def __repr__(self):
@@ -70,7 +68,7 @@ class File:
 
     @sha1.setter
     def sha1(self, value):
-        self._sha1 = value
+        self._sha1 = value  # no cover
 
     @property
     def exists(self):
@@ -78,7 +76,7 @@ class File:
 
     @exists.setter
     def exists(self, value):
-        self._exists = value
+        self._exists = value  # no cover
 
     @property
     def size(self):
@@ -89,19 +87,7 @@ class File:
         self._size = value
 
     @property
-    def document(self):
-        return self._document
-
-    @document.setter
-    def document(self, value):
-        self._document = value
-
-    @property
     def entity(self):
-        if self._entity is None:
-            self._entity = ProvEntity(
-                self._document, identifier=f"files:{self.basename}"
-            )
         return self._entity
 
     @entity.setter
@@ -134,8 +120,7 @@ class File:
                 )
 
     def serializer(self):
-        keys = ("_document", "_entity")
-        return serializer_filter(self, keys)
+        return serializer(self)
 
 
 class SeqFile(File):
@@ -245,7 +230,7 @@ class SeqFile(File):
         self.records = SeqIO.to_dict(self._generator)
 
     def serializer(self):
-        keys = ("records", "namespace", "ProvEntity")
+        keys = ("records",)
         return serializer_filter(self, keys)
 
     def _calculate_seqstats(
@@ -274,7 +259,7 @@ class SeqFile(File):
             if ix == 0:
                 seq = str(SeqRecord.seq)
                 if any(i in aminoacids for i in seq):
-                    calculate_gc = False
+                    calculate_gc = False  # no cover
 
             # Add length of sequences (number of base pairs)
             bp_array.append(len(SeqRecord.seq))
@@ -391,11 +376,6 @@ def deserialize_files_dict(files_dict):
         if file is not None:
             if "format" in file.keys():
                 if file["format"] in SeqFile.seqfile_formats:
-                    if "records" in file.keys() and file["records"] is not None:
-                        import_records = True
-                    else:
-                        import_records = False
-
                     # To-do: don't import records again (slow)
                     # Get them straight from the JSON file.
                     files_dict[tag] = SeqFile(
@@ -403,8 +383,8 @@ def deserialize_files_dict(files_dict):
                         tag=file["tag"],
                     )
                     _ = files_dict[tag].generator
-                    if import_records:
-                        for seqstats_attr_ in SeqStats.__dataclass_fields__.keys():
+                    for seqstats_attr_ in SeqStats.__dataclass_fields__.keys():
+                        if seqstats_attr_ in file.keys():
                             setattr(
                                 files_dict[tag],
                                 seqstats_attr_,
@@ -413,8 +393,6 @@ def deserialize_files_dict(files_dict):
             else:
                 files_dict[tag] = File(file["path"], tag=file["tag"])
             for attr_, value_ in file.items():
-                if attr_ == "records":
-                    continue
                 if attr_ not in ("path",):
                     setattr(files_dict[tag], attr_, value_)
     return files_dict
