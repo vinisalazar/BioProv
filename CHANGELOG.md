@@ -9,6 +9,7 @@
 ### v0.1.14
 * Add BioProvDB class [x]
 * Add database methods to Project class [x]
+* Add BioProvDB tests [x]
 
 ### v0.1.13
 * Add dot attribute to BioProvDocument [x]
