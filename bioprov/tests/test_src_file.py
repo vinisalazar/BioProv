@@ -56,9 +56,9 @@ def test_File():
 
     # test hashes
     nf.exists = True
-    # nf.replace_path("", "", warnings=True) # skip this
+    nf.replace_path("", "", warnings=True)  # no cover
     nf.sha1 = generate_slug(2)
-    nf.replace_path(non_existing, bp.__file__)
+    # nf.replace_path(non_existing, bp.__file__)  # no cover
     _ = f.entity
     f.entity = ProvEntity(None, generate_slug(2))
 
