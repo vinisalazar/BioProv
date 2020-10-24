@@ -923,14 +923,20 @@ class Project:
     def sha1(self):
         return self._sha1
 
-    def update_db(self):
+    @sha1.setter
+    def sha1(self, value):
+        self._sha1 = value
+
+    def update_db(self, db=None):
+        if db is None:
+            db = config.db
         q = Query()
-        result = config.db.search(q.tag == self.tag)
+        result = db.search(q.tag == self.tag)
         if result:
-            print(f"Updating project '{self.tag}' at {config.db_path}")
+            print(f"Updating project '{self.tag}' at {db.db_path}")
             config.db.update(self.serializer(), q.tag == self.tag)
         else:
-            print(f"Inserting new project '{self.tag}' in {config.db_path}")
+            print(f"Inserting new project '{self.tag}' in {db.db_path}")
             config.db.insert(self.serializer())
 
     def _update_envs(self):
