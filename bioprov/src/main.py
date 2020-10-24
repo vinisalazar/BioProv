@@ -919,25 +919,88 @@ class Project:
 
         self._sha1 = dict_to_sha1(self.serializer())
 
+    def __len__(self):
+        return len(self._samples)
+
+    def __repr__(self):
+        return f"Project '{self.tag}' with {len(self._samples)} samples."
+
+    def __getitem__(self, item):
+        try:
+            value = self._samples[item]
+            return value
+        except KeyError:
+            keys = self.keys()
+            print(
+                f"Sample {item} not in Project.\n",
+                "Check the following keys:\n",
+                "\n".join(keys),
+            )
+
+    def __setitem__(self, key, value):
+        self._samples[key] = value
+
+    def __delattr__(self, item):
+        del self._samples[item]
+
+    def keys(self):
+        return self._samples.keys()
+
+    def values(self):
+        return self._samples.values()
+
+    def items(self):
+        return self._samples.items()
+
     @property
     def sha1(self):
+        result, query = self.query_db()
+        if result and result[0]["_sha1"] != dict_to_sha1(self.serializer()):
+            self._sha1 = dict_to_sha1(self.serializer())
+            self.update_db()
         return self._sha1
 
     @sha1.setter
     def sha1(self, value):
         self._sha1 = value
 
+    @property
+    def entity(self):
+        if self._entity is None:
+            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
+        return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        self._entity = value
+
+    @property
+    def document(self):
+        if self._document is None:
+            self._document = ProvDocument()
+        return self._document
+
+    @document.setter
+    def document(self, document):
+        self._document = document
+
     def update_db(self, db=None):
         if db is None:
             db = config.db
-        q = Query()
-        result = db.search(q.tag == self.tag)
+        result, query = self.query_db(db)
         if result:
             print(f"Updating project '{self.tag}' at {db.db_path}")
-            config.db.update(self.serializer(), q.tag == self.tag)
+            config.db.update(self.serializer(), query.tag == self.tag)
         else:
             print(f"Inserting new project '{self.tag}' in {db.db_path}")
             config.db.insert(self.serializer())
+
+    def query_db(self, db=None):
+        if db is None:
+            db = config.db
+        query = Query()
+        result = db.search(query.tag == self.tag)
+        return result, query
 
     def _update_envs(self):
         if config.env.env_hash not in self.users.values():
@@ -963,56 +1026,6 @@ class Project:
         for _, sample in self.items():
             for _, file in sample.files.items():
                 file.replace_path(old_terms, new, warnings)
-
-    def __len__(self):
-        return len(self._samples)
-
-    def __repr__(self):
-        return f"Project '{self.tag}' with {len(self._samples)} samples."
-
-    def __getitem__(self, item):
-        try:
-            value = self._samples[item]
-            return value
-        except KeyError:
-            keys = self.keys()
-            print(
-                f"Sample {item} not in Project.\n",
-                "Check the following keys:\n",
-                "\n".join(keys),
-            )
-
-    def __setitem__(self, key, value):
-        self._samples[key] = value
-
-    @property
-    def entity(self):
-        if self._entity is None:
-            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
-        return self._entity
-
-    @entity.setter
-    def entity(self, value):
-        self._entity = value
-
-    @property
-    def document(self):
-        if self._document is None:
-            self._document = ProvDocument()
-        return self._document
-
-    @document.setter
-    def document(self, document):
-        self._document = document
-
-    def keys(self):
-        return self._samples.keys()
-
-    def values(self):
-        return self._samples.values()
-
-    def items(self):
-        return self._samples.items()
 
     def add_files(self, files):
         """
