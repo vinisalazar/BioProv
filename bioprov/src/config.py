@@ -23,7 +23,7 @@ class Config:
     Class to define package level variables and settings.
     """
 
-    def __init__(self, db=None, threads=0):
+    def __init__(self, db_path=None, threads=0):
         """
         :param db:
         :param threads:
@@ -39,10 +39,10 @@ class Config:
         self.threads = threads
         self.data = data_dir
         self.genomes = genomes_dir
-        if db is None:
-            db = Path(bioprov.__file__).parent.joinpath("db.json")
-        self.db_path = db
-        self.db = TinyDB(self.db_path)
+        if db_path is None:
+            db_path = Path(bioprov.__file__).parent.joinpath("db.json")
+        self.db_path = db_path
+        self.db = BioProvDB(self.db_path)
 
     def db_all(self):
         """
@@ -56,12 +56,35 @@ class Config:
         :param confirm:
         :return:
         """
+        self.db.clear_db(confirm)
+
+
+class BioProvDB(TinyDB):
+    """
+    Inherits from tinydb.TinyDB
+
+    Class to hold database configuration and methods.
+    """
+
+    def __init__(self, path):
+        super().__init__(path)
+        self.db_path = path
+
+    def __repr__(self):
+        return f"BioProvDB located in {self.db_path}"
+
+    def clear_db(self, confirm=False):
+        """
+        Deletes the local BioProv database.
+        :param confirm:
+        :return:
+        """
         proceed = True
         if not confirm:
 
             def _get_confirm():
                 print(
-                    f"The BioProv database at {self.db_path} containing {len(self.db_all())} projects will be erased."
+                    f"The BioProv database at {self.db_path} containing {len(self)} projects will be erased."
                 )
                 print(
                     "This action cannot be reversed. Are you sure you want to proceed? y/N"
@@ -79,7 +102,7 @@ class Config:
 
             proceed = _get_confirm()
         if proceed:
-            self.db.truncate()
+            self.truncate()
             print("Erased BioProv database.")
         else:
             print("Canceled operation.")
