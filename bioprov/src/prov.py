@@ -66,7 +66,7 @@ class BioProvDocument:
 
     @property
     def dot(self):
-        return self._dot
+        return prov_to_dot(self.ProvDocument)
 
     @dot.setter
     def dot(self, value):
