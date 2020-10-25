@@ -10,6 +10,7 @@ Module for holding preset instances of the Program class.
 """
 
 from os import path
+from pathlib import Path
 from bioprov import config, File
 from bioprov.src.main import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, Warnings
@@ -34,6 +35,34 @@ def prodigal(sample=None, input_tag="assembly"):
     )
 
     return _prodigal
+
+
+def blastn(sample, db, query_tag="query", outformat=6):
+    """
+    :param sample Sample: Instance of BioProv.Sample.
+    :param db str: A string pointing to the reference database directory and title.
+    :param query_tag str: A tag for the query file.
+    :param outformat int: The output format to gather from blastn.
+    :return: Instance of PresetProgram for BLASTN.
+    :rtype: BioProv.PresetProgram.
+    :raises AssertionError: Path to the reference database does not exist.
+    """
+
+    db_dir = Path(db).parent.is_dir()
+    assert db_dir, "Path to the reference database does not exist"
+
+    _blastn = PresetProgram(
+        name="blastn",
+        params=(
+            Parameter(key="-db", value=db),
+            Parameter(key="-outfmt", value=outformat),
+        ),
+        sample=sample,
+        input_files={"-query": query_tag},
+        output_files={"-out": ("blastn_hits", "_blastn_hits.txt")},
+    )
+
+    return _blastn
 
 
 def prokka_():
