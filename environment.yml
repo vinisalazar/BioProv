@@ -46,6 +46,7 @@ dependencies:
   - libstdcxx-ng=9.3.0
   - markupsafe=1.1.1
   - mistune=0.8.4
+  - nb_conda_kernels=2.3.0
   - nbclient=0.5.1
   - nbconvert=6.0.7
   - nbformat=5.0.8
@@ -97,7 +98,7 @@ dependencies:
     - alabaster==0.7.12
     - appdirs==1.4.4
     - babel==2.8.0
-    - bioprov==0.1.7
+    - bioprov==0.1.13
     - biopython==1.78
     - black==20.8b1
     - click==7.1.2
@@ -137,6 +138,7 @@ dependencies:
     - sphinxcontrib-jsmath==1.0.1
     - sphinxcontrib-qthelp==1.0.3
     - sphinxcontrib-serializinghtml==1.1.4
+    - tinydb==4.2.0
     - toml==0.10.1
     - tqdm==4.50.2
     - typed-ast==1.4.1
