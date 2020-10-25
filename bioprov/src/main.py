@@ -893,11 +893,13 @@ class Project:
     Class which holds a dictionary of Sample instances, where each key is the sample name.
     """
 
-    def __init__(self, samples=None, tag=None):
+    def __init__(self, samples=None, tag=None, auto_update=False):
         """
         Initiates the object by creating a sample dictionary.
         :param samples: An iterator of Sample objects.
         :param tag: A tag to describe the Project.
+        :param auto_update: Whether to auto_update the BioProvDB record.
+                            Disabled by default.
         """
         if tag is None:
             tag = generate_slug(2)
@@ -917,7 +919,9 @@ class Project:
         self._entity = None
         self._document = None
 
+        # Hash and db attributes
         self._sha1 = dict_to_sha1(self.serializer())
+        self.auto_update = auto_update
 
     def __len__(self):
         return len(self._samples)
@@ -940,8 +944,8 @@ class Project:
     def __setitem__(self, key, value):
         self._samples[key] = value
 
-    def __delattr__(self, item):
-        del self._samples[item]
+    def __delitem__(self, key):
+        del self._samples[key]
 
     def keys(self):
         return self._samples.keys()
@@ -954,11 +958,15 @@ class Project:
 
     @property
     def sha1(self):
-        result, query = self.query_db()
-        if result and result[0]["_sha1"] != dict_to_sha1(self.serializer()):
-            self._sha1 = dict_to_sha1(self.serializer())
-            self.update_db()
-        return self._sha1
+        new_hash = dict_to_sha1(self.serializer())
+        if self.auto_update:
+            result, query = self.query_db()
+            try:
+                if result and result[0]["_sha1"] != new_hash:
+                    self.update_db()
+            except KeyError:
+                pass
+        return new_hash
 
     @sha1.setter
     def sha1(self, value):
@@ -990,10 +998,10 @@ class Project:
         result, query = self.query_db(db)
         if result:
             print(f"Updating project '{self.tag}' at {db.db_path}")
-            config.db.update(self.serializer(), query.tag == self.tag)
+            db.update(self.serializer(), query.tag == self.tag)
         else:
             print(f"Inserting new project '{self.tag}' in {db.db_path}")
-            config.db.insert(self.serializer())
+            db.insert(self.serializer())
 
     def query_db(self, db=None):
         if db is None:
