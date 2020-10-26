@@ -10,14 +10,14 @@ Testing for the programs package.
 """
 
 from bioprov.programs import prodigal, blastn, prokka, kaiju, kaiju2table
-from bioprov.data import synechococcus_genome, synechococcus_blastdb
+from bioprov.data import synechococcus_genome
 from bioprov import Sample
 
 
 def test_blastn():
 
     s = Sample("Synechococcus", files={"query": synechococcus_genome})
-    reference_db = synechococcus_blastdb
+    reference_db = "./path_to_a_valid_blastdb"
 
     blast = blastn(s, reference_db)
     blast_params = blast.serializer()["params"]

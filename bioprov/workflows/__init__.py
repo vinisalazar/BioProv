@@ -7,4 +7,5 @@ __version__ = "0.1.13"
 
 from .genome_annotation import genome_annotation
 from .kaiju import KaijuWorkflow
+from .blastn import blastn_alignment
 from .wf_parser import WorkflowOptionsParser

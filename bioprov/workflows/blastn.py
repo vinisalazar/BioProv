@@ -14,13 +14,28 @@ This can be run by itself as a script or called
 with the BioProv CLI application (recommended).
 """
 
-from bioprov.src.workflow import Workflow
+from bioprov.src.workflow import Workflow, Step
 from bioprov.programs import blastn
 
 
-def blastn_workflow(**kwargs):
-    pass
+def blastn_alignment(**kwargs):
+
+    _blastn_alignment = Workflow(
+        name="blastn",
+        description="Align nucleotide data to a reference database with BLASTN.",
+        input_type="dataframe",
+        index_col="sample-id",
+        file_columns="query",
+        **kwargs,
+    )
+
+    blastn_preset = blastn()
+
+    _blastn_alignment.add_step(Step(blastn_preset, default=True))
+
+    return _blastn_alignment
 
 
 if __name__ == "__main__":
-    pass
+    workflow = blastn_alignment()
+    workflow.main()

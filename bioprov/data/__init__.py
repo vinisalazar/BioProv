@@ -17,7 +17,6 @@ datasets_dir = Path.joinpath(data_dir, "datasets")
 synechococcus_genome = Path.joinpath(
     genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna"
 )
-synechococcus_blastdb = genomes_dir / "blastdb" / "GCF_000007925.1_ASM792v1_blast"
 
 # To-do: Join these two as the same
 # Refactor genome_annotation so it takes a dataset same as 'picocyano.csv'
