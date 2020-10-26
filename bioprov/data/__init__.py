@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 
 """
@@ -19,7 +19,7 @@ synechococcus_genome = Path.joinpath(
 )
 
 
-# To-do: Join these two as the same
+# TODO: Join these two as the same
 # Refactor genome_annotation so it takes a dataset same as 'picocyano.csv'
 picocyano_dataset = Path.joinpath(datasets_dir, "picocyano.csv")
 genome_annotation_dataset = Path.joinpath(datasets_dir, "genome_annotation_input.tsv")
