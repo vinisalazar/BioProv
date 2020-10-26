@@ -10,6 +10,7 @@ Module for holding preset instances of the Program class.
 """
 
 from os import path
+from pathlib import Path
 from bioprov import config, File
 from bioprov.src.main import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, Warnings
@@ -34,6 +35,47 @@ def prodigal(sample=None, input_tag="assembly"):
     )
 
     return _prodigal
+
+
+def _create_blast_preset(blast_type, sample, db, query_tag, outformat):
+    """
+    :param blast_type str: What BLAST program to build (e.g. 'blastn');
+    :return: Instance of PresetProgram for the chosen blast program type.
+    :rtype: BioProv.PresetProgram.
+    """
+
+    if db is not None:
+        db_dir = Path(db).parent.is_dir()
+        assert db_dir, "Path to the reference database does not exist"
+
+    _blast_program = PresetProgram(
+        name=blast_type,
+        params=(
+            Parameter(key="-db", value=db),
+            Parameter(key="-outfmt", value=outformat),
+        ),
+        sample=sample,
+        input_files={"-query": query_tag},
+        output_files={"-out": (f"{blast_type}_hits", f"_{blast_type}_hits.txt")},
+    )
+
+    return _blast_program
+
+
+def blastn(sample=None, db=None, query_tag="query", outformat=6):
+    """
+    :param sample Sample: Instance of BioProv.Sample.
+    :param db str: A string pointing to the reference database directory and title.
+    :param query_tag str: A tag for the query file.
+    :param outformat int: The output format to gather from blastn.
+    :return: Instance of PresetProgram for BLASTN.
+    :rtype: BioProv.PresetProgram.
+    :raises AssertionError: Path to the reference database does not exist.
+    """
+
+    _blastn = _create_blast_preset("blastn", sample, db, query_tag, outformat)
+
+    return _blastn
 
 
 def prokka_():

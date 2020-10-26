@@ -18,7 +18,6 @@ synechococcus_genome = Path.joinpath(
     genomes_dir, "GCF_000010065.1_ASM1006v1_genomic.fna"
 )
 
-
 # TODO: Join these two as the same
 # Refactor genome_annotation so it takes a dataset same as 'picocyano.csv'
 picocyano_dataset = Path.joinpath(datasets_dir, "picocyano.csv")
