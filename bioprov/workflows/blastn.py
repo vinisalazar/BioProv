@@ -29,9 +29,25 @@ def blastn_alignment(**kwargs):
         **kwargs,
     )
 
-    blastn_preset = blastn()
+    try:
+        blastn_preset = blastn(db=kwargs["db"])
+    except KeyError:
+        blastn_preset = (
+            blastn()
+        )  # Allows calling with no arguments, to access the parser.
 
     _blastn_alignment.add_step(Step(blastn_preset, default=True))
+
+    # Workflow specific arguments must be added AFTER the steps.
+    # That is because adding a Step updates the parser with the default arguments
+    # of the Workflow class.
+
+    _blastn_alignment.parser.add_argument(
+        "-db",
+        "--database",
+        help="BLASTn reference database. Must be a valid BLAST database created with the `makeblastdb` command.",
+        required=True,
+    )
 
     return _blastn_alignment
 

@@ -27,7 +27,7 @@ class WorkflowOptionsParser:
         Runs blastn alignment workflow
         :return:
         """
-        main = blastn_alignment()
+        main = blastn_alignment(db=options.database)
         main.input = options.input
         steps = options.steps
         main.run_steps(steps)
