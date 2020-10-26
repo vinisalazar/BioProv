@@ -893,11 +893,12 @@ class Project:
     Class which holds a dictionary of Sample instances, where each key is the sample name.
     """
 
-    def __init__(self, samples=None, tag=None, auto_update=False):
+    def __init__(self, samples=None, tag=None, db=None, auto_update=False):
         """
         Initiates the object by creating a sample dictionary.
         :param samples: An iterator of Sample objects.
         :param tag: A tag to describe the Project.
+        :param db: path to TinyDB to store project in JSON format.
         :param auto_update: Whether to auto_update the BioProvDB record.
                             Disabled by default.
         """
@@ -922,6 +923,9 @@ class Project:
         # Hash and db attributes
         self._sha1 = dict_to_sha1(self.serializer())
         self.auto_update = auto_update
+        if db is None:
+            db = config.db
+        self.db = db
 
     def __len__(self):
         return len(self._samples)
@@ -958,15 +962,12 @@ class Project:
 
     @property
     def sha1(self):
-        new_hash = dict_to_sha1(self.serializer())
-        if self.auto_update:
-            result, query = self.query_db()
-            try:
-                if result and result[0]["_sha1"] != new_hash:
-                    self.update_db()
-            except KeyError:
-                pass
-        return new_hash
+        keys = ("_sha1",)
+        new_hash = dict_to_sha1(serializer_filter(self, keys))
+        if new_hash != self._sha1:
+            self._sha1 = new_hash
+            self.auto_update_db()
+        return self._sha1
 
     @sha1.setter
     def sha1(self, value):
@@ -994,7 +995,7 @@ class Project:
 
     def update_db(self, db=None):
         if db is None:
-            db = config.db
+            db = self.db
         result, query = self.query_db(db)
         if result:
             print(f"Updating project '{self.tag}' at {db.db_path}")
@@ -1003,9 +1004,16 @@ class Project:
             print(f"Inserting new project '{self.tag}' in {db.db_path}")
             db.insert(self.serializer())
 
+    def auto_update_db(self):
+        """
+        Updates the database if auto_update is True.
+        """
+        if self.auto_update:
+            self.update_db()
+
     def query_db(self, db=None):
         if db is None:
-            db = config.db
+            db = self.db
         query = Query()
         result = db.search(query.tag == self.tag)
         return result, query
@@ -1042,6 +1050,7 @@ class Project:
         :return: Adds files to Project
         """
         add_files(self, files)
+        self.auto_update_db()
 
     @staticmethod
     def is_sample_and_name(sample):
