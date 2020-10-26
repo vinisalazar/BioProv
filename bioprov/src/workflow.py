@@ -294,7 +294,8 @@ class Workflow:
         Parses command-line arguments and runs the workflow.
         :return:
         """
-        self.generate_parser()
+        if self.parser is None:
+            self.generate_parser()
         args = self.parser.parse_args()
         self.input = args.input
         self.input_type = args.input_type
