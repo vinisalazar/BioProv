@@ -26,6 +26,8 @@ from bioprov.src.main import (
     parse_params,
     Program,
     Run,
+    dict_to_sample,
+    json_to_dict,
 )
 from coolname import generate_slug
 from os import remove
@@ -37,8 +39,9 @@ from bioprov import (
     write_json,
     from_json,
     BioProvDocument,
+    BioProvDB,
 )
-from bioprov.src.main import dict_to_sample, json_to_dict
+from bioprov.utils import dict_to_sha1
 from bioprov.data import synechococcus_genome, picocyano_dataset
 from bioprov.programs import prodigal
 
@@ -282,6 +285,32 @@ def test_project_json_and_prov(debug=False):
     # Clean up
     for f in (json_out, json_out_2, prov_json_out):
         remove(f)
+
+    # Test DB, project.__delitem__, project.sha1
+    project.db = BioProvDB(json_out_2)
+    project.update_db()
+
+    def get_db_hash():
+        result, query = project.query_db()
+        _db_hash = dict_to_sha1(result)
+        return _db_hash
+
+    old_db_sha1 = get_db_hash()
+
+    project.auto_update = True
+    old_project_sha1 = project.sha1
+    del project["GCF_000010065.1_ASM1006v1"]
+    new_project_sha1 = project.sha1
+    new_db_sha1 = get_db_hash()
+    assert (
+        new_project_sha1 != old_project_sha1
+    ), "Project hashes aren't different, but Project has changed!"
+    assert (
+        old_db_sha1 != new_db_sha1
+    ), "Database hashes aren't different, but Project.auto_update() is on and Project has changed!"
+
+    # Clean up again
+    remove(json_out_2)
 
     # Useful for debugging
     if debug:

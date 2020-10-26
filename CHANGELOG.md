@@ -9,6 +9,8 @@
 ### v0.1.14
 * Add blastdb example data [ ]
 * Add BLASTn preset and workflow and respective tests [ ]
+* Improve BioProvDB tests [x]
+* Improve Project.auto_update and Project.sha1 behaviour and tests [x]
 * Improve Workflow behaviour for custom Workflow arguments [x]
 
 ### v0.1.13

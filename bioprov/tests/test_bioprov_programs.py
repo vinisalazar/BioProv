@@ -9,9 +9,23 @@ __version__ = "0.1.14"
 Testing for the programs package.
 """
 
-from bioprov.programs import prodigal, prokka, kaiju, kaiju2table
+from bioprov.programs import prodigal, blastn, prokka, kaiju, kaiju2table
 from bioprov.data import synechococcus_genome
 from bioprov import Sample
+
+
+def test_blastn():
+
+    s = Sample("Synechococcus", files={"query": synechococcus_genome})
+    reference_db = "./path_to_a_valid_blastdb"
+
+    blast = blastn(s, reference_db)
+    blast_params = blast.serializer()["params"]
+
+    expected = ["-db", "-outfmt", "-query", "-out"]
+
+    assert list(blast_params.keys()) == expected
+    assert blast_params["-outfmt"]["value"] == "6"
 
 
 def test_prodigal():

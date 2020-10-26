@@ -42,8 +42,8 @@ def test_BioProvDB():
 
     # Try a Query
     q = Query()
-    slug = generate_slug(4)
-    results = bp_db.search(q.tag == slug)
+    slug, slug_ = generate_slug(2), generate_slug(4)
+    results = bp_db.search(q[slug] == slug_)
     assert results == [], f"Query result should be an empty list! Results: {results}"
 
     # Create and erase database
