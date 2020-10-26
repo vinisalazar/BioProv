@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 
 """
@@ -17,7 +17,7 @@ Testing for the bioprov.src.main module.
  Also tests JSON and tab-delimited serializer methods.
 """
 
-# To-do: organize this
+# TODO: organize this
 import datetime
 import pandas as pd
 from bioprov.src.main import (

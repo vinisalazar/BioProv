@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 
 """
@@ -150,7 +150,7 @@ def prokka(
             Parameter(key="--force", value="", kind="misc")
         )  # no cover
 
-    # Add files according to their extension # To-do: add support for SeqFile
+    # Add files according to their extension # TODO: add support for SeqFile
     extensions_parser = {
         ".faa": lambda file: _sample.add_files(File(file, tag=proteins)),
         ".fna": lambda file: _sample.add_files(File(file, tag=contigs)),
