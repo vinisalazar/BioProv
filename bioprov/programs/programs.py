@@ -37,7 +37,7 @@ def prodigal(sample=None, input_tag="assembly"):
     return _prodigal
 
 
-def blastn(sample, db, query_tag="query", outformat=6):
+def blastn(sample=None, db=None, query_tag="query", outformat=6):
     """
     :param sample Sample: Instance of BioProv.Sample.
     :param db str: A string pointing to the reference database directory and title.
@@ -48,8 +48,9 @@ def blastn(sample, db, query_tag="query", outformat=6):
     :raises AssertionError: Path to the reference database does not exist.
     """
 
-    db_dir = Path(db).parent.is_dir()
-    assert db_dir, "Path to the reference database does not exist"
+    if db is not None:
+        db_dir = Path(db).parent.is_dir()
+        assert db_dir, "Path to the reference database does not exist"
 
     _blastn = PresetProgram(
         name="blastn",
