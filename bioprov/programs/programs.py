@@ -56,7 +56,7 @@ def _create_blast_preset(blast_type, sample, db, query_tag, outformat):
         ),
         sample=sample,
         input_files={"-query": query_tag},
-        output_files={"-out": ("blastn_hits", "_blastn_hits.txt")},
+        output_files={"-out": (f"{blast_type}_hits", f"_{blast_type}_hits.txt")},
     )
 
     return _blast_program
