@@ -417,7 +417,7 @@ class Run:
 
 def deserialize_runs_dict(runs_dict, programs_dict, tag, sample):
 
-    # To-do: replace sample for object when implementing Project.programs
+    # TODO: replace sample for object when implementing Project.programs
 
     """
     Deserialize runs in JSON format.
@@ -577,7 +577,7 @@ class PresetProgram(Program):
 
     def generate_cmd(self, from_files=True):
         """
-        To-do: improve this function
+        TODO: improve this function
 
         Generates a wildcard command string, independent of samples.
         :param from_files: Generate command from self.input_files and self.output_files (recommended) If False,
@@ -650,7 +650,7 @@ def parse_params(params):
 # Replace 'params' here with ParameterDict, but the above parse_params() will do for now.
 def generate_param_str(params):
     """
-    To-do: improve this docstring
+    TODO: improve this docstring
     Generates a string from a dictionary of parameters
     :param params: Dictionary of parameters.
     :return:
@@ -672,7 +672,7 @@ def generate_param_str(params):
                 )  # Else we construct the string from the the provided dict.
         param_str = str_.strip()
     else:
-        # To-do: add more parameters options. List of tuples, List of Parameter instances, etc.
+        # TODO: add more parameters options. List of tuples, List of Parameter instances, etc.
         print("Must provide either a string or a dictionary for the parameters!")
         raise TypeError
     # Add positional arguments
@@ -1205,14 +1205,14 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
 
     :return: a Sample or Project instance.
     """
-    # To-do: reimplement replace_path as a Project method.
+    # TODO: reimplement replace_path as a Project method.
 
     assert kind in ("Sample", "Project"), "Must specify 'Sample' or 'Project'."
     d = json_to_dict(json_file)
 
     # will probably deprecate this
     if "name" in d.keys():  # This checks whether the file is a Sample or Project
-        kind = "Sample"  # To-do: must be improved.
+        kind = "Sample"  # TODO: must be improved.
     else:
         kind = "Project"
     if kind == "Sample":

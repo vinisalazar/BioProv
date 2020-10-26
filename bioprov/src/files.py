@@ -108,7 +108,7 @@ class File:
         """
         old_hash, old_exists = self._sha1, self._exists
         self.path = Path(pattern_replacer(str(self.path), old_terms, new))
-        # To-do: replace these print statements for logger warning/debug level
+        # TODO: replace these print statements for logger warning/debug level
         if warnings:
             if not self.exists and old_exists:
                 print(
@@ -376,7 +376,7 @@ def deserialize_files_dict(files_dict):
         if file is not None:
             if "format" in file.keys():
                 if file["format"] in SeqFile.seqfile_formats:
-                    # To-do: don't import records again (slow)
+                    # TODO: don't import records again (slow)
                     # Get them straight from the JSON file.
                     files_dict[tag] = SeqFile(
                         path=file["path"],

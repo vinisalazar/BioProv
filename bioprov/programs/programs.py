@@ -108,7 +108,7 @@ def prokka(
             Parameter(key="--force", value="", kind="misc")
         )  # no cover
 
-    # Add files according to their extension # To-do: add support for SeqFile
+    # Add files according to their extension # TODO: add support for SeqFile
     extensions_parser = {
         ".faa": lambda file: _sample.add_files(File(file, tag=proteins)),
         ".fna": lambda file: _sample.add_files(File(file, tag=contigs)),

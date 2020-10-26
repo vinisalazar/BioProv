@@ -253,7 +253,7 @@ class BioProvDocument:
             self._add_IO_relationships(sample, program, outputs, "output")
 
     def _add_IO_relationships(self, sample, program, io_list, io_type):
-        # To-do: replace Sample for Project when implementing Project.files and programs
+        # TODO: replace Sample for Project when implementing Project.files and programs
 
         """
         Add PROV relationships between Program and input/output files.
