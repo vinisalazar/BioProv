@@ -30,11 +30,11 @@ def blastn_alignment(**kwargs):
     )
 
     try:
-        blastn_preset = blastn(db=kwargs["db"])
+        _blastn_alignment.db = kwargs["db"]
     except KeyError:
-        blastn_preset = (
-            blastn()
-        )  # Allows calling with no arguments, to access the parser.
+        _blastn_alignment.db = None
+
+    blastn_preset = blastn(db=_blastn_alignment.db)
 
     _blastn_alignment.add_step(Step(blastn_preset, default=True))
 
