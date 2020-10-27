@@ -16,6 +16,39 @@ from bioprov.src.main import Parameter, Program, PresetProgram
 from bioprov.utils import assert_tax_rank, Warnings
 
 
+def diamond(blast_type, sample, db, query_tag="query", outformat=6, extra_flags=None):
+    """
+    :param str blast_type: Which aligner to use ('blastp' or 'blastx').
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str db: A string pointing to the reference database path.
+    :param str query_tag: A tag for the query file.
+    :param int outformat: The output format to gather from diamond (0, 5 or 6).
+    :param list extra_flags: A list of extra parameters to pass to diamond
+        (e.g. --sensitive or --log).
+    :return: Instance of PresetProgram containing Diamond.
+    :rtype: BioProv.PresetProgram.
+    """
+
+    _diamond = PresetProgram(
+        name="diamond",
+        params=(
+            Parameter(key=blast_type),
+            Parameter(key="--db", value=db),
+            Parameter(key="--outfmt", value=outformat),
+        ),
+        sample=sample,
+        input_files={"--query": query_tag},
+        output_files={"--out": ("_dmnd_hits", "_dmnd_hits.tsv")},
+    )
+
+    if extra_flags is not None:
+        params = [Parameter(key=command) for command in extra_flags]
+        for param in params:
+            _diamond.add_parameter(param)
+
+    return _diamond
+
+
 def prodigal(sample=None, input_tag="assembly"):
     """
     :param sample: Instance of BioProv.Sample.
@@ -39,7 +72,7 @@ def prodigal(sample=None, input_tag="assembly"):
 
 def _create_blast_preset(blast_type, sample, db, query_tag, outformat):
     """
-    :param blast_type str: What BLAST program to build (e.g. 'blastn');
+    :param str blast_type: What BLAST program to build (e.g. 'blastn');
     :return: Instance of PresetProgram for the chosen blast program type.
     :rtype: BioProv.PresetProgram.
     """
@@ -64,10 +97,10 @@ def _create_blast_preset(blast_type, sample, db, query_tag, outformat):
 
 def blastn(sample=None, db=None, query_tag="query", outformat=6):
     """
-    :param sample Sample: Instance of BioProv.Sample.
-    :param db str: A string pointing to the reference database directory and title.
-    :param query_tag str: A tag for the query file.
-    :param outformat int: The output format to gather from blastn.
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str db: A string pointing to the reference database directory and title.
+    :param str query_tag: A tag for the query file.
+    :param int outformat: The output format to gather from blastn.
     :return: Instance of PresetProgram for BLASTN.
     :rtype: BioProv.PresetProgram.
     :raises AssertionError: Path to the reference database does not exist.
@@ -82,7 +115,7 @@ def prokka_():
     """
     :return: Instance of PresetProgram containing Prokka.
     """
-    _prokka = PresetProgram(program=Program("prokka"))  # no cover
+    _prokka = PresetProgram(name=Program("prokka"))  # no cover
 
 
 def prokka(

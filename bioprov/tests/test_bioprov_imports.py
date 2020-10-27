@@ -75,7 +75,7 @@ def test_import_packages():
         picocyano_dataset,
         megares_blastdb,
     )
-    from bioprov.programs import prodigal, prokka, kaiju, kaiju2table, blastn
+    from bioprov.programs import prodigal, diamond, prokka, kaiju, kaiju2table, blastn
     from bioprov.workflows import (
         KaijuWorkflow,
         genome_annotation,
@@ -91,5 +91,5 @@ def test_import_packages():
         picocyano_dataset,
         megares_blastdb,
     )
-    del prodigal, prokka, kaiju, kaiju2table, blastn
+    del prodigal, diamond, prokka, kaiju, kaiju2table, blastn
     del (KaijuWorkflow, genome_annotation, WorkflowOptionsParser, blastn_alignment)

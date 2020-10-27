@@ -5,4 +5,4 @@ __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.14"
 
 
-from .programs import prodigal, blastn, prokka, kaiju, kaiju2table
+from .programs import prodigal, diamond, blastn, prokka, kaiju, kaiju2table
