@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 """
 BioProv command-line application. This module holds the main executable.
@@ -12,7 +12,12 @@ import argparse
 import sys
 import bioprov.src.config as bp_config_module
 from bioprov.src.config import config
-from bioprov.workflows import WorkflowOptionsParser, genome_annotation, KaijuWorkflow
+from bioprov.workflows import (
+    WorkflowOptionsParser,
+    genome_annotation,
+    blastn_alignment,
+    KaijuWorkflow,
+)
 from bioprov.utils import parser_help, dict_to_string
 
 
@@ -36,8 +41,10 @@ def main(args=None):
     )
     workflows = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
     _ = workflows.add_parser("genome_annotation")
+    _ = workflows.add_parser("blastn")
     _ = workflows.add_parser("kaiju")
     workflows.choices["genome_annotation"] = genome_annotation().parser
+    workflows.choices["blastn"] = blastn_alignment().parser
     workflows.choices["kaiju"] = KaijuWorkflow.parser()
 
     # Refactoring to subparsers

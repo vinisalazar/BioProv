@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 """
 
@@ -417,7 +417,7 @@ class Run:
 
 def deserialize_runs_dict(runs_dict, programs_dict, tag, sample):
 
-    # To-do: replace sample for object when implementing Project.programs
+    # TODO: replace sample for object when implementing Project.programs
 
     """
     Deserialize runs in JSON format.
@@ -577,7 +577,7 @@ class PresetProgram(Program):
 
     def generate_cmd(self, from_files=True):
         """
-        To-do: improve this function
+        TODO: improve this function
 
         Generates a wildcard command string, independent of samples.
         :param from_files: Generate command from self.input_files and self.output_files (recommended) If False,
@@ -650,7 +650,7 @@ def parse_params(params):
 # Replace 'params' here with ParameterDict, but the above parse_params() will do for now.
 def generate_param_str(params):
     """
-    To-do: improve this docstring
+    TODO: improve this docstring
     Generates a string from a dictionary of parameters
     :param params: Dictionary of parameters.
     :return:
@@ -672,7 +672,7 @@ def generate_param_str(params):
                 )  # Else we construct the string from the the provided dict.
         param_str = str_.strip()
     else:
-        # To-do: add more parameters options. List of tuples, List of Parameter instances, etc.
+        # TODO: add more parameters options. List of tuples, List of Parameter instances, etc.
         print("Must provide either a string or a dictionary for the parameters!")
         raise TypeError
     # Add positional arguments
@@ -893,11 +893,14 @@ class Project:
     Class which holds a dictionary of Sample instances, where each key is the sample name.
     """
 
-    def __init__(self, samples=None, tag=None):
+    def __init__(self, samples=None, tag=None, db=None, auto_update=False):
         """
         Initiates the object by creating a sample dictionary.
         :param samples: An iterator of Sample objects.
         :param tag: A tag to describe the Project.
+        :param db: path to TinyDB to store project in JSON format.
+        :param auto_update: Whether to auto_update the BioProvDB record.
+                            Disabled by default.
         """
         if tag is None:
             tag = generate_slug(2)
@@ -917,27 +920,103 @@ class Project:
         self._entity = None
         self._document = None
 
+        # Hash and db attributes
         self._sha1 = dict_to_sha1(self.serializer())
+        self.auto_update = auto_update
+        if db is None:
+            db = config.db
+        self.db = db
+
+    def __len__(self):
+        return len(self._samples)
+
+    def __repr__(self):
+        return f"Project '{self.tag}' with {len(self._samples)} samples."
+
+    def __getitem__(self, item):
+        try:
+            value = self._samples[item]
+            return value
+        except KeyError:
+            keys = self.keys()
+            print(
+                f"Sample {item} not in Project.\n",
+                "Check the following keys:\n",
+                "\n".join(keys),
+            )
+
+    def __setitem__(self, key, value):
+        self._samples[key] = value
+
+    def __delitem__(self, key):
+        del self._samples[key]
+
+    def keys(self):
+        return self._samples.keys()
+
+    def values(self):
+        return self._samples.values()
+
+    def items(self):
+        return self._samples.items()
 
     @property
     def sha1(self):
+        keys = ("_sha1",)
+        new_hash = dict_to_sha1(serializer_filter(self, keys))
+        if new_hash != self._sha1:
+            self._sha1 = new_hash
+            self.auto_update_db()
         return self._sha1
 
     @sha1.setter
     def sha1(self, value):
         self._sha1 = value
 
+    @property
+    def entity(self):
+        if self._entity is None:
+            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
+        return self._entity
+
+    @entity.setter
+    def entity(self, value):
+        self._entity = value
+
+    @property
+    def document(self):
+        if self._document is None:
+            self._document = ProvDocument()
+        return self._document
+
+    @document.setter
+    def document(self, document):
+        self._document = document
+
     def update_db(self, db=None):
         if db is None:
-            db = config.db
-        q = Query()
-        result = db.search(q.tag == self.tag)
+            db = self.db
+        result, query = self.query_db(db)
         if result:
             print(f"Updating project '{self.tag}' at {db.db_path}")
-            config.db.update(self.serializer(), q.tag == self.tag)
+            db.update(self.serializer(), query.tag == self.tag)
         else:
             print(f"Inserting new project '{self.tag}' in {db.db_path}")
-            config.db.insert(self.serializer())
+            db.insert(self.serializer())
+
+    def auto_update_db(self):
+        """
+        Updates the database if auto_update is True.
+        """
+        if self.auto_update:
+            self.update_db()
+
+    def query_db(self, db=None):
+        if db is None:
+            db = self.db
+        query = Query()
+        result = db.search(query.tag == self.tag)
+        return result, query
 
     def _update_envs(self):
         if config.env.env_hash not in self.users.values():
@@ -964,56 +1043,6 @@ class Project:
             for _, file in sample.files.items():
                 file.replace_path(old_terms, new, warnings)
 
-    def __len__(self):
-        return len(self._samples)
-
-    def __repr__(self):
-        return f"Project '{self.tag}' with {len(self._samples)} samples."
-
-    def __getitem__(self, item):
-        try:
-            value = self._samples[item]
-            return value
-        except KeyError:
-            keys = self.keys()
-            print(
-                f"Sample {item} not in Project.\n",
-                "Check the following keys:\n",
-                "\n".join(keys),
-            )
-
-    def __setitem__(self, key, value):
-        self._samples[key] = value
-
-    @property
-    def entity(self):
-        if self._entity is None:
-            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
-        return self._entity
-
-    @entity.setter
-    def entity(self, value):
-        self._entity = value
-
-    @property
-    def document(self):
-        if self._document is None:
-            self._document = ProvDocument()
-        return self._document
-
-    @document.setter
-    def document(self, document):
-        self._document = document
-
-    def keys(self):
-        return self._samples.keys()
-
-    def values(self):
-        return self._samples.values()
-
-    def items(self):
-        return self._samples.items()
-
     def add_files(self, files):
         """
         Project method to add files.
@@ -1021,6 +1050,7 @@ class Project:
         :return: Adds files to Project
         """
         add_files(self, files)
+        self.auto_update_db()
 
     @staticmethod
     def is_sample_and_name(sample):
@@ -1205,14 +1235,14 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
 
     :return: a Sample or Project instance.
     """
-    # To-do: reimplement replace_path as a Project method.
+    # TODO: reimplement replace_path as a Project method.
 
     assert kind in ("Sample", "Project"), "Must specify 'Sample' or 'Project'."
     d = json_to_dict(json_file)
 
     # will probably deprecate this
     if "name" in d.keys():  # This checks whether the file is a Sample or Project
-        kind = "Sample"  # To-do: must be improved.
+        kind = "Sample"  # TODO: must be improved.
     else:
         kind = "Project"
     if kind == "Sample":

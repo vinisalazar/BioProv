@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 
 """
@@ -10,7 +10,7 @@ Module containing the Workflow options parser for preset workflows.
 """
 
 
-from bioprov.workflows import genome_annotation, KaijuWorkflow
+from bioprov.workflows import genome_annotation, blastn_alignment, KaijuWorkflow
 
 
 class WorkflowOptionsParser:
@@ -20,6 +20,17 @@ class WorkflowOptionsParser:
 
     def __init__(self):
         pass
+
+    @staticmethod
+    def _blastn_alignment(options):
+        """
+        Runs blastn alignment workflow
+        :return:
+        """
+        main = blastn_alignment(db=options.database)
+        main.input = options.input
+        steps = options.steps
+        main.run_steps(steps)
 
     @staticmethod
     def _genome_annotation(options):
@@ -59,6 +70,7 @@ class WorkflowOptionsParser:
         """
         subparsers = {
             "genome_annotation": lambda _options: self._genome_annotation(_options),
+            "blastn": lambda _options: self._blastn_alignment(_options),
             "kaiju": lambda _options: self._kaiju_workflow(_options),
         }
 

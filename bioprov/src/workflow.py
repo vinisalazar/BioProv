@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 
 """
 Contains the Workflow class and related functions.
@@ -294,7 +294,8 @@ class Workflow:
         Parses command-line arguments and runs the workflow.
         :return:
         """
-        self.generate_parser()
+        if self.parser is None:
+            self.generate_parser()
         args = self.parser.parse_args()
         self.input = args.input
         self.input_type = args.input_type

@@ -6,8 +6,15 @@
     * Add subpackage docstrings [ ]
 * Improve output PROVN documents [ ]
 
-### v0.1.14
+### v0.1.15
 * TBD [ ]
+
+### v0.1.14
+* Add blastdb example data [x]
+* Add BLASTn preset and workflow and respective tests [x]
+* Improve BioProvDB tests [x]
+* Improve Project.auto_update and Project.sha1 behaviour and tests [x]
+* Improve Workflow behaviour for custom Workflow arguments [x]
 
 ### v0.1.13
 * Add BioProvDB class [x]
