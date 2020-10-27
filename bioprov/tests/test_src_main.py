@@ -240,7 +240,7 @@ def test_json_Sample():
     remove(str(sample.files["json"]))
 
 
-def test_project_json_and_prov(debug=False):
+def test_project_json_and_prov():
     def import_project():
         _project = read_csv(
             picocyano_dataset,
@@ -252,9 +252,9 @@ def test_project_json_and_prov(debug=False):
         return _project
 
     def add_and_run_programs(_project):
-        for k, sample in _project.items():
-            sample.add_programs(prodigal(sample=sample))
-            sample.run_programs()
+        for k, _sample in _project.items():
+            _sample.add_programs(prodigal(sample=_sample))
+            _sample.run_programs()
 
     def export_json(path, _project):
         return _project.to_json(path)
@@ -296,6 +296,7 @@ def test_project_json_and_prov(debug=False):
     project.db = BioProvDB(json_out_2)  # Let's not waste this variable
     project.update_db()
 
+    # Maybe put this function in config
     def get_db_hash():
         result, query = project.query_db()
         _db_hash = dict_to_sha1(result)
@@ -317,7 +318,3 @@ def test_project_json_and_prov(debug=False):
 
     # Clean up again
     remove(json_out_2)
-
-    # Useful for debugging
-    if debug:
-        return project, prov
