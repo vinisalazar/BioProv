@@ -11,9 +11,8 @@ Contains the Workflow class and related functions.
 import argparse
 import pandas as pd
 from glob import glob
-from bioprov import from_df, config
+from bioprov import from_df, config, PresetProgram
 from bioprov.utils import Warnings
-from bioprov.src.main import PresetProgram
 from os import path
 from tqdm import tqdm
 
@@ -88,10 +87,11 @@ class Workflow:
         self.threads = threads
         self.sep = sep
         self.kwargs = kwargs
-        self.sampleset = None
+        self.project = None
+        self.project_csv = None
         self.parser = None
 
-        # Only generate sampleset if there is an input and input type
+        # Only generate project if there is an input and input type
         if self.input and self.input_type:
             _input_types = ("directory", "dataframe")
             assert (
@@ -114,7 +114,7 @@ class Workflow:
             "dataframe": self._load_dataframe_input,
             "directory": self._load_directory_input,
         }
-        self.sampleset = _generate_sampleset[self.input_type]()
+        self.project = _generate_sampleset[self.input_type]()
 
     def generate_parser(self):
         parser = argparse.ArgumentParser(
@@ -148,7 +148,8 @@ class Workflow:
         parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
         parser.add_argument(
             "--steps",
-            help=f"A comma-delimited string of which steps will be run in the workflow.\nPossible steps:\n{list(self.steps.keys())}",
+            help=f"A comma-delimited string of which steps will be run in the workflow.\n"
+                 f"Possible steps:\n{list(self.steps.keys())}",
             default=self.default_steps,
         ),
 
@@ -178,11 +179,11 @@ class Workflow:
         assert len(
             steps_to_run
         ), f"Invalid steps to run:\n'{steps_to_run}'\nPlease provide a comma-delimited string."
-        if self.sampleset is None:
+        if self.project is None:
             self.generate_sampleset()
         for k, step in self.steps.items():
             if k in steps_to_run:
-                for _, sample in tqdm(self.sampleset.items()):
+                for _, sample in tqdm(self.project.items()):
                     _run = step.run(sample=sample, _print=self.verbose)
                     if not step.runs[
                         str(len(step.runs))
@@ -194,16 +195,16 @@ class Workflow:
 
     def _sampleset_from_dataframe(self, df):
         """
-        Run from_df on dataframe and updates self.sampleset.
+        Run from_df on dataframe and updates self.project.
         :param df: Instance of pd.DataFrame.
-        :return: Updates self.sampleset.
+        :return: Updates self.project.
         """
         # Loading samples statement
         print(Warnings()["sample_loading"](len(df)))
-        sampleset = from_df(
-            df, index_col=self.index_col, file_cols=self.file_columns, tag=self.tag
+        project = from_df(
+            df, index_col=self.index_col, file_cols=self.file_columns, tag=self.tag, source_file=self.project_csv
         )
-        return sampleset
+        return project
 
     def _load_directory_input(self):
         """
@@ -257,6 +258,7 @@ class Workflow:
 
         # Read input
         df = pd.read_csv(input_, sep=self.sep)
+        self.project_csv = input_
 
         # Assert index_col exists in df.columns
         assert (
