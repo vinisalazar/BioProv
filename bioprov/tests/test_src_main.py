@@ -282,12 +282,18 @@ def test_project_json_and_prov(debug=False):
     prov_json_out = "./gentax_picocyano_prov.json"
     export_prov_json(prov_json_out, prov)
 
-    # Clean up
+    # Clean up - JSON
     for f in (json_out, json_out_2, prov_json_out):
         remove(f)
 
+    # Clean up - prodigal output
+    for _, sample in project.items():
+        for key, file in sample.files.items():
+            if key != "assembly":  # we are keeping those
+                remove(file.path)
+
     # Test DB, project.__delitem__, project.sha1
-    project.db = BioProvDB(json_out_2)
+    project.db = BioProvDB(json_out_2)  # Let's not waste this variable
     project.update_db()
 
     def get_db_hash():
