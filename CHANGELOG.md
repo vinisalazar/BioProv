@@ -4,10 +4,10 @@
 * Update README [ ]
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
-* Improve output PROVN documents [ ]
 
 ### v0.1.15
-* TBD [ ]
+* Remodel environment as Agent rather than Entity [ ]
+* Improve output PROVN documents [ ]
 
 ### v0.1.14
 * Add blastdb example data [x]
