@@ -137,16 +137,16 @@ class BioProvDocument:
             self._agents[_user] = _user_bundle.agent(_user_preffix)
             for _env_hash, _env in _env_dict.items():
                 if self.add_attributes:
-                    self._entities[_env_hash] = _user_bundle.entity(
+                    self._agents[_env_hash] = _user_bundle.agent(
                         f"envs:{_env}",
                         other_attributes=build_prov_attributes(
                             _env.env_dict, _env.env_namespace
                         ),
                     )
                 else:
-                    self._entities[_env_hash] = _user_bundle.entity(f"envs:{_env}")
-                _user_bundle.wasAttributedTo(
-                    self._entities[_env_hash], self._agents[_user]
+                    self._agents[_env_hash] = _user_bundle.agent(f"envs:{_env}")
+                _user_bundle.actedOnBehalfOf(
+                    self._agents[_env_hash], self._agents[_user]
                 )
 
     def _iter_samples(self):
@@ -245,7 +245,7 @@ class BioProvDocument:
                 )
 
             self.ProvDocument.wasDerivedFrom(
-                self._activities[program.name], self._entities[last_run.env]
+                self._activities[program.name], self._agents[last_run.env]
             )
 
             inputs, outputs = self._get_IO_from_params(program)
@@ -262,7 +262,7 @@ class BioProvDocument:
         :param program: instance of bioprov.Program
         :param io_list: list of input/output files
         :param io_type: 'input' or 'output'
-        :return: Adds relationship between
+        :return: Adds relationship between sample and program.
         """
 
         # Small assertion block
