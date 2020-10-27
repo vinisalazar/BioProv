@@ -73,12 +73,14 @@ def test_import_packages():
         genomes_dir,
         synechococcus_genome,
         picocyano_dataset,
+        megares_blastdb,
     )
-    from bioprov.programs import prodigal, prokka, kaiju, kaiju2table
+    from bioprov.programs import prodigal, prokka, kaiju, kaiju2table, blastn
     from bioprov.workflows import (
         KaijuWorkflow,
         genome_annotation,
         WorkflowOptionsParser,
+        blastn_alignment,
     )
 
     del src, data, programs, workflows, bioprov
@@ -87,10 +89,7 @@ def test_import_packages():
         genomes_dir,
         synechococcus_genome,
         picocyano_dataset,
+        megares_blastdb,
     )
-    del prodigal, prokka, kaiju, kaiju2table
-    del (
-        KaijuWorkflow,
-        genome_annotation,
-        WorkflowOptionsParser,
-    )
+    del prodigal, prokka, kaiju, kaiju2table, blastn
+    del (KaijuWorkflow, genome_annotation, WorkflowOptionsParser, blastn_alignment)
