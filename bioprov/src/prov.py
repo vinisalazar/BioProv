@@ -40,7 +40,7 @@ class BioProvDocument:
         )
         self.ProvDocument = ProvDocument()
         self.project = project
-        self.project.bundle = self.ProvDocument.bundle(str(self.project))
+        self.project.document = self.ProvDocument
         self._dot = prov_to_dot(self.ProvDocument)
         self._entities = dict()
         self._activities = dict()
@@ -137,16 +137,16 @@ class BioProvDocument:
             self._agents[_user] = _user_bundle.agent(_user_preffix)
             for _env_hash, _env in _env_dict.items():
                 if self.add_attributes:
-                    self._agents[_env_hash] = _user_bundle.agent(
+                    self._entities[_env_hash] = _user_bundle.entity(
                         f"envs:{_env}",
                         other_attributes=build_prov_attributes(
                             _env.env_dict, _env.env_namespace
                         ),
                     )
                 else:
-                    self._agents[_env_hash] = _user_bundle.agent(f"envs:{_env}")
-                _user_bundle.actedOnBehalfOf(
-                    self._agents[_env_hash], self._agents[_user]
+                    self._entities[_env_hash] = _user_bundle.entity(f"envs:{_env}")
+                _user_bundle.wasAttributedTo(
+                    self._entities[_env_hash], self._agents[_user]
                 )
 
     def _iter_samples(self):
@@ -245,7 +245,7 @@ class BioProvDocument:
                 )
 
             self.ProvDocument.wasDerivedFrom(
-                self._activities[program.name], self._agents[last_run.env]
+                self._activities[program.name], self._entities[last_run.env]
             )
 
             inputs, outputs = self._get_IO_from_params(program)
@@ -262,7 +262,7 @@ class BioProvDocument:
         :param program: instance of bioprov.Program
         :param io_list: list of input/output files
         :param io_type: 'input' or 'output'
-        :return: Adds relationship between sample and program.
+        :return: Adds relationship between
         """
 
         # Small assertion block

@@ -34,7 +34,7 @@ def main(args=None):
         description="BioProv command-line application. Choose a command to begin.\n"
     )
 
-    # Make this into a subparser
+    # TODO: Make this into a subparser
     commands = bioprov_parser.add_mutually_exclusive_group()
     commands.add_argument(
         "--show_config", help="Show location of config file.", action="store_true"
@@ -66,7 +66,7 @@ def main(args=None):
         else:
             args = bioprov_parser.parse_args()  # no cover
 
-    # Must improve this if/else loop. Use a dictionary.
+    # TODO: Must improve this if/else loop. Use a dictionary.
     if args.show_config:
         print(
             "This is the location of the config module.\n"
@@ -91,13 +91,14 @@ def main(args=None):
 
     elif args.list:
         tags = [f"'{project['tag']}'" for project in config.db.all()]
-        print(f"You have {len(tags)} Projects in your database:")
-        print("\n".join(tags))
+        print(f"You have {len(tags)} Projects in your database.")
+        if tags:
+            print("\n".join(tags))
         sys.exit(0)
 
-    elif args.clear_db:
-        config.db.clear_db()
-        sys.exit(0)
+    elif args.clear_db:  # no cover
+        config.db.clear_db()  # no cover
+        sys.exit(0)  # no cover
 
     parser = WorkflowOptionsParser()
     parser.parse_options(args)
