@@ -8,7 +8,8 @@ Code | [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg
 Docs | [![Docs status](https://readthedocs.org/projects/bioprov/badge/?version=latest)](https://bioprov.readthedocs.io/en/latest/?badge=latest) | [![binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/vinisalazar/bioprov/master?filepath=docs%2Ftutorials%2F)
 
 
-BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of biological data. It enables you to quickly write workflows and to describe relationships between samples, files, users and processes.
+BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of bioinformatics workflows.
+ It enables you to quickly write workflows and to describe relationships between samples, files, users and programs.
 
 Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detailed introduction. 
 
@@ -17,30 +18,49 @@ Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detai
 
 # Create samples and file objects
 >>> sample = bp.Sample("mysample")
->>> genome = bp.SequenceFile("mysample.fasta", "genome")
+>>> genome = bp.File("mysample.fasta", "genome")
 >>> sample.add_files(genome)
 
 # Create programs
 >>> output = sample.files["blast_out"] = bp.File("mysample.blast.tsv", "blast_out")
->>> blast = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "mydb.fasta", "-out": output})
+>>> blastn = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "mydb.fasta", "-out": output})
+>>> sample.add_programs(blastn)
 
 # Run programs
->>> blast.run(sample=sample)  # Or sample.run(program=blast)
+>>> sample.run_programs()
+
+# Save your project
+>>> proj = bp.Project((sample,), tag="example_project")
+>>> proj.to_json()
+
+### Create PROV documents
+>>> prov = bp.BioProvDocument(proj)
+
+### Save in PROVN or graphical format
+>>> prov.provn
+
 ```
 
 BioProv also has a command-line application to run preset workflows.
 
 ```
 $ bioprov -h
-usage: bioprov [-h] {genome_annotation,kaiju} ...
+usage: bioprov [-h] [--show_config | --show_db | --clear_db | -v | -l]
+               {genome_annotation,blastn,kaiju} ...
 
-BioProv command-line application. Choose a workflow to begin.
+BioProv command-line application. Choose a command to begin.
 
 optional arguments:
   -h, --help            show this help message and exit
+  --show_config         Show location of config file.
+  --show_db             Show location of database file.
+  --clear_db            Clears all records in database.
+  -v, --version         Show BioProv version
+  -l, --list            List Projects in the BioProv database.
 
 workflows:
-  {genome_annotation,kaiju}
+  {genome_annotation,blastn,kaiju}
+
 ```
 
 BioProv is built with the [Biopython](https://biopython.org/) and [Pandas](http://pandas.pydata.org/) libraries.
