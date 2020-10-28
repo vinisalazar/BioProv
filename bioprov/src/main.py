@@ -305,11 +305,11 @@ class Run:
 
     @property
     def status(self):
-        return self._finished_to_status(self.finished)
+        self._status = self._finished_to_status(self.finished)
+        return self._status
 
     @status.setter
-    def status(self, _):
-        value = self._finished_to_status(self.finished)
+    def status(self, value):
         self._status = value
 
     @staticmethod
@@ -386,7 +386,7 @@ class Run:
         duration = str(datetime.timedelta(seconds=duration))
         self.duration = duration
         self.finished = True
-        self.status = self._finished_to_status(self.finished)
+        self._status = self._finished_to_status(self.finished)
 
         # These are useful for quick debugging.
         if _print_stdout:
