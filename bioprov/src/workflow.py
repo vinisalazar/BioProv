@@ -149,7 +149,7 @@ class Workflow:
         parser.add_argument(
             "--steps",
             help=f"A comma-delimited string of which steps will be run in the workflow.\n"
-                 f"Possible steps:\n{list(self.steps.keys())}",
+            f"Possible steps:\n{list(self.steps.keys())}",
             default=self.default_steps,
         ),
 
@@ -202,7 +202,11 @@ class Workflow:
         # Loading samples statement
         print(Warnings()["sample_loading"](len(df)))
         project = from_df(
-            df, index_col=self.index_col, file_cols=self.file_columns, tag=self.tag, source_file=self.project_csv
+            df,
+            index_col=self.index_col,
+            file_cols=self.file_columns,
+            tag=self.tag,
+            source_file=self.project_csv,
         )
         return project
 

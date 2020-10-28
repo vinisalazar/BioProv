@@ -9,9 +9,36 @@ __version__ = "0.1.15"
 Testing for the programs package.
 """
 
-from bioprov.programs import prodigal, blastn, prokka, kaiju, kaiju2table
+from bioprov.programs import prodigal, diamond, blastn, prokka, kaiju, kaiju2table
 from bioprov.data import synechococcus_genome
 from bioprov import Sample
+
+
+def test_diamond():
+
+    s = Sample("Synechococcus", files={"query": synechococcus_genome})
+    reference_db = "./path_to_a_valid_blastdb"
+
+    dmnd_extra = diamond(
+        blast_type="blastp",
+        sample=s,
+        db=reference_db,
+        extra_flags=["--sensitive", "--log"],
+    )
+
+    expected = [
+        "blastp",
+        "--db",
+        "--outfmt",
+        "--query",
+        "--out",
+        "--sensitive",
+        "--log",
+    ]
+
+    dmnd_params = list(dmnd_extra.serializer()["params"].keys())
+
+    assert dmnd_params == expected
 
 
 def test_blastn():
