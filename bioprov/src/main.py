@@ -826,7 +826,7 @@ class Sample:
         :return:
         """
         keys = [
-            "files_namespace_preffix",
+            "files_namespace_preffix"
         ]
         return serializer_filter(self, keys)
 
@@ -876,7 +876,17 @@ class Sample:
         :return: pd.Series
         """
         series = {}
-        for k, v in self.__dict__.items():
+
+        # Can't apply serializer_filter here.
+        keys = ["files_namespace_preffix", "namespace_preffix", "_programs"]
+        modified_dict = self.__dict__.copy()
+        for key in keys:
+            try:
+                del modified_dict[key]
+            except KeyError:
+                pass
+
+        for k, v in modified_dict.items():
             if v is None or not v:
                 continue
             if isinstance(v, dict) and len(v) > 0:
