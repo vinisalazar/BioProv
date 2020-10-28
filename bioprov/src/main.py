@@ -339,7 +339,7 @@ class Run:
             self.program.found
         ), f"Cannot find program {self.program.name}. Make sure it is on your $PATH."
         if _print:
-            str_ = f"Running program '{self.program.name}'"
+            str_ = f"\nRunning program '{self.program.name}'"
             if _sample is not None:
                 str_ += f" for sample {_sample.name}."
             else:
