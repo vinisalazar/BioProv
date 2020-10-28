@@ -36,10 +36,10 @@ Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detai
 >>> proj = bp.Project((sample,), tag="example_project")
 >>> proj.to_json()
 
-### Create PROV documents
+# Create PROV documents
 >>> prov = bp.BioProvDocument(proj)
 
-### Save in PROVN or graphical format
+# Save in PROVN or graphical format
 >>> prov.write_provn()  # human-readable text format
 >>> prov.dot.write_pdf()  # graphical format
 ```
