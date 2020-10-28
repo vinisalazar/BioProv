@@ -42,6 +42,7 @@ class BioProvDocument:
         self.project = project
         self.project.document = self.ProvDocument
         self._dot = prov_to_dot(self.ProvDocument)
+        self._provn = self.ProvDocument.get_provn()
         self._entities = dict()
         self._activities = dict()
         self._agents = dict()
@@ -66,11 +67,21 @@ class BioProvDocument:
 
     @property
     def dot(self):
-        return prov_to_dot(self.ProvDocument)
+        self._dot = prov_to_dot(self.ProvDocument)
+        return self._dot
 
     @dot.setter
     def dot(self, value):
         self._dot = value
+
+    @property
+    def provn(self):
+        self._provn = self.ProvDocument.get_provn()
+        return self._provn
+
+    @provn.setter
+    def provn(self, value):
+        self._provn = value
 
     def _add_project_namespaces(self):
         """
