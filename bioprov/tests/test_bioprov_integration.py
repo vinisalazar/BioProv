@@ -80,14 +80,32 @@ def test_CLI():
     assert pytest_wrapped_e.type == SystemExit
 
     # Test other arguments
-    args = Namespace(show_config=True)
+    args = Namespace(show_config=True, show_db=False, version=False, list=False)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main(args)
 
     assert pytest_wrapped_e.type == SystemExit
 
-    args = Namespace(subparser_name="genome_annotation", show_config=False)
+    args = Namespace(show_config=False, show_db=True, version=False, list=False)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main(args)
+
+    assert pytest_wrapped_e.type == SystemExit
+
+    args = Namespace(show_config=False, show_db=False, version=True, list=False)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main(args)
+
+    assert pytest_wrapped_e.type == SystemExit
+
+    args = Namespace(subparser_name="genome_annotation", show_config=False, show_db=False, version=False, list=False)
     with pytest.raises(AttributeError) as pytest_wrapped_e:
         main(args)
 
     assert pytest_wrapped_e.type == AttributeError
+
+    args = Namespace(show_config=False, show_db=False, version=False, list=True)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main(args)
+
+    assert pytest_wrapped_e.type == SystemExit
