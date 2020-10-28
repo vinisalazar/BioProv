@@ -143,7 +143,7 @@ class EnvProv:
                 self.user = self.env_dict["USER"]
             except KeyError:  # no cover
                 self.env_dict["USER"] = "unknown"  # no cover
-            self.env_namespace = Namespace("env", str(self))
+            self.env_namespace = Namespace("envs", str(self))
 
     def serializer(self):
         return serializer(self)
