@@ -8,39 +8,62 @@ Code | [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg
 Docs | [![Docs status](https://readthedocs.org/projects/bioprov/badge/?version=latest)](https://bioprov.readthedocs.io/en/latest/?badge=latest) | [![binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/vinisalazar/bioprov/master?filepath=docs%2Ftutorials%2F)
 
 
-BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of biological data. It enables you to quickly write workflows and to describe relationships between samples, files, users and processes.
+BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of bioinformatics workflows.
+ It enables you to quickly write workflows and to describe relationships between samples, files, users and programs.
 
-Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detailed introduction. 
+Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detailed introduction and
+ visit [ReadTheDocs](https://bioprov.readthedocs.io/) for the complete documentation.
+
+### Quickstart
 
 ```
 >>> import bioprov as bp
 
 # Create samples and file objects
 >>> sample = bp.Sample("mysample")
->>> genome = bp.SequenceFile("mysample.fasta", "genome")
+>>> genome = bp.File("mysample.fasta", "genome")
 >>> sample.add_files(genome)
 
 # Create programs
 >>> output = sample.files["blast_out"] = bp.File("mysample.blast.tsv", "blast_out")
->>> blast = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "mydb.fasta", "-out": output})
+>>> blastn = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "mydb.fasta", "-out": output})
+>>> sample.add_programs(blastn)
 
 # Run programs
->>> blast.run(sample=sample)  # Or sample.run(program=blast)
+>>> sample.run_programs()
+
+# Save your project
+>>> proj = bp.Project((sample,), tag="example_project")
+>>> proj.to_json()
+
+# Create PROV documents
+>>> prov = bp.BioProvDocument(proj)
+
+# Save in PROVN or graphical format
+>>> prov.write_provn()  # human-readable text format
+>>> prov.dot.write_pdf()  # graphical format
 ```
 
 BioProv also has a command-line application to run preset workflows.
 
 ```
 $ bioprov -h
-usage: bioprov [-h] {genome_annotation,kaiju} ...
+usage: bioprov [-h] [--show_config | --show_db | --clear_db | -v | -l]
+               {genome_annotation,blastn,kaiju} ...
 
-BioProv command-line application. Choose a workflow to begin.
+BioProv command-line application. Choose a command to begin.
 
 optional arguments:
   -h, --help            show this help message and exit
+  --show_config         Show location of config file.
+  --show_db             Show location of database file.
+  --clear_db            Clears all records in database.
+  -v, --version         Show BioProv version
+  -l, --list            List Projects in the BioProv database.
 
 workflows:
-  {genome_annotation,kaiju}
+  {genome_annotation,blastn,kaiju}
+
 ```
 
 BioProv is built with the [Biopython](https://biopython.org/) and [Pandas](http://pandas.pydata.org/) libraries.
@@ -58,25 +81,14 @@ You can import data into BioProv using Pandas objects.
 >>> df["assembly"] = "assembly_directory/" + df["assembly"]
 
 # Now load from your df
->>> samples = bp.from_df(df, sequencefile_cols="assembly", source_file="my_dataframe.tsv")
+>>> project = bp.from_df(df, sequencefile_cols="assembly", source_file="my_dataframe.tsv")
 
 # `samples` becomes a Project dict-like object
->>> sample1 = samples['sample1']
-```
+>>> sample1 = project['sample1']
 
-BioProv 'SequenceFile' objects contains records formatted as [Biopython SeqRecords](https://biopython.org/wiki/SeqRecord):
-
+# You can also export your sample and associated files and attributes as a dataframe
+>>> project.to_csv()
 ```
->>> type(sample1)
-Bio.SeqRecord.SeqRecord
-```
-
-BioProv objects can be imported or exported as JSON objects.
-
-```
->>> sample1.to_json(), samples.to_json()
-```
-
 
 ### Installation
 
@@ -89,6 +101,7 @@ $ git clone https://github.com/vinisalazar/bioprov  # download
 $ cd bioprov; pip install .                         # install
 $ pytest                                            # test
 ```
+
 **Important!** BioProv requires [Prodigal](https://github.com/hyattpd/Prodigal) to be tested. Otherwise tests will fail.
 
 Contributions are welcome!
