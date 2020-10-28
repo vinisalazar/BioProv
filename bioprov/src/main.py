@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.14"
+__version__ = "0.1.15"
 
 """
 
@@ -37,7 +37,7 @@ from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
 from collections import OrderedDict
-from prov.model import ProvEntity, ProvDocument, Namespace
+from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
 
 
@@ -358,9 +358,9 @@ class Run:
                 fmt_cmd = " \\ \n".join(
                     [bin_] + ["\t" + i[0] + " " + i[1] for i in fmt_cmd] + ["\t" + last]
                 )
-                str_ += f"\nCommand is:\n{fmt_cmd}"
+                str_ += f"\nCommand is:\n{fmt_cmd}\n"
             else:
-                str_ += f"\nCommand is:\n{self.program.cmd}"
+                str_ += f"\nCommand is:\n{self.program.cmd}\n"
 
             str_ = str_.strip()
             if str_.endswith("\\"):
@@ -918,7 +918,7 @@ class Project:
 
         # PROV attributes
         self._entity = None
-        self._document = None
+        self._bundle = None
 
         # Hash and db attributes
         self._sha1 = dict_to_sha1(self.serializer())
@@ -976,7 +976,7 @@ class Project:
     @property
     def entity(self):
         if self._entity is None:
-            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
+            self._entity = ProvEntity(self._bundle, identifier=f"project:{self}")
         return self._entity
 
     @entity.setter
@@ -984,14 +984,14 @@ class Project:
         self._entity = value
 
     @property
-    def document(self):
-        if self._document is None:
-            self._document = ProvDocument()
-        return self._document
+    def bundle(self):
+        if self._bundle is None:
+            self._bundle = ProvBundle()
+        return self._bundle
 
-    @document.setter
-    def document(self, document):
-        self._document = document
+    @bundle.setter
+    def bundle(self, bundle):
+        self._bundle = bundle
 
     def update_db(self, db=None):
         if db is None:
@@ -1287,7 +1287,7 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
                 for env_attr_, attr_value_ in env_dict.items():
                     if env_attr_ == "env_namespace":
                         attr_value_ = Namespace(
-                            "env", str(project.users[user][env_hash])
+                            "envs", str(project.users[user][env_hash])
                         )
                     if replace_home:
                         if env_attr_ == "env_dict":

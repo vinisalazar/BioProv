@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.14"
+__version__ = "0.1.15"
 
 
 """
@@ -143,7 +143,7 @@ class EnvProv:
                 self.user = self.env_dict["USER"]
             except KeyError:  # no cover
                 self.env_dict["USER"] = "unknown"  # no cover
-            self.env_namespace = Namespace("env", str(self))
+            self.env_namespace = Namespace("envs", str(self))
 
     def serializer(self):
         return serializer(self)

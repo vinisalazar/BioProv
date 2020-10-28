@@ -4,10 +4,13 @@
 * Update README [ ]
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
-* Improve output PROVN documents [ ]
+* Add subparsers for CLI commands [ ]
 
 ### v0.1.15
-* TBD [ ]
+* Add database commands to CLI options [x]
+* Remodel environment as Agent rather than Entity [x]
+* Improve output PROVN documents [x]
+* Add Diamond preset and tests [x]
 
 ### v0.1.14
 * Add blastdb example data [x]

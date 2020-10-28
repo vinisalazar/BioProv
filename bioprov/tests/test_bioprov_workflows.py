@@ -2,12 +2,14 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.14"
+__version__ = "0.1.15"
 
 
 """
 Testing for the workflows package.
 """
+from os import remove
+from bioprov.utils import Warnings
 from bioprov.data import genome_annotation_dataset
 from bioprov.workflows.blastn import blastn_alignment
 from bioprov.workflows.genome_annotation import genome_annotation
@@ -36,6 +38,10 @@ def test_genome_annotation():
         "prodigal",
     ]
     workflow.run_steps(steps)
+
+    for _, sample in workflow.project.items():
+        for key, file in sample.files.items():
+            assert file.exists, Warnings()["not_exist"](file.path)
 
 
 def test_kaiju_workflow():
