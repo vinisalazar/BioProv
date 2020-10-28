@@ -37,7 +37,7 @@ from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
 from collections import OrderedDict
-from prov.model import ProvEntity, ProvDocument, Namespace
+from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
 
 
@@ -918,7 +918,7 @@ class Project:
 
         # PROV attributes
         self._entity = None
-        self._document = None
+        self._bundle = None
 
         # Hash and db attributes
         self._sha1 = dict_to_sha1(self.serializer())
@@ -976,7 +976,7 @@ class Project:
     @property
     def entity(self):
         if self._entity is None:
-            self._entity = ProvEntity(self._document, identifier=f"project:{self}")
+            self._entity = ProvEntity(self._bundle, identifier=f"project:{self}")
         return self._entity
 
     @entity.setter
@@ -984,14 +984,14 @@ class Project:
         self._entity = value
 
     @property
-    def document(self):
-        if self._document is None:
-            self._document = ProvDocument()
-        return self._document
+    def bundle(self):
+        if self._bundle is None:
+            self._bundle = ProvBundle()
+        return self._bundle
 
-    @document.setter
-    def document(self, document):
-        self._document = document
+    @bundle.setter
+    def bundle(self, bundle):
+        self._bundle = bundle
 
     def update_db(self, db=None):
         if db is None:
