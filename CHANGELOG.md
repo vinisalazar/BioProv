@@ -1,10 +1,14 @@
 ## Changelog
 
 ### To-do
-* Update README [ ]
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
 * Add subparsers for CLI commands [ ]
+
+### v0.1.16
+* Update README [x]
+* Improve Sample.to_series() and Project.to_csv() methods [x]
+* Add Project.to_csv() calls to tests [x]
 
 ### v0.1.15
 * Add database commands to CLI options [x]

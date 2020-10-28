@@ -85,6 +85,9 @@ You can import data into BioProv using Pandas objects.
 
 # `samples` becomes a Project dict-like object
 >>> sample1 = project['sample1']
+
+# You can also export your sample and associated files and attributes as a dataframe
+>>> project.to_csv()
 ```
 
 ### Installation
