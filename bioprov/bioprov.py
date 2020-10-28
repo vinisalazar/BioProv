@@ -33,11 +33,23 @@ def main(args=None):
     bioprov_parser = argparse.ArgumentParser(
         description="BioProv command-line application. Choose a command to begin.\n"
     )
-    bioprov_parser.add_argument(
-        "--show_config", help="Show location of config file", action="store_true"
+
+    # Make this into a subparser
+    commands = bioprov_parser.add_mutually_exclusive_group()
+    commands.add_argument(
+        "--show_config", help="Show location of config file.", action="store_true"
     )
-    bioprov_parser.add_argument(
+    commands.add_argument(
+        "--show_db", help="Show location of database file.", action="store_true"
+    )
+    commands.add_argument(
+        "--clear_db", help="Clears all records in database.", action="store_true"
+    )
+    commands.add_argument(
         "-v", "--version", help="Show BioProv version", action="store_true"
+    )
+    commands.add_argument(
+        "-l", "--list", help="List Projects in the BioProv database.", action="store_true"
     )
     workflows = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
     _ = workflows.add_parser("genome_annotation")
@@ -54,6 +66,7 @@ def main(args=None):
         else:
             args = bioprov_parser.parse_args()  # no cover
 
+    # Must improve this if/else loop. Use a dictionary.
     if args.show_config:
         print(
             "This is the location of the config module.\n"
@@ -64,8 +77,26 @@ def main(args=None):
         print(dict_to_string(config.__dict__))
 
         sys.exit(0)
+
+    elif args.show_db:
+        print(
+            "This is the location of your BioProv database file.\n"
+            f"'{config.db_path}'\n",
+        )
+        sys.exit(0)
+
     elif args.version:
         print(f"Local BioProv version is v{__version__}")
+        sys.exit(0)
+
+    elif args.list:
+        tags = [f"'{project['tag']}'" for project in config.db.all()]
+        print(f"You have {len(tags)} Projects in your database:")
+        print("\n".join(tags))
+        sys.exit(0)
+
+    elif args.clear_db:
+        config.db.clear_db()
         sys.exit(0)
 
     parser = WorkflowOptionsParser()
