@@ -8,6 +8,7 @@
 ### v0.1.15
 * Remodel environment as Agent rather than Entity [ ]
 * Improve output PROVN documents [ ]
+* Add Diamond preset and tests [x]
 
 ### v0.1.14
 * Add blastdb example data [x]
