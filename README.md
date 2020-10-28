@@ -11,7 +11,10 @@ Docs | [![Docs status](https://readthedocs.org/projects/bioprov/badge/?version=l
 BioProv is a Python library for [W3C-PROV](https://www.w3.org/TR/prov-overview/) representation of bioinformatics workflows.
  It enables you to quickly write workflows and to describe relationships between samples, files, users and programs.
 
-Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detailed introduction. 
+Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detailed introduction and
+ visit [ReadTheDocs](https://bioprov.readthedocs.io/) for the complete documentation.
+
+### Quickstart
 
 ```
 >>> import bioprov as bp
@@ -37,8 +40,8 @@ Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detai
 >>> prov = bp.BioProvDocument(proj)
 
 ### Save in PROVN or graphical format
->>> prov.provn
-
+>>> prov.write_provn()  # human-readable text format
+>>> prov.dot.write_pdf()  # graphical format
 ```
 
 BioProv also has a command-line application to run preset workflows.
@@ -78,25 +81,11 @@ You can import data into BioProv using Pandas objects.
 >>> df["assembly"] = "assembly_directory/" + df["assembly"]
 
 # Now load from your df
->>> samples = bp.from_df(df, sequencefile_cols="assembly", source_file="my_dataframe.tsv")
+>>> project = bp.from_df(df, sequencefile_cols="assembly", source_file="my_dataframe.tsv")
 
 # `samples` becomes a Project dict-like object
->>> sample1 = samples['sample1']
+>>> sample1 = project['sample1']
 ```
-
-BioProv 'SequenceFile' objects contains records formatted as [Biopython SeqRecords](https://biopython.org/wiki/SeqRecord):
-
-```
->>> type(sample1)
-Bio.SeqRecord.SeqRecord
-```
-
-BioProv objects can be imported or exported as JSON objects.
-
-```
->>> sample1.to_json(), samples.to_json()
-```
-
 
 ### Installation
 
@@ -109,6 +98,7 @@ $ git clone https://github.com/vinisalazar/bioprov  # download
 $ cd bioprov; pip install .                         # install
 $ pytest                                            # test
 ```
+
 **Important!** BioProv requires [Prodigal](https://github.com/hyattpd/Prodigal) to be tested. Otherwise tests will fail.
 
 Contributions are welcome!
