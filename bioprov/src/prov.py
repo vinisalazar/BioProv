@@ -166,7 +166,7 @@ class BioProvDocument:
         sample.ProvBundle = self.ProvDocument.bundle(sample.namespace_preffix)
         sample.ProvBundle.set_default_namespace(sample.name)
         self._entities[sample.name] = sample.ProvBundle.entity(f"samples:{sample.name}")
-        self.ProvDocument.wasDerivedFrom(
+        sample.ProvBundle.wasDerivedFrom(
             self._entities[sample.name], self.project.entity
         )
 
@@ -178,8 +178,8 @@ class BioProvDocument:
         :return: updates the sample.ProvBundle by creating PROV objects for the files.
 
         """
-        sample.files_namespace_preffix = f"{sample.name}.files"
-        sample.ProvBundle.add_namespace(
+        sample.files_namespace_preffix = "files"
+        sample.file_namespace = sample.ProvBundle.add_namespace(
             sample.files_namespace_preffix,
             f"Files associated with Sample {sample.name}",
         )
@@ -187,14 +187,14 @@ class BioProvDocument:
         # Files PROV attributes: namespace, entities
         for key, file in sample.files.items():
             # Create Namespace
-            file.namespace = sample.ProvBundle.add_namespace(file.name, str(file.path))
+            # file.namespace = sample.ProvBundle.add_namespace(file.name, str(file.path))
 
             # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(
                     f"{sample.files_namespace_preffix}:{file.name}",
                     other_attributes=build_prov_attributes(
-                        file.serializer(), file.namespace
+                        file.serializer(), sample.file_namespace
                     ),
                 )
             else:
@@ -210,7 +210,7 @@ class BioProvDocument:
 
     def _create_program_entities(self, sample):
         # Programs PROV attributes: namespace, entities
-        programs_namespace_prefix = f"{sample.name}.programs"
+        programs_namespace_prefix = f"programs"
         programs_namespace = sample.ProvBundle.add_namespace(
             programs_namespace_prefix,
             f"Programs associated with Sample {sample.name}",
@@ -244,7 +244,7 @@ class BioProvDocument:
                     endTime=last_run.end_time,
                 )
 
-            self.ProvDocument.wasAssociatedWith(
+            sample.ProvBundle.wasAssociatedWith(
                 self._activities[program.name], self._agents[last_run.env]
             )
 
