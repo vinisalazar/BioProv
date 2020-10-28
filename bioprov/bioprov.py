@@ -49,7 +49,10 @@ def main(args=None):
         "-v", "--version", help="Show BioProv version", action="store_true"
     )
     commands.add_argument(
-        "-l", "--list", help="List Projects in the BioProv database.", action="store_true"
+        "-l",
+        "--list",
+        help="List Projects in the BioProv database.",
+        action="store_true",
     )
     workflows = bioprov_parser.add_subparsers(title="workflows", dest="subparser_name")
     _ = workflows.add_parser("genome_annotation")

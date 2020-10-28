@@ -98,7 +98,13 @@ def test_CLI():
 
     assert pytest_wrapped_e.type == SystemExit
 
-    args = Namespace(subparser_name="genome_annotation", show_config=False, show_db=False, version=False, list=False)
+    args = Namespace(
+        subparser_name="genome_annotation",
+        show_config=False,
+        show_db=False,
+        version=False,
+        list=False,
+    )
     with pytest.raises(AttributeError) as pytest_wrapped_e:
         main(args)
 
