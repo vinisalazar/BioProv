@@ -339,7 +339,7 @@ class Run:
             self.program.found
         ), f"Cannot find program {self.program.name}. Make sure it is on your $PATH."
         if _print:
-            str_ = f"\nRunning program '{self.program.name}'"
+            str_ = f"Running program '{self.program.name}'"
             if _sample is not None:
                 str_ += f" for sample {_sample.name}."
             else:
@@ -358,9 +358,9 @@ class Run:
                 fmt_cmd = " \\ \n".join(
                     [bin_] + ["\t" + i[0] + " " + i[1] for i in fmt_cmd] + ["\t" + last]
                 )
-                str_ += f"\nCommand is:\n{fmt_cmd}"
+                str_ += f"\nCommand is:\n{fmt_cmd}\n"
             else:
-                str_ += f"\nCommand is:\n{self.program.cmd}"
+                str_ += f"\nCommand is:\n{self.program.cmd}\n"
 
             str_ = str_.strip()
             if str_.endswith("\\"):
@@ -1287,7 +1287,7 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
                 for env_attr_, attr_value_ in env_dict.items():
                     if env_attr_ == "env_namespace":
                         attr_value_ = Namespace(
-                            "env", str(project.users[user][env_hash])
+                            "envs", str(project.users[user][env_hash])
                         )
                     if replace_home:
                         if env_attr_ == "env_dict":
