@@ -241,6 +241,7 @@ def test_json_Sample():
     remove(str(sample.files["json"]))
 
 
+# TODO: improve this hideous test.
 def test_project_json_and_prov():
     def import_project():
         _project = read_csv(
