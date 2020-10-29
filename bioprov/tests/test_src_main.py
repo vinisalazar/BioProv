@@ -23,6 +23,7 @@ import pandas as pd
 from bioprov.src.main import (
     generate_param_str,
     Parameter,
+    File,
     parse_params,
     Program,
     Run,
@@ -253,10 +254,15 @@ def test_project_json_and_prov():
 
         return _project
 
-    def add_and_run_programs(_project):
+    def add_and_run_programs(_project, out):
         for k, _sample in _project.items():
             _sample.add_programs(prodigal(sample=_sample))
             _sample.run_programs()
+        _out = File(out)
+        _project.add_files(_out)
+        ls = Program("ls", params={">": str(_project.files["ls_out"])})
+        _project.add_programs(ls)
+        _project.programs['ls'].run()
 
     def export_json(path, _project):
         return _project.to_json(path)
@@ -269,7 +275,8 @@ def test_project_json_and_prov():
         write_json(json, _path=_path)
 
     project = import_project()
-    add_and_run_programs(project)
+    out = "./ls_out.txt"
+    add_and_run_programs(project, out)
 
     # Test export
     json_out = "./gentax_picocyano.json"
@@ -289,7 +296,7 @@ def test_project_json_and_prov():
     prov.write_provn(provn_path)
 
     # Clean up - JSON, PROVN, csv
-    for f in (json_out, json_out_2, prov_json_out, provn_path, csv):
+    for f in (out, json_out, json_out_2, prov_json_out, provn_path, csv):
         assert Path(f).exists(), Warnings()["not_found"](f)
         remove(f)
 
