@@ -1,12 +1,19 @@
 ## Changelog
 
 ### To-do
-* Update README [ ]
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
 * Add subparsers for CLI commands [ ]
 
+### v0.1.16
+* Update README [x]
+* Add Project.add_files() and add_programs() method [x]
+* Improve Project deserializer [x]
+* Add Project steps to Workflow class [x]
+
 ### v0.1.15
+* Improve Sample.to_series() and Project.to_csv() methods [x]
+* Add Project.to_csv() calls to tests [x]
 * Add database commands to CLI options [x]
 * Remodel environment as Agent rather than Entity [x]
 * Improve output PROVN documents [x]
