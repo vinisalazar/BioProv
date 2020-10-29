@@ -825,9 +825,7 @@ class Sample:
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        keys = [
-            "files_namespace_preffix"
-        ]
+        keys = ["files_namespace_preffix"]
         return serializer_filter(self, keys)
 
     def run_programs(self, _print=True):
@@ -1298,7 +1296,12 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
         deserialized_files = deserialize_files_dict(d["files"])
         deque((project.add_files(file_) for file_ in deserialized_files.values()))
         deserialized_programs = deserialize_programs_dict(d["programs"], project)
-        deque((project.add_programs(program_) for program_ in deserialized_programs.values()))
+        deque(
+            (
+                project.add_programs(program_)
+                for program_ in deserialized_programs.values()
+            )
+        )
 
         for user, env in d["users"].items():
             for env_hash, env_dict in env.items():

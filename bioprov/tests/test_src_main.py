@@ -262,7 +262,7 @@ def test_project_json_and_prov():
         _project.add_files(_out)
         ls = Program("ls", params={">": str(_project.files["ls_out"])})
         _project.add_programs(ls)
-        _project.programs['ls'].run()
+        _project.programs["ls"].run()
 
     def export_json(path, _project):
         return _project.to_json(path)

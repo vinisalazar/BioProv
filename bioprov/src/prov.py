@@ -351,7 +351,9 @@ class BioProvDocument:
             path += ".txt"
 
         path = Path(path)
-        assert path.parent.exists(), f"Directory '{path.parent}' not found.\nPlease provide a valid directory."
+        assert (
+            path.parent.exists()
+        ), f"Directory '{path.parent}' not found.\nPlease provide a valid directory."
 
         if path.exists():
             print(f"Overwriting file at '{path}'")

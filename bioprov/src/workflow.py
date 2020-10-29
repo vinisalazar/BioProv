@@ -67,7 +67,9 @@ class Workflow:
         self.file_columns = file_columns
         self.file_extensions = file_extensions
         self.default_steps = []  # Must be added by add_step()
-        self.steps = OrderedDict()  # Will only update if isinstance(steps, (list, dict, tuple):
+        self.steps = (
+            OrderedDict()
+        )  # Will only update if isinstance(steps, (list, dict, tuple):
 
         # Parse steps arg - dict
         if isinstance(steps, dict):
