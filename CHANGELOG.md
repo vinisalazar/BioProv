@@ -9,6 +9,9 @@
 * Update README [x]
 * Improve Sample.to_series() and Project.to_csv() methods [x]
 * Add Project.to_csv() calls to tests [x]
+* Add Project.add_files() and add_programs() method [x]
+* Improve Project deserializer [x]
+* Add Project steps to Workflow class [x]
 
 ### v0.1.15
 * Add database commands to CLI options [x]
