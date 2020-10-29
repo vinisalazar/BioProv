@@ -16,7 +16,7 @@ Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detai
 
 ### Quickstart
 
-```
+```py
 >>> import bioprov as bp
 
 # Create samples and file objects
@@ -70,7 +70,7 @@ BioProv is built with the [Biopython](https://biopython.org/) and [Pandas](http:
 
 You can import data into BioProv using Pandas objects.
 
-```
+```py
 # Read csv straight into BioProv
 >>> samples = bp.read_csv("my_dataframe.tsv", sep="\t", sequencefile_cols="assembly")
 
