@@ -13,6 +13,7 @@ import pandas as pd
 from glob import glob
 from bioprov import from_df, config, PresetProgram
 from bioprov.utils import Warnings
+from collections import OrderedDict
 from os import path
 from tqdm import tqdm
 
@@ -66,9 +67,7 @@ class Workflow:
         self.file_columns = file_columns
         self.file_extensions = file_extensions
         self.default_steps = []  # Must be added by add_step()
-        self.steps = (
-            dict()
-        )  # Will only update if isinstance(steps, (list, dict, tuple):
+        self.steps = OrderedDict()  # Will only update if isinstance(steps, (list, dict, tuple):
 
         # Parse steps arg - dict
         if isinstance(steps, dict):
@@ -168,6 +167,7 @@ class Workflow:
         # Update parser:
         self.generate_parser()
 
+    # TODO: implement Project steps
     def run_steps(self, steps_to_run):
         """
         Runs steps for each sample.
@@ -176,15 +176,27 @@ class Workflow:
         """
         if isinstance(steps_to_run, str):
             steps_to_run = steps_to_run.split(",")
+
+        # TODO: improve this assertion
         assert len(
             steps_to_run
         ), f"Invalid steps to run:\n'{steps_to_run}'\nPlease provide a comma-delimited string."
         if self.project is None:
             self.generate_sampleset()
-        for k, step in self.steps.items():
+
+        for k, step in tqdm(self.steps.items()):
             if k in steps_to_run:
-                for _, sample in tqdm(self.project.items()):
-                    _run = step.run(sample=sample, _print=self.verbose)
+                if step.kind == "Sample":
+                    for _, sample in tqdm(self.project.items()):
+                        _run = step.run(sample=sample, _print=self.verbose)
+                        if not step.runs[
+                            str(len(step.runs))
+                        ].stderr:  # Add to successes if no standard error.
+                            step.successes += 1
+
+                elif step.kind == "Project":
+                    self.project.add_programs(step)
+                    self.project.programs[step.name].run()
                     if not step.runs[
                         str(len(step.runs))
                     ].stderr:  # Add to successes if no standard error.
@@ -315,8 +327,6 @@ class Step(PresetProgram):
 
     Steps are basically PresetProgram instances but they do not have
     any Sample associated with them, and always generate command strings.
-
-    They have two extra attributes: input_files and output_files.
     """
 
     def __init__(
@@ -324,6 +334,7 @@ class Step(PresetProgram):
         preset_program,
         default=False,
         description="",
+        kind="Sample",
     ):
         super().__init__(
             preset_program.name,
@@ -336,3 +347,4 @@ class Step(PresetProgram):
         self.default = default
         self.description = description
         self.successes = 0
+        self.kind = kind
