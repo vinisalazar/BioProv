@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 
 
 """
@@ -64,7 +64,8 @@ class File:
 
     @property
     def sha1(self):
-        return file_to_sha1(self.path)
+        self._sha1 = file_to_sha1(self.path)
+        return self._sha1
 
     @sha1.setter
     def sha1(self, value):
@@ -72,7 +73,8 @@ class File:
 
     @property
     def exists(self):
-        return self.path.exists()
+        self._exists = self.path.exists()
+        return self._exists
 
     @exists.setter
     def exists(self, value):

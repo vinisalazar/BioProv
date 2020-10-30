@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 
 """
 
@@ -103,7 +103,7 @@ class Program:
         :param runs: See input to add_runs function.
         :return: Adds runs to Sample
         """
-        add_runs(self, runs)
+        _add_runs(self, runs)
 
     def generate_cmd(self):
         """
@@ -305,11 +305,11 @@ class Run:
 
     @property
     def status(self):
-        return self._finished_to_status(self.finished)
+        self._status = self._finished_to_status(self.finished)
+        return self._status
 
     @status.setter
-    def status(self, _):
-        value = self._finished_to_status(self.finished)
+    def status(self, value):
         self._status = value
 
     @staticmethod
@@ -386,7 +386,7 @@ class Run:
         duration = str(datetime.timedelta(seconds=duration))
         self.duration = duration
         self.finished = True
-        self.status = self._finished_to_status(self.finished)
+        self._status = self._finished_to_status(self.finished)
 
         # These are useful for quick debugging.
         if _print_stdout:
@@ -684,7 +684,7 @@ def generate_param_str(params):
     return param_str
 
 
-def add_programs(object_, programs):
+def _add_programs(object_, programs):
     """
     Adds program(s) to object. Must be an instance or iterable of bioprov.Program.
     :param object_: A bioprov.Sample or Project instance.
@@ -716,7 +716,7 @@ def add_programs(object_, programs):
         object_.programs[program.name] = program
 
 
-def add_runs(object_, runs):
+def _add_runs(object_, runs):
     """
     Adds run(s) to object. Must be an instance or iterable of bioprov.Run.
     :param object_: A bioprov.Sample or Project instance.
@@ -810,7 +810,7 @@ class Sample:
                          and value is a bp.Program instance.
         :return: Updates self by adding the programs to object.
         """
-        add_programs(self, programs)
+        _add_programs(self, programs)
 
     def add_files(self, files):
         """
@@ -818,16 +818,14 @@ class Sample:
         :param files: See input to add_files function.
         :return: Adds files to Sample
         """
-        add_files(self, files)
+        _add_files(self, files)
 
     def serializer(self):
         """
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        keys = [
-            "files_namespace_preffix",
-        ]
+        keys = ["files_namespace_preffix"]
         return serializer_filter(self, keys)
 
     def run_programs(self, _print=True):
@@ -876,7 +874,17 @@ class Sample:
         :return: pd.Series
         """
         series = {}
-        for k, v in self.__dict__.items():
+
+        # Can't apply serializer_filter here.
+        keys = ["files_namespace_preffix", "namespace_preffix", "_programs"]
+        modified_dict = self.__dict__.copy()
+        for key in keys:
+            try:
+                del modified_dict[key]
+            except KeyError:
+                pass
+
+        for k, v in modified_dict.items():
             if v is None or not v:
                 continue
             if isinstance(v, dict) and len(v) > 0:
@@ -906,6 +914,7 @@ class Project:
             tag = generate_slug(2)
         self.tag = tag.replace(" ", "_")
         self.files = dict()
+        self.programs = dict()
         samples = self.is_iterator(
             samples
         )  # Checks if `samples` is a valid constructor.
@@ -1045,11 +1054,21 @@ class Project:
 
     def add_files(self, files):
         """
-        Project method to add files.
-        :param files: See input to add_files function.
-        :return: Adds files to Project
+        Adds Files to self.files. See documentation to bioprov.src.main.add_files().
+
+        :param files: Dict, list, or File instance.
+        :return: Updates self.files
         """
-        add_files(self, files)
+        _add_files(self, files)
+        self.auto_update_db()
+
+    def add_programs(self, programs):
+        """
+        Add programs to self. See documentation to bioprov.src.main.Progarm
+        :param programs: Dict, list, or Program instance.
+        :return: Updates self.programs
+        """
+        _add_programs(self, programs)
         self.auto_update_db()
 
     @staticmethod
@@ -1167,7 +1186,7 @@ class Project:
         df.to_csv(path_, sep=sep, **kwargs)
 
 
-def add_files(object_, files):
+def _add_files(object_, files):
     """
     Adds file(s) to object. Must be a dict or an instance or iterable of bioprov.File.
     :param object_: A Sample or Project instance.
@@ -1273,9 +1292,16 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
         # Create Project
         project = Project(samples=samples, tag=d["tag"])
 
-        # Deserializing and adding project files
+        # Deserializing and adding project files and programs
         deserialized_files = deserialize_files_dict(d["files"])
         deque((project.add_files(file_) for file_ in deserialized_files.values()))
+        deserialized_programs = deserialize_programs_dict(d["programs"], project)
+        deque(
+            (
+                project.add_programs(program_)
+                for program_ in deserialized_programs.values()
+            )
+        )
 
         for user, env in d["users"].items():
             for env_hash, env_dict in env.items():

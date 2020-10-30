@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 
 
 """
@@ -23,6 +23,7 @@ import pandas as pd
 from bioprov.src.main import (
     generate_param_str,
     Parameter,
+    File,
     parse_params,
     Program,
     Run,
@@ -31,6 +32,7 @@ from bioprov.src.main import (
 )
 from coolname import generate_slug
 from os import remove
+from pathlib import Path
 from bioprov import (
     Sample,
     Project,
@@ -41,7 +43,7 @@ from bioprov import (
     BioProvDocument,
     BioProvDB,
 )
-from bioprov.utils import dict_to_sha1
+from bioprov.utils import dict_to_sha1, Warnings
 from bioprov.data import synechococcus_genome, picocyano_dataset
 from bioprov.programs import prodigal
 
@@ -240,6 +242,7 @@ def test_json_Sample():
     remove(str(sample.files["json"]))
 
 
+# TODO: improve this hideous test.
 def test_project_json_and_prov():
     def import_project():
         _project = read_csv(
@@ -251,10 +254,15 @@ def test_project_json_and_prov():
 
         return _project
 
-    def add_and_run_programs(_project):
+    def add_and_run_programs(_project, out):
         for k, _sample in _project.items():
             _sample.add_programs(prodigal(sample=_sample))
             _sample.run_programs()
+        _out = File(out)
+        _project.add_files(_out)
+        ls = Program("ls", params={">": str(_project.files["ls_out"])})
+        _project.add_programs(ls)
+        _project.programs["ls"].run()
 
     def export_json(path, _project):
         return _project.to_json(path)
@@ -267,7 +275,8 @@ def test_project_json_and_prov():
         write_json(json, _path=_path)
 
     project = import_project()
-    add_and_run_programs(project)
+    out = "./ls_out.txt"
+    add_and_run_programs(project, out)
 
     # Test export
     json_out = "./gentax_picocyano.json"
@@ -275,15 +284,20 @@ def test_project_json_and_prov():
 
     from_json(json_out)
     project = from_json(json_out, replace_path=("", ""))
+    csv = f"{project.tag}.csv"
+    project.to_csv(csv)
     json_out_2 = "./gentax_picocyano_copy.json"
     export_json(json_out_2, project)
 
     prov = create_prov(project)
     prov_json_out = "./gentax_picocyano_prov.json"
     export_prov_json(prov_json_out, prov)
+    provn_path = prov_json_out.replace("prov.json", "provn.txt")
+    prov.write_provn(provn_path)
 
-    # Clean up - JSON
-    for f in (json_out, json_out_2, prov_json_out):
+    # Clean up - JSON, PROVN, csv
+    for f in (out, json_out, json_out_2, prov_json_out, provn_path, csv):
+        assert Path(f).exists(), Warnings()["not_found"](f)
         remove(f)
 
     # Clean up - prodigal output

@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 
 """
 Module containing base provenance attributes.
@@ -10,6 +10,7 @@ Module containing base provenance attributes.
 This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
+from pathlib import Path
 from bioprov import Project, Parameter
 from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
 from prov.model import ProvDocument
@@ -42,6 +43,7 @@ class BioProvDocument:
         self.project = project
         self.project.document = self.ProvDocument
         self._dot = prov_to_dot(self.ProvDocument)
+        self._provn = self.ProvDocument.get_provn()
         self._entities = dict()
         self._activities = dict()
         self._agents = dict()
@@ -66,11 +68,21 @@ class BioProvDocument:
 
     @property
     def dot(self):
-        return prov_to_dot(self.ProvDocument)
+        self._dot = prov_to_dot(self.ProvDocument)
+        return self._dot
 
     @dot.setter
     def dot(self, value):
         self._dot = value
+
+    @property
+    def provn(self):
+        self._provn = self.ProvDocument.get_provn()
+        return self._provn
+
+    @provn.setter
+    def provn(self, value):
+        self._provn = value
 
     def _add_project_namespaces(self):
         """
@@ -186,9 +198,6 @@ class BioProvDocument:
 
         # Files PROV attributes: namespace, entities
         for key, file in sample.files.items():
-            # Create Namespace
-            # file.namespace = sample.ProvBundle.add_namespace(file.name, str(file.path))
-
             # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(
@@ -328,3 +337,28 @@ class BioProvDocument:
                 "activities",
                 f"Activities associated with bioprov Project '{self.project.tag}'",
             )
+
+    def write_provn(self, path=None):
+        """
+        Writes PROVN output of document.
+        :param path: Path to write file.
+        :return: Writes file.
+        """
+        if path is None:
+            path = f"./{self.project.tag}_provn"
+            if self.add_attributes:
+                path += "_attrs"
+            path += ".txt"
+
+        path = Path(path)
+        assert (
+            path.parent.exists()
+        ), f"Directory '{path.parent}' not found.\nPlease provide a valid directory."
+
+        if path.exists():
+            print(f"Overwriting file at '{path}'")
+
+        with open(path, "w") as f:
+            f.write(self.provn)
+
+        print(f"Wrote PROVN record to {path}.")
