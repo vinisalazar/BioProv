@@ -5,6 +5,10 @@
     * Add subpackage docstrings [ ]
 * Add subparsers for CLI commands [ ]
 
+### v0.1.17
+* Add more database methods [ ]
+* TBD [ ]
+
 ### v0.1.16
 * Update README [x]
 * Add Project.add_files() and add_programs() method [x]
