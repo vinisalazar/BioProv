@@ -4,8 +4,10 @@
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
 * Add subparsers for CLI commands [ ]
+* Add support for ProvStore API (#23)
 
 ### v0.1.17
+* Create Sample and Project .write_paths_to_file() and .copy_files_to_dir() methods [ ]
 * Add more database methods [ ]
 * Improver error handling for JSON methods [x]
 * TBD [ ]
