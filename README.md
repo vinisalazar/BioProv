@@ -26,7 +26,10 @@ Please see the [tutorials](./docs/tutorials/introduction.ipynb) for a more detai
 
 # Create programs
 >>> output = sample.files["blast_out"] = bp.File("mysample.blast.tsv", "blast_out")
->>> blastn = bp.Program("blastn", params={"-query": sample.files["genome"], "-db": "mydb.fasta", "-out": output})
+>>> blastn = bp.Program("blastn",
+                        params={"-query": sample.files["genome"],
+                                "-db": "mydb.fasta", "-out": output}
+                        )
 >>> sample.add_programs(blastn)
 
 # Run programs
