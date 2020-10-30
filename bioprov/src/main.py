@@ -850,9 +850,6 @@ class Sample:
         program.run(sample=self, _print=_print)
         self.add_programs(program)
 
-        if program not in self.programs:
-            self.programs[program.name] = program
-
     @property
     def programs(self):
         if self._programs is None:
@@ -1423,8 +1420,8 @@ def read_csv(df_path, sep=",", **kwargs):
     :return: A Project instance.
     """
     df = pd.read_csv(df_path, sep=sep)
-    sampleset = from_df(df, source_file=df_path, **kwargs)
-    return sampleset
+    project = from_df(df, source_file=df_path, **kwargs)
+    return project
 
 
 def json_to_dict(json_file):

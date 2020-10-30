@@ -98,7 +98,7 @@ class Workflow:
             assert (
                 self.input_type in _input_types
             ), f"Input type '{self.input_type}' is invalid, choose from {_input_types}"
-            self.generate_sampleset()
+            self.generate_project()
 
         # Only generate parser if there is a name, description, and steps.
         if all(
@@ -106,16 +106,16 @@ class Workflow:
         ):
             self.generate_parser()
 
-    def generate_sampleset(self):
+    def generate_project(self):
         """
         Generate Project instance from input.
         :return: Project instance.
         """
-        _generate_sampleset = {
+        _generate_project = {
             "dataframe": self._load_dataframe_input,
             "directory": self._load_directory_input,
         }
-        self.project = _generate_sampleset[self.input_type]()
+        self.project = _generate_project[self.input_type]()
 
     def generate_parser(self):
         parser = argparse.ArgumentParser(
@@ -184,7 +184,7 @@ class Workflow:
             steps_to_run
         ), f"Invalid steps to run:\n'{steps_to_run}'\nPlease provide a comma-delimited string."
         if self.project is None:
-            self.generate_sampleset()
+            self.generate_project()
 
         for k, step in tqdm(self.steps.items()):
             if k in steps_to_run:
@@ -207,7 +207,7 @@ class Workflow:
                 if self.verbose:
                     print(f"Skipping step '{step.name}'")
 
-    def _sampleset_from_dataframe(self, df):
+    def _project_from_dataframe(self, df):
         """
         Run from_df on dataframe and updates self.project.
         :param df: Instance of pd.DataFrame.
@@ -258,8 +258,8 @@ class Workflow:
             lambda s: path.splitext(path.basename(s))[0]
         )
 
-        sampleset = self._sampleset_from_dataframe(df)
-        return sampleset
+        project = self._project_from_dataframe(df)
+        return project
 
     def _load_dataframe_input(self):
         """
@@ -306,8 +306,8 @@ class Workflow:
                     file_
                 ), f"File '{file_}' was not found! Make sure all file paths are correct in input file."
 
-        sampleset = self._sampleset_from_dataframe(df)
-        return sampleset
+        project = self._project_from_dataframe(df)
+        return project
 
     def main(self):
         """
