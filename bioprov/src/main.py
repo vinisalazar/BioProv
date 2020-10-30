@@ -25,6 +25,7 @@ This class also contains functions to read and write objects in JSON and tab-del
 import datetime
 import json
 import pandas as pd
+import tempfile
 from bioprov import config
 from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
 from bioprov.src.files import File, SeqFile, deserialize_files_dict
@@ -1286,39 +1287,49 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
             HOME = str(Path.home())
 
         samples = dict()
-        for k, v in d["_samples"].items():
-            samples[k] = dict_to_sample(v)
+
+        try:
+            for k, v in d["_samples"].items():
+                samples[k] = dict_to_sample(v)
+        except KeyError:
+            pass
 
         # Create Project
         project = Project(samples=samples, tag=d["tag"])
 
         # Deserializing and adding project files and programs
-        deserialized_files = deserialize_files_dict(d["files"])
-        deque((project.add_files(file_) for file_ in deserialized_files.values()))
-        deserialized_programs = deserialize_programs_dict(d["programs"], project)
-        deque(
-            (
-                project.add_programs(program_)
-                for program_ in deserialized_programs.values()
+        try:
+            deserialized_files = deserialize_files_dict(d["files"])
+            deque((project.add_files(file_) for file_ in deserialized_files.values()))
+            deserialized_programs = deserialize_programs_dict(d["programs"], project)
+            deque(
+                (
+                    project.add_programs(program_)
+                    for program_ in deserialized_programs.values()
+                )
             )
-        )
+        except KeyError:
+            pass
 
-        for user, env in d["users"].items():
-            for env_hash, env_dict in env.items():
-                try:
-                    project.users[user][env_hash] = EnvProv()
-                except KeyError:
-                    project.users[user] = dict()
-                    project.users[user][env_hash] = EnvProv()
-                for env_attr_, attr_value_ in env_dict.items():
-                    if env_attr_ == "env_namespace":
-                        attr_value_ = Namespace(
-                            "envs", str(project.users[user][env_hash])
-                        )
-                    if replace_home:
-                        if env_attr_ == "env_dict":
-                            other_HOME_variables.append(attr_value_["HOME"])
-                    setattr(project.users[user][env_hash], env_attr_, attr_value_)
+        try:
+            for user, env in d["users"].items():
+                for env_hash, env_dict in env.items():
+                    try:
+                        project.users[user][env_hash] = EnvProv()
+                    except KeyError:
+                        project.users[user] = dict()
+                        project.users[user][env_hash] = EnvProv()
+                    for env_attr_, attr_value_ in env_dict.items():
+                        if env_attr_ == "env_namespace":
+                            attr_value_ = Namespace(
+                                "envs", str(project.users[user][env_hash])
+                            )
+                        if replace_home:
+                            if env_attr_ == "env_dict":
+                                other_HOME_variables.append(attr_value_["HOME"])
+                        setattr(project.users[user][env_hash], env_attr_, attr_value_)
+        except KeyError:
+            pass
 
         if replace_home:
             project.replace_paths(other_HOME_variables, HOME, warnings=True)
@@ -1482,3 +1493,26 @@ def write_json(dict_, _path, _print=True):
             print(f"Created JSON file at {_path}.")
         else:
             print(f"Could not create JSON file for {_path}.")
+
+
+def load_project(tag):
+    """
+    Loads Project from the BioProvDatabase set in the config
+
+    :param tag: Tag of the Project to be loaded.
+    :return: Instance of Project
+    """
+    assert len(config.db) > 0, f"Project not found. Database at '{config.db_path}' is empty"
+
+    query = Query()
+    try:
+        result = config.db.search(query.tag == tag)[0]
+    except (IndexError, KeyError):
+        print(f"Project not found in database at {config.db_path}")
+        return
+
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(bytes(json.dumps(result), 'utf-8'))
+        project = from_json(f.name)
+
+    return project

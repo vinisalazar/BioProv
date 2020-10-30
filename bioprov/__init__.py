@@ -24,6 +24,7 @@ from .src.main import (
     from_df,
     from_json,
     write_json,
+    load_project
 )
 from .src.prov import BioProvDocument, BioProvDocument
 
