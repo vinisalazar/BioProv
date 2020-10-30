@@ -948,12 +948,9 @@ class Project:
             value = self._samples[item]
             return value
         except KeyError:
-            keys = self.keys()
-            print(
-                f"Sample {item} not in Project.\n",
-                "Check the following keys:\n",
-                "\n".join(keys),
-            )
+            print(f"Sample {item} not in Project.\n")
+            print("Check the following keys:")
+            print(" ", "\n  ".join(self.keys))
 
     def __setitem__(self, key, value):
         self._samples[key] = value
