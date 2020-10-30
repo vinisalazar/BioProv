@@ -7,6 +7,7 @@
 
 ### v0.1.17
 * Add more database methods [ ]
+* Improver error handling for JSON methods [x]
 * TBD [ ]
 
 ### v0.1.16
