@@ -785,7 +785,7 @@ class Sample:
         else:
             attributes = dict()
         self.attributes = attributes
-        self._programs = None
+        self.programs = OrderedDict()
 
         # This is an attribute used by the src.prov module
         self.namespace_preffix = f"samples:{self.name}"
@@ -834,27 +834,16 @@ class Sample:
         Runs self._programs in order.
         :return:
         """
-        if len(self.programs) >= 1:
-            for _, p in self.programs.items():
-                self._run_program(p, _print=_print)
-        else:
-            print(f"No programs to run for Sample '{self.name}'")
+        _run_programs(self, _print)
 
     def _run_program(self, program, _print=True):
         """
-        Run a Program or PresetProgram on Sample.
-        :param program: An instance of bioprov.Program or PresetProgram
+        Runs program for self.
+        :param program: bioprov.Program or bioprov.PresetProgram.
         :param _print: Whether to print output of Program.
-        :return: Runs the program for Sample.
+        :return: Runs Program and updates self.
         """
-        program.run(sample=self, _print=_print)
-        self.add_programs(program)
-
-    @property
-    def programs(self):
-        if self._programs is None:
-            self._programs = dict()
-        return self._programs
+        _run_program(self, program, _print)
 
     def to_json(self, _path=None, _print=True):
         """
@@ -894,6 +883,36 @@ class Sample:
         return pd.Series(series)
 
 
+def _run_program(_object, program, _print=True):
+    """
+    Runs program for _object.
+
+    :param _object: bioprov.Project or bioprov.Sample
+    :param program: bioprov.Program or bioprov.PresetProgram.
+    :param _print: Whether to print output of Program.
+    :return: Runs Program and updates _object.
+    """
+    if program not in _object.programs.keys():
+        _object.add_programs(program)
+    program.run(sample=_object, _print=_print)
+
+
+def _run_programs(_object, _print=True):
+    """
+    Runs programs in order.
+
+    :param _object: bioprov.Project or bioprov.Sample
+    :param _print: Whether to print output of Program.
+    :return:
+    """
+    if len(_object.programs) >= 1:
+        for _, p in _object.programs.items():
+            # noinspection PyProtectedMember
+            _object._run_program(p, _print=_print)
+    else:
+        print(f"No programs to run for {_object}")
+
+
 class Project:
     """
     Class which holds a dictionary of Sample instances, where each key is the sample name.
@@ -912,7 +931,7 @@ class Project:
             tag = generate_slug(2)
         self.tag = tag.replace(" ", "_")
         self.files = dict()
-        self.programs = dict()
+        self.programs = OrderedDict()
         samples = self.is_iterator(
             samples
         )  # Checks if `samples` is a valid constructor.
@@ -1065,6 +1084,24 @@ class Project:
         """
         _add_programs(self, programs)
         self.auto_update_db()
+
+    def run_programs(self, _print=True):
+        """
+        Runs all programs in self.programs in order.
+
+        :return:
+        """
+        _run_programs(self, _print)
+
+    def _run_program(self, program=None, _print=True):
+        """
+        Runs program for self.
+
+        :param program: bioprov.Program or bioprov.PresetProgram.
+        :param _print: Whether to print output of Program.
+        :return: Runs Program and updates self.
+        """
+        _run_program(self, program, _print)
 
     @staticmethod
     def is_sample_and_name(sample):
@@ -1457,7 +1494,7 @@ def dict_to_sample(json_dict):
                 )
 
             # Create Program instances
-            elif attr == "_programs":
+            elif attr == "programs":
                 deserialized_programs = deserialize_programs_dict(value, sample_)
                 deque(
                     (
@@ -1477,7 +1514,7 @@ def write_json(dict_, _path, _print=True):
     :param dict_: JSON dictionary.
     :param _path: String with _path to JSON file.
     :param _print: Whether to print if the file was successfully created.
-    :return: Writes JSON file
+    :return: Writes JSON file.
     """
     with open(_path, "w") as f:
         json.dump(dict_, f, indent=3)
@@ -1491,10 +1528,10 @@ def write_json(dict_, _path, _print=True):
 
 def load_project(tag):
     """
-    Loads Project from the BioProvDatabase set in the config
+    Loads Project from the BioProvDatabase set in the config.
 
     :param tag: Tag of the Project to be loaded.
-    :return: Instance of Project
+    :return: Instance of Project.
     """
     assert len(config.db) > 0, f"Project not found. Database at '{config.db_path}' is empty"
 
