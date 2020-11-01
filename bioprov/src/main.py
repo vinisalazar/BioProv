@@ -1533,7 +1533,9 @@ def load_project(tag):
     :param tag: Tag of the Project to be loaded.
     :return: Instance of Project.
     """
-    assert len(config.db) > 0, f"Project not found. Database at '{config.db_path}' is empty"
+    assert (
+        len(config.db) > 0
+    ), f"Project not found. Database at '{config.db_path}' is empty"
 
     query = Query()
     try:
@@ -1543,7 +1545,7 @@ def load_project(tag):
         return
 
     with tempfile.NamedTemporaryFile() as f:
-        f.write(bytes(json.dumps(result), 'utf-8'))
+        f.write(bytes(json.dumps(result), "utf-8"))
         project = from_json(f.name)
 
     return project
