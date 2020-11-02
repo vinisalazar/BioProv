@@ -930,6 +930,7 @@ class Project:
         if tag is None:
             tag = generate_slug(2)
         self.tag = tag.replace(" ", "_")
+        self._name = self.tag
         self.files = dict()
         self.programs = OrderedDict()
         samples = self.is_iterator(
@@ -945,6 +946,8 @@ class Project:
         # PROV attributes
         self._entity = None
         self._bundle = None
+        self.namespace_preffix = f"project:{self}"
+        self.files_namespace_preffix = None
 
         # Hash and db attributes
         self._sha1 = dict_to_sha1(self.serializer())
@@ -982,6 +985,11 @@ class Project:
 
     def items(self):
         return self._samples.items()
+
+    @property
+    def name(self):
+        self._name = self.tag
+        return self._name
 
     @property
     def sha1(self):
