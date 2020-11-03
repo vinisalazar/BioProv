@@ -94,10 +94,6 @@ class Program:
             self._runs = dict()
         return self._runs
 
-    @runs.setter
-    def runs(self, value):
-        self._runs = value
-
     def add_runs(self, runs):
         """
         Sample method to add runs.
@@ -132,7 +128,7 @@ class Program:
         self.param_str = generate_param_str(self.params)
         self.generate_cmd()
         if _print:
-            print(f"Added parameter {k} with value '{v}' to program {self.name}")
+            print(f"Added parameter {k} with value '{v}' to program {self.name}")  # no cover
 
     def run(self, sample=None, _print=True):
         """
@@ -353,7 +349,7 @@ class Run:
                     bin_, *fmt_cmd = split_
                     last = ""
                 else:
-                    bin_, *fmt_cmd, last = split_
+                    bin_, *fmt_cmd, last = split_  # no cover
                 it = iter(fmt_cmd)
                 fmt_cmd = zip(it, it)
                 fmt_cmd = " \\ \n".join(
@@ -391,9 +387,9 @@ class Run:
 
         # These are useful for quick debugging.
         if _print_stdout:
-            print(self.stdout)
+            print(self.stdout)  # no cover
         if _print_stderr:
-            print(self.stderr)
+            print(self.stderr)  # no cover
 
         return self
 
