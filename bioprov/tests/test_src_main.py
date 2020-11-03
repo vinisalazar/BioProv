@@ -189,6 +189,11 @@ def test_Sample():
     ].exists, f"Couldn't find file in path {synechococcus_genome}. Check bioprov's data directory."
     assert type(sample.to_series()) == pd.Series
 
+    # test Directory getter and setter
+    assert sample.directory.path == sample.files["proteins"].directory
+    sample.directory = Path(".")
+    assert sample.directory.path == Path(".").absolute()
+
 
 def test_Project():
     """

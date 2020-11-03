@@ -753,11 +753,12 @@ class Sample:
     Class for holding sample information and related files and programs.
     """
 
-    def __init__(self, name=None, tag=None, files=None, attributes=None):
+    def __init__(self, name=None, tag=None, files=None, directory=None, attributes=None):
         """
         :param name:  Sample name or ID.
         :param tag: optional tag describing the sample.
         :param files: Dictionary of files associated with the sample.
+        :param directory: A bioprov.Directory associated with the sample
         :param attributes: Dictionary of any other attributes associated with the sample.
         """
         if isinstance(name, str):
@@ -776,6 +777,7 @@ class Sample:
         elif files is None:
             files = dict()
         self.files = files
+        self._directory = directory
         if attributes is not None:
             assert isinstance(attributes, dict)
         else:
@@ -799,6 +801,20 @@ class Sample:
             value, (File, SeqFile)
         ), f"To create file in sample, must be either a bioprov.File or bioprov.SequenceFile instance."
         self.files[key] = value
+
+    @property
+    def directory(self):
+        if self._directory is None and self.files:
+            key, file = next(iter(self.files.items()))
+            directory = Directory(file.directory, tag=key)
+            self._directory = directory
+        return self._directory
+
+    @directory.setter
+    def directory(self, value):
+        if isinstance(value, (str, Path)):
+            value = Directory(value)
+        self._directory = value
 
     def add_programs(self, programs):
         """
