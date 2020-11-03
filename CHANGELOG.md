@@ -5,7 +5,6 @@
     * Add subpackage docstrings [ ]
 * Add subparsers for CLI commands [ ]
 * Add support for ProvStore API (#23) [ ]
-* Make File inherit from pathlib.Path [ ]
 * Add Directories class to Files module [ ]
     * Support globbing Directory outputs [ ]
 * Make config.threads an integer to support manipulation [ ]
@@ -13,6 +12,10 @@
     * .describe []
     * .iter_programs and .iter_files [ ]
     * .write_paths_to_file and .copy_files_to_dir()
+
+### v0.1.18
+* Add Directories class to Files module [ ]
+    * Support globbing Directory outputs [ ]
 
 ### v0.1.17
 * Add more database methods [x]
