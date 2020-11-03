@@ -180,6 +180,36 @@ class Directory:
     def serializer(self):
         return serializer(self)
 
+    def get_subdirs(self):
+        return [i for i in self.path.iterdir() if i.is_dir()]
+
+    def get_files(self):
+        return [i for i in self.path.iterdir() if i.is_file()]
+
+    def add_files_to_object(self, object_, kind="files"):
+        """
+        Add files or subdirs in self to object_, can be either a Sample or Project.
+        :param object_: bioprov.Project or bioprov.Sample
+        :param kind: Whether to add files or subdirectories.
+        :return: Updates object_.files
+        """
+        choices = ("file", "dir", "subdir", "f", "d")
+        kind = kind.lower()
+        if kind.endswith("s"):
+            kind = kind[:-1]  # chop the 's' off
+        assert kind in choices, Warnings()["choices"](kind, choices, "kind")
+        if kind in ("f", "file"):
+            files = [File(i) for i in self.get_files()]
+            object_.add_files(files)
+        elif kind in ("dir", "subdir", "d"):
+            dirs = [Directory(i) for i in self.get_subdirs()]
+            object_.add_files(dirs)
+        else:
+            raise Exception(
+                "Could not add Directory content to object."
+                "Please specify a valid kind."
+            )
+
 
 class SeqFile(File):
     """

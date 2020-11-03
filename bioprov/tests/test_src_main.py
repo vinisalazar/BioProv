@@ -24,6 +24,7 @@ from bioprov.src.main import (
     generate_param_str,
     Parameter,
     File,
+    Directory,
     parse_params,
     Program,
     Run,
@@ -295,6 +296,9 @@ def test_project_json_and_prov():
     project.to_csv(csv)
     json_out_2 = "./gentax_picocyano_copy.json"
     export_json(json_out_2, project)
+    pwd = Directory(".", "pwd")
+    pwd.add_files_to_object(project)
+    pwd.add_files_to_object(project, kind="ds")
 
     prov = create_prov(project)
     prov_json_out = "./gentax_picocyano_prov.json"
