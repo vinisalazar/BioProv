@@ -14,8 +14,9 @@
     * .write_paths_to_file and .copy_files_to_dir()
 
 ### v0.1.18
-* Add Directories class to Files module [ ]
+* Add Directories class to Files module [x]
     * Support globbing Directory outputs [ ]
+* Increase test coverage [x]
 
 ### v0.1.17
 * Add more database methods [x]
