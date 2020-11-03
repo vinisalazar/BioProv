@@ -5,15 +5,16 @@
     * Add subpackage docstrings [ ]
 * Add subparsers for CLI commands [ ]
 * Add support for ProvStore API (#23) [ ]
-* Make config.threads an integer to support manipulation [ ]
 * Create methods for Sample and Project
     * .describe []
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
 
 ### v0.1.18
 * Add Directories class to Files module [x]
-    * Support globbing Directory outputs [ ]
+    * Support globbing Directory outputs [x]
 * Increase test coverage [x]
+* Added more example data [x]
+* Make config.threads an integer to support operations [x]
 
 ### v0.1.17
 * Add more database methods [x]

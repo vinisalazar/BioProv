@@ -7,6 +7,8 @@ __version__ = "0.1.18"
 
 """
 Contains the Config class and other package-level settings.
+
+Define your configurations in the 'config' variable at the end of the module.
 """
 
 import os
@@ -25,16 +27,15 @@ class Config:
 
     def __init__(self, db_path=None, threads=0):
         """
-
-        :param db_path:
-        :param threads:
+        :param db_path: Path to database file. Default is bioprov_directory/db.json
+        :param threads: Number of threads. Default is half of processors.
         """
         # This duplication is to order the keys in the __dict__ attribute.
         self.user = None
         self.env = EnvProv()
         self.user = self.env.user
         if not threads:
-            threads = str(int(os.cpu_count() / 2))
+            threads = int(os.cpu_count() / 2)
         self.db = None
         self.db_path = None
         self.threads = threads
@@ -240,5 +241,4 @@ class EnvProv:
         return serializer(self)
 
 
-# Default config variable if not instantiating
 config = Config()
