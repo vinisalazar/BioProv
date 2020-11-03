@@ -20,7 +20,6 @@
 * Add Project.run_programs method [x]
 * Create ProvEntity and ProvActivity for Project.files and .programs [x]
     * Create Project Bundle for .files and .programs [x]
-* Remove unused environments from BioProvDocument [ ]
 
 ### v0.1.16
 * Update README [x]
