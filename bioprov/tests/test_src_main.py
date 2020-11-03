@@ -261,6 +261,10 @@ def test_project_json_and_prov():
             import_data=True,
         )
 
+        # Remove samples to make testing faster.
+        for n in range(3):
+            _project.samples.popitem()
+
         return _project
 
     def add_and_run_programs(_project, _out):
@@ -331,7 +335,7 @@ def test_project_json_and_prov():
 
     project.auto_update = True
     old_project_sha1 = project.sha1
-    del project["GCF_000010065.1_ASM1006v1"]
+    del project["GCF_000010065.1"]
     new_project_sha1 = project.sha1
     new_db_sha1 = get_db_hash()
     assert (
