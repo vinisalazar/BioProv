@@ -125,6 +125,62 @@ class File:
         return serializer(self)
 
 
+class Directory:
+    """
+    Class for holding information about directories.
+    """
+    def __init__(self, path, tag=None):
+        self.path = Path(path).absolute()
+        self.name = self.path.stem
+        self.basename = self.path.name
+        if tag is None:
+            tag = self.name
+        self.tag = tag
+        self._exists = self.path.exists()
+
+        # Provenance attributes
+        self._entity = None
+
+    def replace_path(self, old_terms, new, warnings=False):
+        """
+        Replace the current File path.
+
+        Usually used for switching between users.
+
+        :param old_terms: Terms to be replaced in the path.
+        :param new: New term.
+        :param warnings: Whether to warn if sha1 checksum differs or file does not exist.
+
+        :return: Updates self.
+        """
+        old_exists = self._exists
+        self.path = Path(pattern_replacer(str(self.path), old_terms, new))
+        # TODO: replace these print statements for logger warning/debug level
+        if warnings:
+            if not self.exists and old_exists:
+                print(
+                    f"Warning: file {self.path} was marked as existing but was not found."
+                )
+
+    def __repr__(self):
+        return str(self.path)
+
+    def __str__(self):
+        return self.__repr__()
+
+    @property
+    def exists(self):
+        self._exists = self.path.exists()
+        return self._exists
+
+    @exists.setter
+    def exists(self, value):
+        self._exists = value  # no cover
+
+    def serializer(self):
+        return serializer(self)
+
+
 class SeqFile(File):
     """
     Class for holding sequence file and sequence information. Inherits from File.
@@ -393,8 +449,14 @@ def deserialize_files_dict(files_dict):
                                 file[seqstats_attr_],
                             )
             else:
-                files_dict[tag] = File(file["path"], tag=file["tag"])
+                if file["path"].endswith("/"):
+                    files_dict[tag] = Directory(file["path"], tag=file["tag"])
+                else:
+                    files_dict[tag] = File(file["path"], tag=file["tag"])
             for attr_, value_ in file.items():
                 if attr_ not in ("path",):
-                    setattr(files_dict[tag], attr_, value_)
+                    try:
+                        setattr(files_dict[tag], attr_, value_)
+                    except AttributeError:
+                        breakpoint()
     return files_dict

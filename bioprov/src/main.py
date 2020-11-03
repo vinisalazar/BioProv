@@ -28,7 +28,7 @@ import pandas as pd
 import tempfile
 from bioprov import config
 from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
-from bioprov.src.files import File, SeqFile, deserialize_files_dict
+from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
 from bioprov.src.config import EnvProv
 from collections import deque
 from coolname import generate_slug
@@ -94,10 +94,6 @@ class Program:
             self._runs = dict()
         return self._runs
 
-    @runs.setter
-    def runs(self, value):
-        self._runs = value
-
     def add_runs(self, runs):
         """
         Sample method to add runs.
@@ -132,7 +128,7 @@ class Program:
         self.param_str = generate_param_str(self.params)
         self.generate_cmd()
         if _print:
-            print(f"Added parameter {k} with value '{v}' to program {self.name}")
+            print(f"Added parameter {k} with value '{v}' to program {self.name}")  # no cover
 
     def run(self, sample=None, _print=True):
         """
@@ -353,7 +349,7 @@ class Run:
                     bin_, *fmt_cmd = split_
                     last = ""
                 else:
-                    bin_, *fmt_cmd, last = split_
+                    bin_, *fmt_cmd, last = split_  # no cover
                 it = iter(fmt_cmd)
                 fmt_cmd = zip(it, it)
                 fmt_cmd = " \\ \n".join(
@@ -391,9 +387,9 @@ class Run:
 
         # These are useful for quick debugging.
         if _print_stdout:
-            print(self.stdout)
+            print(self.stdout)  # no cover
         if _print_stderr:
-            print(self.stderr)
+            print(self.stderr)  # no cover
 
         return self
 
@@ -525,7 +521,7 @@ class PresetProgram(Program):
                 )
         try:
             for key, (tag, suffix) in self.output_files.items():
-                self.sample.add_files({tag: preffix + suffix})
+                self.sample.add_files({tag: preffix + suffix,})
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
@@ -1243,11 +1239,20 @@ def _add_files(object_, files):
     if isinstance(files, dict):
         files_ = dict()
         for k, v in files.items():
+
             # This is to convert JSON files.
             if isinstance(v, dict):
-                files_[k] = File(v["path"], v["tag"])
+                if v["path"].endswith("/"):
+                    files_[k] = Directory(v["path"], v["tag"])
+                else:
+                    files_[k] = File(v["path"], v["tag"])
+
+            # This is the usual flow
             else:
-                files_[k] = File(v, tag=k)
+                if str(v).endswith("/"):
+                    files_[k] = Directory(v, tag=k)
+                else:
+                    files_[k] = File(v, tag=k)
 
         files = files_
 
@@ -1256,10 +1261,10 @@ def _add_files(object_, files):
         files = {file.name: file for file in files}
 
     # If it is a single item, also transform to dict
-    elif isinstance(files, File):
+    elif isinstance(files, (File, Directory)):
         files = {files.tag: files}  # Grabs by tag because it is File.name by default
 
-    # Here files must be a dictionary of File instances
+    # Here 'files' must be a dictionary of File or Directory instances
     for k, v in files.items():
         if k in object_.files.keys():
             print(f"Updating file {k} with value {v}.")

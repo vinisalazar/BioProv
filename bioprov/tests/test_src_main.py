@@ -118,6 +118,7 @@ def test_Run():
     ), "This shouldn't take this long to run."
     assert run_.finished is True
     assert run_.status is "Finished"
+    assert str(run_).startswith("Run")
 
 
 def test_parse_params():
@@ -130,6 +131,8 @@ def test_parse_params():
         "-a": Parameter(key="-a", value="some_other_file.faa", tag="some other file"),
     }
     dict_ = parse_params(params)
+    # test Parameter.__repr__ method
+    assert str(dict_["-a"]).startswith("Parameter"), "Parameter.__repr__() method failed"
     assert isinstance(dict_, dict), "Parameter dictionary did not build correctly."
 
 

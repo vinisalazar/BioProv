@@ -12,7 +12,7 @@ Inherits objects from the src/ package.
 """
 
 from .src.config import config, EnvProv, BioProvDB
-from .src.files import File, SeqFile
+from .src.files import File, SeqFile, Directory
 from .src.main import (
     Program,
     PresetProgram,
