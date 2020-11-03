@@ -4,6 +4,22 @@
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
 * Add subparsers for CLI commands [ ]
+* Add support for ProvStore API (#23) [ ]
+* Make File inherit from pathlib.Path [ ]
+* Add Directories class to Files module [ ]
+    * Support globbing Directory outputs [ ]
+* Make config.threads an integer to support manipulation [ ]
+* Create methods for Sample and Project
+    * .describe []
+    * .iter_programs and .iter_files [ ]
+    * .write_paths_to_file and .copy_files_to_dir()
+
+### v0.1.17
+* Add more database methods [x]
+* Improver error handling for JSON methods [x]
+* Add Project.run_programs method [x]
+* Create ProvEntity and ProvActivity for Project.files and .programs [x]
+    * Create Project Bundle for .files and .programs [x]
 
 ### v0.1.16
 * Update README [x]

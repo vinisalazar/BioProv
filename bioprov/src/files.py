@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.16"
+__version__ = "0.1.17"
 
 
 """
@@ -170,7 +170,7 @@ class SeqFile(File):
         """
         format_l = format.lower()
         assert format in SeqFile.seqfile_formats, Warnings()["choices"](
-            format, "format", SeqFile.seqfile_formats
+            format, SeqFile.seqfile_formats, "format"
         )
         super().__init__(path, tag, document)
         self.format = format_l

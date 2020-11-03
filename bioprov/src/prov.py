@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.16"
+__version__ = "0.1.17"
 
 """
 Module containing base provenance attributes.
@@ -29,6 +29,7 @@ class BioProvDocument:
         _add_project_namespaces=True,
         _iter_envs_and_users=True,
         _iter_samples=True,
+        _iter_project=True,
     ):
         """
         Constructs base provenance for a Project.
@@ -57,6 +58,9 @@ class BioProvDocument:
 
         if _iter_envs_and_users:
             self._iter_envs_and_users()
+
+        if _iter_project:
+            self._iter_project()
 
         if _iter_samples:
             self._iter_samples()
@@ -101,26 +105,7 @@ class BioProvDocument:
 
         :return: updates self.project and self.ProvDocument.
         """
-        self.project.namespace = self.ProvDocument.add_namespace(
-            "project", str(self.project)
-        )
-        # # I may add this later
-        # self.ProvDocument.set_default_namespace(self.project.namespace)
-
-        if self.add_attributes:
-            self.project.entity = self.ProvDocument.entity(
-                f"project:{self.project}",
-                other_attributes=build_prov_attributes(
-                    {
-                        k: v
-                        for k, v in self.project.__dict__.items()
-                        if k not in ("_samples", "files")
-                    },
-                    self.project.namespace,
-                ),
-            )
-        else:
-            self.project.entity = self.ProvDocument.entity(f"project:{self.project}")
+        self.ProvDocument.add_namespace("project", str(self.project))
 
     def _add_env_and_user_namespace(self):
         self.ProvDocument.add_namespace(
@@ -137,6 +122,11 @@ class BioProvDocument:
         self.ProvDocument.add_namespace(
             "files", f"Files associated with bioprov Project '{self.project.tag}'"
         )
+
+    def _iter_project(self):
+        self._create_sample_bundle(self.project, kind="Project")
+        self._create_sample_file_entities(self.project, kind="Project")
+        self._create_program_entities(self.project, kind="Project")
 
     def _iter_envs_and_users(self):
         for _user, _env_dict in self.project.users.items():
@@ -167,22 +157,27 @@ class BioProvDocument:
             self._create_sample_file_entities(sample)
             self._create_program_entities(sample)
 
-    def _create_sample_bundle(self, sample):
+    def _create_sample_bundle(self, object_, kind="Sample"):
         """
         Creates a ProvBundle for the Sample and associates it to self.ProvDocument.
 
-        :param sample: instance of bioprov.Sample
+        :param object_: instance of bioprov.Sample
         :return: updates self.ProvDocument by creating PROV objects for the sample.
         """
+        choices = ("Sample", "Project")
+        assert kind in choices, Warnings()["choices"](kind, choices, "kind")
         # Sample PROV attributes: bundle, namespace, entity
-        sample.ProvBundle = self.ProvDocument.bundle(sample.namespace_preffix)
-        sample.ProvBundle.set_default_namespace(sample.name)
-        self._entities[sample.name] = sample.ProvBundle.entity(f"samples:{sample.name}")
-        sample.ProvBundle.wasDerivedFrom(
-            self._entities[sample.name], self.project.entity
+        object_.ProvBundle = self.ProvDocument.bundle(object_.namespace_preffix)
+        object_.ProvBundle.set_default_namespace(object_.name)
+        self._entities[object_.name] = object_.ProvBundle.entity(
+            object_.namespace_preffix
         )
+        if kind == "Sample":
+            object_.ProvBundle.wasDerivedFrom(
+                self._entities[object_.name], self.project.entity
+            )
 
-    def _create_sample_file_entities(self, sample):
+    def _create_sample_file_entities(self, sample, kind="Sample"):
         """
         Creates a ProvBundle for the Sample and associates it to self.ProvDocument.
 
@@ -193,15 +188,14 @@ class BioProvDocument:
         sample.files_namespace_preffix = "files"
         sample.file_namespace = sample.ProvBundle.add_namespace(
             sample.files_namespace_preffix,
-            f"Files associated with Sample {sample.name}",
+            f"Files associated with {kind} {sample.name}",
         )
-
         # Files PROV attributes: namespace, entities
         for key, file in sample.files.items():
             # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(
-                    f"{sample.files_namespace_preffix}:{file.name}",
+                    f"{sample.files_namespace_preffix}:{file.basename}",
                     other_attributes=build_prov_attributes(
                         file.serializer(), sample.file_namespace
                     ),
@@ -217,12 +211,12 @@ class BioProvDocument:
                 self._entities[sample.name],
             )
 
-    def _create_program_entities(self, sample):
+    def _create_program_entities(self, sample, kind="Sample"):
         # Programs PROV attributes: namespace, entities
         programs_namespace_prefix = f"programs"
         programs_namespace = sample.ProvBundle.add_namespace(
             programs_namespace_prefix,
-            f"Programs associated with Sample {sample.name}",
+            f"Programs associated with {kind} {sample.name}",
         )
         for key, program in sample.programs.items():
             last_run = program.runs[str(len(program.runs))]
@@ -276,7 +270,7 @@ class BioProvDocument:
 
         # Small assertion block
         choices = ("input", "output")
-        assert io_type in choices, Warnings()["choices"](io_type, "io_type", choices)
+        assert io_type in choices, Warnings()["choices"](io_type, choices, "io_type")
 
         # Start function
         sample_files = [str(file) for _, file in sample.files.items()]

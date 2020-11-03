@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.16"
+__version__ = "0.1.17"
 
 
 """
@@ -207,12 +207,12 @@ def test_from_df():
     Testing for the from and read_csv functions.
     :return:
     """
-    sampleset_ = read_csv(
+    project_ = read_csv(
         picocyano_dataset,
         index_col="sample-id",
         sequencefile_cols="assembly",
     )
-    assert len(sampleset_) > 0
+    assert len(project_) > 0
 
 
 def test_json_Sample():
@@ -254,11 +254,11 @@ def test_project_json_and_prov():
 
         return _project
 
-    def add_and_run_programs(_project, out):
+    def add_and_run_programs(_project, _out):
         for k, _sample in _project.items():
             _sample.add_programs(prodigal(sample=_sample))
             _sample.run_programs()
-        _out = File(out)
+        _out = File(_out)
         _project.add_files(_out)
         ls = Program("ls", params={">": str(_project.files["ls_out"])})
         _project.add_programs(ls)
@@ -282,7 +282,6 @@ def test_project_json_and_prov():
     json_out = "./gentax_picocyano.json"
     export_json(json_out, project)
 
-    from_json(json_out)
     project = from_json(json_out, replace_path=("", ""))
     csv = f"{project.tag}.csv"
     project.to_csv(csv)

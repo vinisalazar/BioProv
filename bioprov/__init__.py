@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.16"
+__version__ = "0.1.17"
 
 
 """
@@ -24,6 +24,7 @@ from .src.main import (
     from_df,
     from_json,
     write_json,
+    load_project,
 )
 from .src.prov import BioProvDocument, BioProvDocument
 

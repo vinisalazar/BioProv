@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.16"
+__version__ = "0.1.17"
 
 """
 
@@ -25,6 +25,7 @@ This class also contains functions to read and write objects in JSON and tab-del
 import datetime
 import json
 import pandas as pd
+import tempfile
 from bioprov import config
 from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
 from bioprov.src.files import File, SeqFile, deserialize_files_dict
@@ -784,7 +785,7 @@ class Sample:
         else:
             attributes = dict()
         self.attributes = attributes
-        self._programs = None
+        self.programs = OrderedDict()
 
         # This is an attribute used by the src.prov module
         self.namespace_preffix = f"samples:{self.name}"
@@ -833,30 +834,16 @@ class Sample:
         Runs self._programs in order.
         :return:
         """
-        if len(self.programs) >= 1:
-            for _, p in self.programs.items():
-                self._run_program(p, _print=_print)
-        else:
-            print(f"No programs to run for Sample '{self.name}'")
+        _run_programs(self, _print)
 
     def _run_program(self, program, _print=True):
         """
-        Run a Program or PresetProgram on Sample.
-        :param program: An instance of bioprov.Program or PresetProgram
+        Runs program for self.
+        :param program: bioprov.Program or bioprov.PresetProgram.
         :param _print: Whether to print output of Program.
-        :return: Runs the program for Sample.
+        :return: Runs Program and updates self.
         """
-        program.run(sample=self, _print=_print)
-        self.add_programs(program)
-
-        if program not in self.programs:
-            self.programs[program.name] = program
-
-    @property
-    def programs(self):
-        if self._programs is None:
-            self._programs = dict()
-        return self._programs
+        _run_program(self, program, _print)
 
     def to_json(self, _path=None, _print=True):
         """
@@ -896,6 +883,36 @@ class Sample:
         return pd.Series(series)
 
 
+def _run_program(_object, program, _print=True):
+    """
+    Runs program for _object.
+
+    :param _object: bioprov.Project or bioprov.Sample
+    :param program: bioprov.Program or bioprov.PresetProgram.
+    :param _print: Whether to print output of Program.
+    :return: Runs Program and updates _object.
+    """
+    if program not in _object.programs.keys():
+        _object.add_programs(program)
+    program.run(sample=_object, _print=_print)
+
+
+def _run_programs(_object, _print=True):
+    """
+    Runs programs in order.
+
+    :param _object: bioprov.Project or bioprov.Sample
+    :param _print: Whether to print output of Program.
+    :return:
+    """
+    if len(_object.programs) >= 1:
+        for _, p in _object.programs.items():
+            # noinspection PyProtectedMember
+            _object._run_program(p, _print=_print)
+    else:
+        print(f"No programs to run for {_object}")
+
+
 class Project:
     """
     Class which holds a dictionary of Sample instances, where each key is the sample name.
@@ -913,8 +930,9 @@ class Project:
         if tag is None:
             tag = generate_slug(2)
         self.tag = tag.replace(" ", "_")
+        self._name = self.tag
         self.files = dict()
-        self.programs = dict()
+        self.programs = OrderedDict()
         samples = self.is_iterator(
             samples
         )  # Checks if `samples` is a valid constructor.
@@ -928,6 +946,8 @@ class Project:
         # PROV attributes
         self._entity = None
         self._bundle = None
+        self.namespace_preffix = f"project:{self}"
+        self.files_namespace_preffix = None
 
         # Hash and db attributes
         self._sha1 = dict_to_sha1(self.serializer())
@@ -947,12 +967,9 @@ class Project:
             value = self._samples[item]
             return value
         except KeyError:
-            keys = self.keys()
-            print(
-                f"Sample {item} not in Project.\n",
-                "Check the following keys:\n",
-                "\n".join(keys),
-            )
+            print(f"Sample {item} not in Project.\n")
+            print("Check the following keys:")
+            print(" ", "\n  ".join(self.keys))
 
     def __setitem__(self, key, value):
         self._samples[key] = value
@@ -968,6 +985,11 @@ class Project:
 
     def items(self):
         return self._samples.items()
+
+    @property
+    def name(self):
+        self._name = self.tag
+        return self._name
 
     @property
     def sha1(self):
@@ -1070,6 +1092,24 @@ class Project:
         """
         _add_programs(self, programs)
         self.auto_update_db()
+
+    def run_programs(self, _print=True):
+        """
+        Runs all programs in self.programs in order.
+
+        :return:
+        """
+        _run_programs(self, _print)
+
+    def _run_program(self, program=None, _print=True):
+        """
+        Runs program for self.
+
+        :param program: bioprov.Program or bioprov.PresetProgram.
+        :param _print: Whether to print output of Program.
+        :return: Runs Program and updates self.
+        """
+        _run_program(self, program, _print)
 
     @staticmethod
     def is_sample_and_name(sample):
@@ -1286,39 +1326,49 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
             HOME = str(Path.home())
 
         samples = dict()
-        for k, v in d["_samples"].items():
-            samples[k] = dict_to_sample(v)
+
+        try:
+            for k, v in d["_samples"].items():
+                samples[k] = dict_to_sample(v)
+        except KeyError:
+            pass
 
         # Create Project
         project = Project(samples=samples, tag=d["tag"])
 
         # Deserializing and adding project files and programs
-        deserialized_files = deserialize_files_dict(d["files"])
-        deque((project.add_files(file_) for file_ in deserialized_files.values()))
-        deserialized_programs = deserialize_programs_dict(d["programs"], project)
-        deque(
-            (
-                project.add_programs(program_)
-                for program_ in deserialized_programs.values()
+        try:
+            deserialized_files = deserialize_files_dict(d["files"])
+            deque((project.add_files(file_) for file_ in deserialized_files.values()))
+            deserialized_programs = deserialize_programs_dict(d["programs"], project)
+            deque(
+                (
+                    project.add_programs(program_)
+                    for program_ in deserialized_programs.values()
+                )
             )
-        )
+        except KeyError:
+            pass
 
-        for user, env in d["users"].items():
-            for env_hash, env_dict in env.items():
-                try:
-                    project.users[user][env_hash] = EnvProv()
-                except KeyError:
-                    project.users[user] = dict()
-                    project.users[user][env_hash] = EnvProv()
-                for env_attr_, attr_value_ in env_dict.items():
-                    if env_attr_ == "env_namespace":
-                        attr_value_ = Namespace(
-                            "envs", str(project.users[user][env_hash])
-                        )
-                    if replace_home:
-                        if env_attr_ == "env_dict":
-                            other_HOME_variables.append(attr_value_["HOME"])
-                    setattr(project.users[user][env_hash], env_attr_, attr_value_)
+        try:
+            for user, env in d["users"].items():
+                for env_hash, env_dict in env.items():
+                    try:
+                        project.users[user][env_hash] = EnvProv()
+                    except KeyError:
+                        project.users[user] = dict()
+                        project.users[user][env_hash] = EnvProv()
+                    for env_attr_, attr_value_ in env_dict.items():
+                        if env_attr_ == "env_namespace":
+                            attr_value_ = Namespace(
+                                "envs", str(project.users[user][env_hash])
+                            )
+                        if replace_home:
+                            if env_attr_ == "env_dict":
+                                other_HOME_variables.append(attr_value_["HOME"])
+                        setattr(project.users[user][env_hash], env_attr_, attr_value_)
+        except KeyError:
+            pass
 
         if replace_home:
             project.replace_paths(other_HOME_variables, HOME, warnings=True)
@@ -1415,8 +1465,8 @@ def read_csv(df_path, sep=",", **kwargs):
     :return: A Project instance.
     """
     df = pd.read_csv(df_path, sep=sep)
-    sampleset = from_df(df, source_file=df_path, **kwargs)
-    return sampleset
+    project = from_df(df, source_file=df_path, **kwargs)
+    return project
 
 
 def json_to_dict(json_file):
@@ -1452,7 +1502,7 @@ def dict_to_sample(json_dict):
                 )
 
             # Create Program instances
-            elif attr == "_programs":
+            elif attr == "programs":
                 deserialized_programs = deserialize_programs_dict(value, sample_)
                 deque(
                     (
@@ -1472,7 +1522,7 @@ def write_json(dict_, _path, _print=True):
     :param dict_: JSON dictionary.
     :param _path: String with _path to JSON file.
     :param _print: Whether to print if the file was successfully created.
-    :return: Writes JSON file
+    :return: Writes JSON file.
     """
     with open(_path, "w") as f:
         json.dump(dict_, f, indent=3)
@@ -1482,3 +1532,28 @@ def write_json(dict_, _path, _print=True):
             print(f"Created JSON file at {_path}.")
         else:
             print(f"Could not create JSON file for {_path}.")
+
+
+def load_project(tag):
+    """
+    Loads Project from the BioProvDatabase set in the config.
+
+    :param tag: Tag of the Project to be loaded.
+    :return: Instance of Project.
+    """
+    assert (
+        len(config.db) > 0
+    ), f"Project not found. Database at '{config.db_path}' is empty"
+
+    query = Query()
+    try:
+        result = config.db.search(query.tag == tag)[0]
+    except (IndexError, KeyError):
+        print(f"Project not found in database at {config.db_path}")
+        return
+
+    with tempfile.NamedTemporaryFile() as f:
+        f.write(bytes(json.dumps(result), "utf-8"))
+        project = from_json(f.name)
+
+    return project
