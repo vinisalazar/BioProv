@@ -145,7 +145,7 @@ class Config:
         # Any other errors, return None and raise Exception
         except (AssertionError, UnboundLocalError):
             print("\n".join(could_not_read +
-                            ["Please create one with bioprov.Config.create_provstore_file() method."]))
+                            ["Please create one with bioprov.config.create_provstore_file() method."]))
             self.provstore_user = None
             self.provstore_token = None
             return
