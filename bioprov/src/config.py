@@ -25,7 +25,8 @@ class Config:
 
     def __init__(self, db_path=None, threads=0):
         """
-        :param db:
+
+        :param db_path:
         :param threads:
         """
         # This duplication is to order the keys in the __dict__ attribute.
@@ -37,12 +38,19 @@ class Config:
         self.db = None
         self.db_path = None
         self.threads = threads
+        self.bioprov_dir = Path(bioprov.__file__).parent
         self.data = data_dir
         self.genomes = genomes_dir
         if db_path is None:
-            db_path = Path(bioprov.__file__).parent.joinpath("db.json")
+            db_path = self.bioprov_dir.joinpath("db.json")
         self.db_path = db_path
         self.db = BioProvDB(self.db_path)
+        self._provstore_file = None
+        self._provstore_user = None
+        self._provstore_token = None
+
+    def __repr__(self):
+        return f"BioProv Config class set in {__file__}"
 
     def db_all(self):
         """
@@ -57,6 +65,89 @@ class Config:
         :return:
         """
         self.db.clear_db(confirm)
+
+    @property
+    def provstore_file(self):
+        if self._provstore_file is None:
+            self._provstore_file = self.bioprov_dir.joinpath("provstore_api.txt")
+        return self._provstore_file
+
+    @provstore_file.setter
+    def provstore_file(self, value):
+        self._provstore_file = value
+
+    @property
+    def provstore_user(self):
+        if self._provstore_user is None:
+            self.read_provstore_file()
+        return self._provstore_user
+
+    @provstore_user.setter
+    def provstore_user(self, value):
+        self._provstore_user = value
+
+    @property
+    def provstore_token(self):
+        if self._provstore_token is None:
+            self.read_provstore_file()
+        return self._provstore_token
+
+    @provstore_token.setter
+    def provstore_token(self, value):
+        self._provstore_token = value
+
+    def create_provstore_file(self):
+        with open(self.provstore_file, "w") as f:
+            user = input("Please paste your ProvStore user: ")
+            token = input("Please paste your ProvStore API token: ")
+            f.write(user + "\n")
+            f.write(token + "\n")
+
+        print(f"Wrote ProvStore credentials file to {self.provstore_file}.")
+        print("Make sure that the contents of that file are private.")
+
+    def read_provstore_file(self):
+        """
+        Attempts to read self.provstore_file.
+        Will prompt to create one if unable to retrieve credentials.
+
+        :return: Updates self.provstore_user and self.provstore_token.
+        """
+        could_not_read = [
+            f"Could not read credentials from ProvStore file at {self.provstore_file}",
+            "It may be empty or not exist."
+        ]
+
+        def prompt():
+            _prompt = input("\n".join(could_not_read + ["Would you like to create one? Y/n\n"]))
+            if _prompt.lower() in ("y", "yes", ""):
+                return True
+            else:
+                print("Did not create ProvStore credentials file.")
+                return False
+        try:
+            with open(self.provstore_file) as f:
+                user, token, *_ = f.read().splitlines()
+                assert all((user, token))
+                self.provstore_user = user
+                self.provstore_token = token
+                return
+
+        # If not found or can't read, prompt to create
+        except (ValueError, FileNotFoundError):
+            if prompt():
+                self.create_provstore_file()
+                self.read_provstore_file()
+            else:
+                return
+
+        # Any other errors, return None and raise Exception
+        except (AssertionError, UnboundLocalError):
+            print("\n".join(could_not_read +
+                            ["Please create one with bioprov.Config.create_provstore_file() method."]))
+            self.provstore_user = None
+            self.provstore_token = None
+            return
 
 
 class BioProvDB(TinyDB):
