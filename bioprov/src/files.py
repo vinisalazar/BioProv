@@ -129,6 +129,7 @@ class Directory:
     """
     Class for holding information about directories.
     """
+
     def __init__(self, path, tag=None):
         self.path = Path(path).absolute()
         self.name = self.path.stem

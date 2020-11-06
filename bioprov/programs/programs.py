@@ -11,9 +11,10 @@ Module for holding preset instances of the Program class.
 
 from os import path
 from pathlib import Path
-from bioprov import config, File
-from bioprov.src.main import Parameter, Program, PresetProgram
-from bioprov.utils import assert_tax_rank, Warnings
+
+from bioprov import File, config
+from bioprov.src.main import Parameter, PresetProgram, Program
+from bioprov.utils import Warnings, assert_tax_rank
 
 
 def diamond(blast_type, sample, db, query_tag="query", outformat=6, extra_flags=None):
@@ -109,6 +110,22 @@ def blastn(sample=None, db=None, query_tag="query", outformat=6):
     _blastn = _create_blast_preset("blastn", sample, db, query_tag, outformat)
 
     return _blastn
+
+
+def blastp(sample, db, query_tag="query", outformat=6):
+    """
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str db: A string pointing to the reference database directory and title.
+    :param str query_tag: A tag for the query file.
+    :param int outformat: The output format to gather from blastn.
+    :return: Instance of PresetProgram for BLASTN.
+    :rtype: BioProv.PresetProgram.
+    :raises AssertionError: Path to the reference database does not exist.
+    """
+
+    _blastp = _create_blast_preset("blastp", sample, db, query_tag, outformat)
+
+    return _blastp
 
 
 def prokka_():
