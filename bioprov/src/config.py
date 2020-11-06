@@ -51,6 +51,7 @@ class Config:
         self._provstore_user = None
         self._provstore_token = None
         self._provstore_api = None
+        self._provstore_endpoint = "https://openprovenance.org/store/api/v0/"
 
     def __repr__(self):
         return f"BioProv Config class set in {__file__}"
@@ -75,6 +76,7 @@ class Config:
             self._provstore_api = Api(
                 username=self.provstore_user, api_key=self.provstore_token
             )
+            Api.base_url = self._provstore_endpoint
         return self._provstore_api
 
     @provstore_api.setter
