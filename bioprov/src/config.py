@@ -72,7 +72,9 @@ class Config:
     @property
     def provstore_api(self):
         if self._provstore_api is None:
-            self._provstore_api = Api(username=self.provstore_user, api_key=self.provstore_token)
+            self._provstore_api = Api(
+                username=self.provstore_user, api_key=self.provstore_token
+            )
         return self._provstore_api
 
     @provstore_api.setter
@@ -174,7 +176,9 @@ class Config:
             return
 
     def serializer(self):
-        keys_to_remove = [i for i in self.__dict__.keys() if i.startswith("_")] + ["env", ]
+        keys_to_remove = [i for i in self.__dict__.keys() if i.startswith("_")] + [
+            "env",
+        ]
         serial_out = serializer_filter(self, keys_to_remove)
         serial_out["provstore_file"] = self.provstore_file
         return serial_out

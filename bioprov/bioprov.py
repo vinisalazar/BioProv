@@ -48,7 +48,7 @@ def main(args=None):
     commands.add_argument(
         "--create_provstore",
         help="Create ProvStore file credentials file.",
-        action="store_true"
+        action="store_true",
     )
     commands.add_argument(
         "--show_db", help="Show location of database file.", action="store_true"
@@ -94,7 +94,6 @@ def main(args=None):
 
 
 class CommandOptionsParser:
-
     def __init__(self):
         pass
 

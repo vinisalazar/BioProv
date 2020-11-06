@@ -353,9 +353,13 @@ class BioProvDocument:
         if api is None:
             api = config.provstore_api
         try:
-            self.ProvDocument = api.document.create(self.provstore_document, name=self.project.tag)
+            self.ProvDocument = api.document.create(
+                self.provstore_document, name=self.project.tag
+            )
         except ConnectionError:
-            print("Could not create remote document. Please check your internet connection and ProvStore credentials.")
+            print(
+                "Could not create remote document. Please check your internet connection and ProvStore credentials."
+            )
 
     def write_provn(self, path=None):
         """
