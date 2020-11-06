@@ -38,6 +38,7 @@ setuptools.setup(
         "dataclasses",
         "pandas",
         "prov",
+        "provstore-api",
         "pydot",
         "pytest",
         "pytest-cov",
