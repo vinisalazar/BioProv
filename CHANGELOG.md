@@ -3,13 +3,13 @@
 ### To-do
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
-* Add subparsers for CLI commands [ ]
-* Add support for ProvStore API (#23) [ ]
 * Create methods for Sample and Project
     * .describe []
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
 
 ### v0.1.18
+* Add support for ProvStore API (#23) [x]
+* Add subparsers for CLI commands [x]
 * Add Directories class to Files module [x]
     * Support globbing Directory outputs [x]
 * Increase test coverage [x]
