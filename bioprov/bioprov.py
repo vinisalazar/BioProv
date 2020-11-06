@@ -19,6 +19,7 @@ from bioprov.workflows import (
     KaijuWorkflow,
 )
 from bioprov.utils import parser_help, dict_to_string
+from pathlib import Path
 
 
 def main(args=None):
@@ -43,6 +44,11 @@ def main(args=None):
         "--show_provstore",
         help="Show location of ProvStore credentials file.",
         action="store_true",
+    )
+    commands.add_argument(
+        "--create_provstore",
+        help="Create ProvStore file credentials file.",
+        action="store_true"
     )
     commands.add_argument(
         "--show_db", help="Show location of database file.", action="store_true"
@@ -74,53 +80,79 @@ def main(args=None):
         else:
             args = bioprov_parser.parse_args()  # no cover
 
-    # TODO: Must improve this if/else loop. Use a dictionary.
-    if args.show_config:
+    for command, value in args.__dict__.items():
+        if value:
+            try:
+                getattr(CommandOptionsParser, command)()
+            except AttributeError:
+                pass
+    parser = WorkflowOptionsParser()  # no cover
+    try:
+        parser.parse_options(args)  # no cover
+    except KeyError:
+        parser_help(bioprov_parser)
+
+
+class CommandOptionsParser:
+
+    def __init__(self):
+        pass
+
+    @classmethod
+    def show_config(cls):
         print(
             "This is the location of the config module.\n"
             "Edit it to alter your BioProv settings.\n\n",
             f"'{bp_config_module.__file__}'\n",
         )
         print("These are your configuration settings:")
-        print(dict_to_string(config.__dict__))
+        print(dict_to_string(config.serializer()))
 
         sys.exit(0)
 
-    elif args.show_provstore:
+    @classmethod
+    def show_provstore(cls):
         print(
             "This is the location of your ProvStore credentials file.\n"
             "Edit it to alter your BioProv settings.\n\n",
-            f"'{bp_config_module.__file__}'\n",
+            f"{config.provstore_file}\n",
         )
-        print("These are your configuration settings:")
-        print(dict_to_string(config.__dict__))
+        if not Path(config.provstore_file).is_file():
+            print("It does not exist, but you can create one with the command:")
+            print("  $ bioprov --create_provstore")
 
         sys.exit(0)
 
-    elif args.show_db:
+    @classmethod
+    def create_provstore(cls):  # no cover
+        config.create_provstore_file()
+        sys.exit(0)
+
+    @classmethod
+    def show_db(cls):
         print(
             "This is the location of your BioProv database file.\n"
             f"'{config.db_path}'\n",
         )
         sys.exit(0)
 
-    elif args.version:
+    @classmethod
+    def version(cls):
         print(f"Local BioProv version is v{__version__}")
         sys.exit(0)
 
-    elif args.list:
+    @classmethod
+    def list(cls):
         tags = [f"'{project['tag']}'" for project in config.db.all()]
         print(f"You have {len(tags)} Projects in your database.")
         if tags:
             print("\n".join(tags))
         sys.exit(0)
 
-    elif args.clear_db:  # no cover
-        config.db.clear_db()  # no cover
-        sys.exit(0)  # no cover
-
-    parser = WorkflowOptionsParser()  # no cover
-    parser.parse_options(args)  # no cover
+    @classmethod
+    def clear_db(cls):  # no cover
+        config.db.clear_db()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
