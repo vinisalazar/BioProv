@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.17"
+__version__ = "0.1.18"
 
 
 """
@@ -24,6 +24,7 @@ from bioprov.src.main import (
     generate_param_str,
     Parameter,
     File,
+    Directory,
     parse_params,
     Program,
     Run,
@@ -118,6 +119,7 @@ def test_Run():
     ), "This shouldn't take this long to run."
     assert run_.finished is True
     assert run_.status is "Finished"
+    assert str(run_).startswith("Run")
 
 
 def test_parse_params():
@@ -130,6 +132,10 @@ def test_parse_params():
         "-a": Parameter(key="-a", value="some_other_file.faa", tag="some other file"),
     }
     dict_ = parse_params(params)
+    # test Parameter.__repr__ method
+    assert str(dict_["-a"]).startswith(
+        "Parameter"
+    ), "Parameter.__repr__() method failed"
     assert isinstance(dict_, dict), "Parameter dictionary did not build correctly."
 
 
@@ -185,6 +191,11 @@ def test_Sample():
         "assembly"
     ].exists, f"Couldn't find file in path {synechococcus_genome}. Check bioprov's data directory."
     assert type(sample.to_series()) == pd.Series
+
+    # test Directory getter and setter
+    assert sample.directory.path == sample.files["proteins"].directory
+    sample.directory = Path(".")
+    assert sample.directory.path == Path(".").absolute()
 
 
 def test_Project():
@@ -252,6 +263,10 @@ def test_project_json_and_prov():
             import_data=True,
         )
 
+        # Remove samples to make testing faster.
+        for n in range(3):
+            _project.samples.popitem()
+
         return _project
 
     def add_and_run_programs(_project, _out):
@@ -287,6 +302,9 @@ def test_project_json_and_prov():
     project.to_csv(csv)
     json_out_2 = "./gentax_picocyano_copy.json"
     export_json(json_out_2, project)
+    pwd = Directory(".", "pwd")
+    pwd.add_files_to_object(project)
+    pwd.add_files_to_object(project, kind="ds")
 
     prov = create_prov(project)
     prov_json_out = "./gentax_picocyano_prov.json"
@@ -319,7 +337,7 @@ def test_project_json_and_prov():
 
     project.auto_update = True
     old_project_sha1 = project.sha1
-    del project["GCF_000010065.1_ASM1006v1"]
+    del project["GCF_000010065.1"]
     new_project_sha1 = project.sha1
     new_db_sha1 = get_db_hash()
     assert (

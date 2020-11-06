@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.17"
+__version__ = "0.1.18"
 
 
 """
@@ -16,6 +16,7 @@ from bioprov.data import picocyano_dataset
 from bioprov.src.prov import BioProvDocument
 from bioprov.src.config import EnvProv
 from bioprov.utils import dict_to_sha1
+from pydot import Dot
 
 project = read_csv(
     picocyano_dataset, sequencefile_cols="assembly", tag="picocyanobacteria"
@@ -42,4 +43,11 @@ def test_BioProvDocument():
     """
     # The BioProvDocument constructor with add_attributes=True
     # is tested in the test_src_main.py module
-    _ = BioProvDocument(project)
+    prov = BioProvDocument(project)
+
+    # __repr__
+    assert str(prov).startswith("BioProvDocument")
+
+    # dot property
+    assert type(prov.dot) == Dot
+    prov.dot = Dot()

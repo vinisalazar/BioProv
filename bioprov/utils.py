@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.17"
+__version__ = "0.1.18"
 
 """
 Helper functions.
@@ -174,7 +174,7 @@ def build_prov_attributes(dictionary, namespace):
     attributes = []
     for k, v in dictionary.items():
         if k == "namespace":
-            continue
+            continue  # no cover
         else:
             if not is_serializable_type(v):
                 v = str(v)

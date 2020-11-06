@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.17"
+__version__ = "0.1.18"
 
 """
 Module containing base provenance attributes.
@@ -11,10 +11,11 @@ This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
 from pathlib import Path
-from bioprov import Project, Parameter
+from bioprov import Project, Parameter, config
 from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
 from prov.model import ProvDocument
 from prov.dot import prov_to_dot
+from requests.exceptions import ConnectionError
 
 
 class BioProvDocument:
@@ -48,6 +49,7 @@ class BioProvDocument:
         self._entities = dict()
         self._activities = dict()
         self._agents = dict()
+        self._provstore_document = None
 
         # Don't add attributes if you plan on exporting to graphic format
         self.add_attributes = add_attributes
@@ -87,6 +89,15 @@ class BioProvDocument:
     @provn.setter
     def provn(self, value):
         self._provn = value
+
+    @property
+    def provstore_document(self):
+        self._provstore_document = self.ProvDocument
+        return self._provstore_document
+
+    @provstore_document.setter
+    def provstore_document(self, value):
+        self._provstore_document = value
 
     def _add_project_namespaces(self):
         """
@@ -330,6 +341,24 @@ class BioProvDocument:
             self.ProvDocument.add_namespace(
                 "activities",
                 f"Activities associated with bioprov Project '{self.project.tag}'",
+            )
+
+    def upload_to_provstore(self, api=None):
+        """
+        Uploads self.ProvDocument. to ProvStore (https://openprovenance.org/store/)
+
+        :param api: provstore.api.Api
+        :return: Sends POST request to ProvStore API and updates self.ProvDocument if successful.
+        """
+        if api is None:
+            api = config.provstore_api
+        try:
+            self.ProvDocument = api.document.create(
+                self.provstore_document, name=self.project.tag
+            )
+        except ConnectionError:
+            print(
+                "Could not create remote document. Please check your internet connection and ProvStore credentials."
             )
 
     def write_provn(self, path=None):

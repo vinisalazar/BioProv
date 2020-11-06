@@ -1,3 +1,6 @@
 sample-id,assembly,taxon
-GCF_000010065.1_ASM1006v1,bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna,Synechococcus elongatus PCC 6301
-GCF_000007925.1_ASM792v1,bioprov/data/genomes/GCF_000007925.1_ASM792v1_genomic.fna,Prochlorococcus marinus CCMP1375
+GCF_000010065.1,bioprov/data/genomes/GCF_000010065.1_ASM1006v1_genomic.fna,Synechococcus elongatus PCC 6301
+GCF_000007925.1,bioprov/data/genomes/GCF_000007925.1_ASM792v1_genomic.fna,Prochlorococcus marinus CCMP1375
+GCA_000316515.1,bioprov/data/genomes/GCF_000316515.1_ASM31651v1_genomic.fna,Cyanobium gracile PCC 6307
+GCF_000012625.1,bioprov/data/genomes/GCF_000012625.1_ASM1262v1_genomic.fna,Parasynechococcus africanus CC9605
+GCF_000011485.1,bioprov/data/genomes/GCF_000011485.1_ASM1148v1_genomic.fna,Thaumococcus swingsii MIT9313
