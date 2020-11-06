@@ -15,7 +15,7 @@ import os
 import bioprov
 from bioprov.data import data_dir, genomes_dir
 from prov.model import Namespace
-from bioprov.utils import serializer, dict_to_sha1
+from bioprov.utils import serializer, dict_to_sha1, serializer_filter
 from tinydb import TinyDB
 from pathlib import Path
 
@@ -160,6 +160,12 @@ class Config:
             self.provstore_user = None
             self.provstore_token = None
             return
+
+    def serializer(self):
+        keys_to_remove = [i for i in self.__dict__.keys() if i.startswith("_provstore")] + ["env", ]
+        serial_out = serializer_filter(self, keys_to_remove)
+        serial_out["provstore_file"] = self.provstore_file
+        return serial_out
 
 
 class BioProvDB(TinyDB):
