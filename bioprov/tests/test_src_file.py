@@ -56,8 +56,7 @@ def test_File_and_Directory():
     for k, statement in attributes.items():
         assert statement, f"{k} did not pass!"
 
-    d.replace_path(str(d.path), generate_slug(2))
-
+    d.replace_path("", "")
     # test hashes
     nf.exists = True
     nf.replace_path("", "", warnings=True)  # no cover
