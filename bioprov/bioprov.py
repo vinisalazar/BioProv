@@ -40,6 +40,9 @@ def main(args=None):
         "--show_config", help="Show location of config file.", action="store_true"
     )
     commands.add_argument(
+        "--show_provstore", help="Show location of ProvStore credentials file.", action="store_true"
+    )
+    commands.add_argument(
         "--show_db", help="Show location of database file.", action="store_true"
     )
     commands.add_argument(
@@ -73,6 +76,17 @@ def main(args=None):
     if args.show_config:
         print(
             "This is the location of the config module.\n"
+            "Edit it to alter your BioProv settings.\n\n",
+            f"'{bp_config_module.__file__}'\n",
+        )
+        print("These are your configuration settings:")
+        print(dict_to_string(config.__dict__))
+
+        sys.exit(0)
+
+    elif args.show_provstore:
+        print(
+            "This is the location of your ProvStore credentials file.\n"
             "Edit it to alter your BioProv settings.\n\n",
             f"'{bp_config_module.__file__}'\n",
         )
