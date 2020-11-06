@@ -65,7 +65,7 @@ class Config:
         :param confirm:
         :return:
         """
-        self.db.clear_db(confirm)
+        self.db.clear_db(confirm)  # no cover
 
     @property
     def provstore_file(self):
@@ -78,7 +78,7 @@ class Config:
         self._provstore_file = value
 
     @property
-    def provstore_user(self):
+    def provstore_user(self):  # no cover
         if self._provstore_user is None:
             self.read_provstore_file()
         return self._provstore_user
@@ -88,7 +88,7 @@ class Config:
         self._provstore_user = value
 
     @property
-    def provstore_token(self):
+    def provstore_token(self):  # no cover
         if self._provstore_token is None:
             self.read_provstore_file()
         return self._provstore_token
@@ -97,10 +97,12 @@ class Config:
     def provstore_token(self, value):
         self._provstore_token = value
 
-    def create_provstore_file(self):
+    def create_provstore_file(self, user=None, token=None):
         with open(self.provstore_file, "w") as f:
-            user = input("Please paste your ProvStore user: ")
-            token = input("Please paste your ProvStore API token: ")
+            if user is None:
+                user = input("Please paste your ProvStore user: ")  # no cover
+            if token is None:
+                token = input("Please paste your ProvStore API token: ")  # no cover
             f.write(user + "\n")
             f.write(token + "\n")
 
@@ -119,7 +121,7 @@ class Config:
             "It may be empty or not exist.",
         ]
 
-        def prompt():
+        def prompt():  # no cover
             _prompt = input(
                 "\n".join(could_not_read + ["Would you like to create one? Y/n\n"])
             )
@@ -138,7 +140,7 @@ class Config:
                 return
 
         # If not found or can't read, prompt to create
-        except (ValueError, FileNotFoundError):
+        except (ValueError, FileNotFoundError):  # no cover
             if prompt():
                 self.create_provstore_file()
                 self.read_provstore_file()
@@ -146,7 +148,7 @@ class Config:
                 return
 
         # Any other errors, return None and raise Exception
-        except (AssertionError, UnboundLocalError):
+        except (AssertionError, UnboundLocalError):  # no cover
             print(
                 "\n".join(
                     could_not_read
@@ -174,7 +176,7 @@ class BioProvDB(TinyDB):
     def __repr__(self):
         return f"BioProvDB located in {self.db_path}"
 
-    def clear_db(self, confirm=False):
+    def clear_db(self, confirm=False):  # no cover
         """
         Deletes the local BioProv database.
         :param confirm:

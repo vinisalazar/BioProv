@@ -119,8 +119,8 @@ def main(args=None):
         config.db.clear_db()  # no cover
         sys.exit(0)  # no cover
 
-    parser = WorkflowOptionsParser()
-    parser.parse_options(args)
+    parser = WorkflowOptionsParser()  # no cover
+    parser.parse_options(args)  # no cover
 
 
 if __name__ == "__main__":

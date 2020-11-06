@@ -72,12 +72,12 @@ class Workflow:
         )  # Will only update if isinstance(steps, (list, dict, tuple):
 
         # Parse steps arg - dict
-        if isinstance(steps, dict):
+        if isinstance(steps, dict):  # no cover
             for _, step in steps.items():
                 self.add_step(step)
 
         # Parse steps arg - list
-        elif isinstance(steps, (list, tuple)):
+        elif isinstance(steps, (list, tuple)):  # no cover
             self.steps = dict()
             for step in steps:
                 self.add_step(step)
@@ -93,7 +93,7 @@ class Workflow:
         self.parser = None
 
         # Only generate project if there is an input and input type
-        if self.input and self.input_type:
+        if self.input and self.input_type:  # no cover
             _input_types = ("directory", "dataframe")
             assert (
                 self.input_type in _input_types
@@ -176,7 +176,7 @@ class Workflow:
         :param steps_to_run: Comma-delimited string of steps to run.
         :return:
         """
-        if isinstance(steps_to_run, str):
+        if isinstance(steps_to_run, str):  # no cover
             steps_to_run = steps_to_run.split(",")
 
         # TODO: improve this assertion
@@ -196,14 +196,15 @@ class Workflow:
                         ].stderr:  # Add to successes if no standard error.
                             step.successes += 1
 
-                elif step.kind == "Project":
+                # TODO // write this test
+                elif step.kind == "Project":  # no cover
                     self.project.add_programs(step)
                     self.project.programs[step.name].run()
                     if not step.runs[
                         str(len(step.runs))
                     ].stderr:  # Add to successes if no standard error.
                         step.successes += 1
-            else:
+            else:  # no cover
                 if self.verbose:
                     print(f"Skipping step '{step.name}'")
 
@@ -224,7 +225,9 @@ class Workflow:
         )
         return project
 
-    def _load_directory_input(self):
+    # This method is deprecated.
+    # Will  only accept dataframe inputs in the future
+    def _load_directory_input(self):  # no cover
         """
         Generates Project from directory.
         :return: bioprov.Project
@@ -288,7 +291,7 @@ class Workflow:
             file_columns = [
                 file_columns,
             ]
-        elif isinstance(file_columns, tuple):
+        elif isinstance(file_columns, tuple):  # no cover
             file_columns = list(file_columns)
         self.file_columns = file_columns
 
@@ -309,7 +312,8 @@ class Workflow:
         project = self._project_from_dataframe(df)
         return project
 
-    def main(self):
+    # TODO // this is related to refactoring command-line parsers
+    def main(self):  # no cover
         """
         Parses command-line arguments and runs the workflow.
         :return:

@@ -174,7 +174,7 @@ def build_prov_attributes(dictionary, namespace):
     attributes = []
     for k, v in dictionary.items():
         if k == "namespace":
-            continue
+            continue  # no cover
         else:
             if not is_serializable_type(v):
                 v = str(v)
