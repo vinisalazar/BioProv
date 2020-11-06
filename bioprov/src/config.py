@@ -116,16 +116,19 @@ class Config:
         """
         could_not_read = [
             f"Could not read credentials from ProvStore file at {self.provstore_file}",
-            "It may be empty or not exist."
+            "It may be empty or not exist.",
         ]
 
         def prompt():
-            _prompt = input("\n".join(could_not_read + ["Would you like to create one? Y/n\n"]))
+            _prompt = input(
+                "\n".join(could_not_read + ["Would you like to create one? Y/n\n"])
+            )
             if _prompt.lower() in ("y", "yes", ""):
                 return True
             else:
                 print("Did not create ProvStore credentials file.")
                 return False
+
         try:
             with open(self.provstore_file) as f:
                 user, token, *_ = f.read().splitlines()
@@ -144,8 +147,14 @@ class Config:
 
         # Any other errors, return None and raise Exception
         except (AssertionError, UnboundLocalError):
-            print("\n".join(could_not_read +
-                            ["Please create one with bioprov.config.create_provstore_file() method."]))
+            print(
+                "\n".join(
+                    could_not_read
+                    + [
+                        "Please create one with bioprov.config.create_provstore_file() method."
+                    ]
+                )
+            )
             self.provstore_user = None
             self.provstore_token = None
             return

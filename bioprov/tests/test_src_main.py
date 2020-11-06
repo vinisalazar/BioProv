@@ -133,7 +133,9 @@ def test_parse_params():
     }
     dict_ = parse_params(params)
     # test Parameter.__repr__ method
-    assert str(dict_["-a"]).startswith("Parameter"), "Parameter.__repr__() method failed"
+    assert str(dict_["-a"]).startswith(
+        "Parameter"
+    ), "Parameter.__repr__() method failed"
     assert isinstance(dict_, dict), "Parameter dictionary did not build correctly."
 
 

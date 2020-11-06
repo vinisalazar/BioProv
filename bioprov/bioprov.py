@@ -40,7 +40,9 @@ def main(args=None):
         "--show_config", help="Show location of config file.", action="store_true"
     )
     commands.add_argument(
-        "--show_provstore", help="Show location of ProvStore credentials file.", action="store_true"
+        "--show_provstore",
+        help="Show location of ProvStore credentials file.",
+        action="store_true",
     )
     commands.add_argument(
         "--show_db", help="Show location of database file.", action="store_true"

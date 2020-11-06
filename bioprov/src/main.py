@@ -128,7 +128,9 @@ class Program:
         self.param_str = generate_param_str(self.params)
         self.generate_cmd()
         if _print:
-            print(f"Added parameter {k} with value '{v}' to program {self.name}")  # no cover
+            print(
+                f"Added parameter {k} with value '{v}' to program {self.name}"
+            )  # no cover
 
     def run(self, sample=None, _print=True):
         """
@@ -521,7 +523,11 @@ class PresetProgram(Program):
                 )
         try:
             for key, (tag, suffix) in self.output_files.items():
-                self.sample.add_files({tag: preffix + suffix,})
+                self.sample.add_files(
+                    {
+                        tag: preffix + suffix,
+                    }
+                )
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
@@ -753,7 +759,9 @@ class Sample:
     Class for holding sample information and related files and programs.
     """
 
-    def __init__(self, name=None, tag=None, files=None, directory=None, attributes=None):
+    def __init__(
+        self, name=None, tag=None, files=None, directory=None, attributes=None
+    ):
         """
         :param name:  Sample name or ID.
         :param tag: optional tag describing the sample.
