@@ -15,6 +15,7 @@ import os
 import bioprov
 from bioprov.data import data_dir, genomes_dir
 from prov.model import Namespace
+from provstore.api import Api
 from bioprov.utils import serializer, dict_to_sha1, serializer_filter
 from tinydb import TinyDB
 from pathlib import Path
@@ -49,6 +50,7 @@ class Config:
         self._provstore_file = None
         self._provstore_user = None
         self._provstore_token = None
+        self._provstore_api = None
 
     def __repr__(self):
         return f"BioProv Config class set in {__file__}"
@@ -66,6 +68,16 @@ class Config:
         :return:
         """
         self.db.clear_db(confirm)  # no cover
+
+    @property
+    def provstore_api(self):
+        if self._provstore_api is None:
+            self._provstore_api = Api(username=self.provstore_user, api_key=self.provstore_token)
+        return self._provstore_api
+
+    @provstore_api.setter
+    def provstore_api(self, value):
+        self._provstore_api = value
 
     @property
     def provstore_file(self):
@@ -139,8 +151,8 @@ class Config:
                 self.provstore_token = token
                 return
 
-        # If not found or can't read, prompt to create
-        except (ValueError, FileNotFoundError):  # no cover
+        # If not found, prompt to create
+        except FileNotFoundError:  # no cover
             if prompt():
                 self.create_provstore_file()
                 self.read_provstore_file()
@@ -148,7 +160,7 @@ class Config:
                 return
 
         # Any other errors, return None and raise Exception
-        except (AssertionError, UnboundLocalError):  # no cover
+        except (ValueError, AssertionError, UnboundLocalError):  # no cover
             print(
                 "\n".join(
                     could_not_read
@@ -162,7 +174,7 @@ class Config:
             return
 
     def serializer(self):
-        keys_to_remove = [i for i in self.__dict__.keys() if i.startswith("_provstore")] + ["env", ]
+        keys_to_remove = [i for i in self.__dict__.keys() if i.startswith("_")] + ["env", ]
         serial_out = serializer_filter(self, keys_to_remove)
         serial_out["provstore_file"] = self.provstore_file
         return serial_out
