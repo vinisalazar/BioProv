@@ -116,7 +116,7 @@ class File:
                 print(
                     f"Warning: file {self.path} was marked as existing but was not found."
                 )
-            if old_hash and self.sha1 != old_hash and self.exists:
+            if old_hash and self.sha1 != old_hash and self.exists:  # no cover
                 print(
                     f"Warning: file {self.path} previous sha1 checksum differs from the current."
                 )

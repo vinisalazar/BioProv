@@ -15,6 +15,7 @@ from os import environ, remove
 from pathlib import Path
 from tinydb import TinyDB, Query
 from coolname import generate_slug
+from tempfile import NamedTemporaryFile
 
 
 def test_Config():
@@ -27,6 +28,27 @@ def test_Config():
     assert config.user == config.env.user
     assert config.genomes.exists()
     assert config.data.exists()
+    assert str(config) == f"BioProv Config class set in {bp.src.config.__file__}"
+    assert type(len(config.db_all())) == int
+
+    # ProvStore properties
+    # getters
+    if Path(config.provstore_file).is_file():
+        # no cover because default is the file not existing
+        assert config.provstore_user is not None  # no cover
+        assert config.provstore_token is not None  # no cover
+    else:
+        assert config._provstore_user is None
+        assert config._provstore_token is None
+
+    # setters
+    config.provstore_user = None
+    config.provstore_token = None
+
+    with NamedTemporaryFile() as f:
+        config.provstore_file = f.name
+        config.create_provstore_file(user=generate_slug(2), token=generate_slug(4))
+        config.read_provstore_file()
 
 
 def test_BioProvDB():

@@ -9,7 +9,7 @@ __version__ = "0.1.18"
 Testing for the File module.
 """
 import bioprov as bp
-from bioprov import File, SeqFile, utils
+from bioprov import File, SeqFile, Directory, utils
 from bioprov.src.files import seqrecordgenerator
 from coolname import generate_slug
 from pathlib import Path
@@ -17,7 +17,7 @@ from bioprov.data import synechococcus_genome
 from prov.model import ProvEntity
 
 
-def test_File():
+def test_File_and_Directory():
     """
     Tests objects in the File module:
         - existing File instance
@@ -29,6 +29,7 @@ def test_File():
     # Test existing file
     file, tag = bp.__file__, "Init file for BioProv."
     f = File(file, tag)
+    d = Directory(f.path.parent)
     non_existing = generate_slug(2)
     nf = File("./" + non_existing)
     attributes = {
@@ -40,6 +41,7 @@ def test_File():
         "tag": f.tag == tag,
         "exists": f.exists is True,
         "repr": f.__repr__() == str(f.path),
+        "Directory_exists": d.exists,
         # Non existing file
         "non_existing": nf.exists is False,
         "no_size": nf.size == 0,
@@ -54,6 +56,7 @@ def test_File():
     for k, statement in attributes.items():
         assert statement, f"{k} did not pass!"
 
+    d.replace_path("", "")
     # test hashes
     nf.exists = True
     nf.replace_path("", "", warnings=True)  # no cover
