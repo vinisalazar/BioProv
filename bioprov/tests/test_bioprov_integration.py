@@ -80,19 +80,19 @@ def test_CLI():
     assert pytest_wrapped_e.type == SystemExit
 
     # Test other arguments
-    args = Namespace(show_config=True, show_db=False, version=False, list=False)
+    args = Namespace(show_config=True, show_db=False, version=False, list=False, show_provstore=False)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main(args)
 
     assert pytest_wrapped_e.type == SystemExit
 
-    args = Namespace(show_config=False, show_db=True, version=False, list=False)
+    args = Namespace(show_config=False, show_db=True, version=False, list=False, show_provstore=False)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main(args)
 
     assert pytest_wrapped_e.type == SystemExit
 
-    args = Namespace(show_config=False, show_db=False, version=True, list=False)
+    args = Namespace(show_config=False, show_db=False, version=True, list=False, show_provstore=False)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main(args)
 
@@ -103,14 +103,20 @@ def test_CLI():
         show_config=False,
         show_db=False,
         version=False,
-        list=False,
+        list=False, show_provstore=False
     )
     with pytest.raises(AttributeError) as pytest_wrapped_e:
         main(args)
 
     assert pytest_wrapped_e.type == AttributeError
 
-    args = Namespace(show_config=False, show_db=False, version=False, list=True)
+    args = Namespace(show_config=False, show_db=False, version=False, list=True, show_provstore=False)
+    with pytest.raises(SystemExit) as pytest_wrapped_e:
+        main(args)
+
+    assert pytest_wrapped_e.type == SystemExit
+
+    args = Namespace(show_config=False, show_db=False, version=False, list=True, show_provstore=True)
     with pytest.raises(SystemExit) as pytest_wrapped_e:
         main(args)
 

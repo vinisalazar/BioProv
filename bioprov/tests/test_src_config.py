@@ -27,6 +27,12 @@ def test_Config():
     assert config.user == config.env.user
     assert config.genomes.exists()
     assert config.data.exists()
+    if Path(config.provstore_file).is_file():
+        assert config.provstore_user is not None
+        assert config.provstore_token is not None
+    else:
+        assert config._provstore_user is None
+        assert config._provstore_token is None
 
 
 def test_BioProvDB():
