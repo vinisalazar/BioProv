@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18"
+__version__ = "0.1.18a"
 
 
 """
@@ -489,5 +489,5 @@ def deserialize_files_dict(files_dict):
                     try:
                         setattr(files_dict[tag], attr_, value_)
                     except AttributeError:
-                        breakpoint()
+                        pass
     return files_dict
