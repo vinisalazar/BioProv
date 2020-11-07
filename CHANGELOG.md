@@ -7,6 +7,9 @@
     * .describe []
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
 
+### v0.1.18a
+* Patch file deserializer bug [x]
+
 ### v0.1.18
 * Add support for ProvStore API (#23) [x]
 * Add subparsers for CLI commands [x]
