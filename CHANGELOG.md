@@ -8,8 +8,10 @@
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
 
 ### v0.1.19
-* Improve file deserializer [ ]
 * Add more presets [ ]
+* Improve BioProvDB query methods [ ]
+* Debug API endpoint (#23) [ ]
+* Add logging [ ]
 * TBD [ ]
 
 ### v0.1.18a
