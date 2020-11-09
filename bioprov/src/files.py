@@ -9,6 +9,7 @@ __version__ = "0.1.19"
 Contains the File and SeqFile classes and related functions.
 """
 
+import logging
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -115,12 +116,12 @@ class File:
         # TODO: replace these print statements for logger warning/debug level
         if warnings:
             if not self.exists and old_exists:
-                print(
-                    f"Warning: file {self.path} was marked as existing but was not found."
+                logging.warning(
+                    f"File {self.path} was marked as existing but was not found."
                 )
             if old_hash and self.sha1 != old_hash and self.exists:  # no cover
-                print(
-                    f"Warning: file {self.path} previous sha1 checksum differs from the current."
+                logging.warning(
+                    f"File {self.path} previous sha1 checksum differs from the current."
                 )
 
     def serializer(self):
@@ -161,7 +162,7 @@ class Directory:
         # TODO: replace these print statements for logger warning/debug level
         if warnings:
             if not self.exists and old_exists:
-                print(
+                logging.warning(
                     f"Warning: file {self.path} was marked as existing but was not found."
                 )
 
@@ -450,8 +451,8 @@ def seqrecordgenerator(path, format, parser="seq", warnings=False):
         return records
     except FileNotFoundError:
         if warnings:
-            print(Warnings()["not_exist"](path))
-            print(
+            logging.warning(Warnings()["not_exist"](path))
+            logging.warning(
                 "The file was loaded as a BioProv object, but it does not exist on the specified path."
             )
         return None

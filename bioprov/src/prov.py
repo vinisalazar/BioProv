@@ -10,6 +10,7 @@ Module containing base provenance attributes.
 This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
+import logging
 from pathlib import Path
 
 from prov.dot import prov_to_dot
@@ -359,7 +360,7 @@ class BioProvDocument:
                 self.provstore_document, name=self.project.tag
             )
         except ConnectionError:
-            print(
+            logging.error(
                 "Could not create remote document. Please check your internet connection and ProvStore credentials."
             )
 
@@ -381,9 +382,9 @@ class BioProvDocument:
         ), f"Directory '{path.parent}' not found.\nPlease provide a valid directory."
 
         if path.exists():
-            print(f"Overwriting file at '{path}'")
+            logging.info(f"Overwriting file at '{path}'")
 
         with open(path, "w") as f:
             f.write(self.provn)
-
-        print(f"Wrote PROVN record to {path}.")
+            if path.exists():
+                logging.info(f"Wrote PROVN record to {path}.")

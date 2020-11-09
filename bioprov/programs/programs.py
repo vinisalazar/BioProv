@@ -7,8 +7,10 @@ __version__ = "0.1.19"
 
 """
 Module for holding preset instances of the Program class.
+Module for holding preset instances of the Program class.
 """
 
+import logging
 from os import path
 from pathlib import Path
 
@@ -192,10 +194,10 @@ def prokka(
     )
 
     for param in params:
-        _prokka.add_parameter(param, _print=False)
+        _prokka.add_parameter(param)
 
     if path.isdir(output_path):
-        print(f"Warning: {output_path} directory exists. Will overwrite.")  # no cover
+        logging.warning(f"Warning: {output_path} directory exists. Will overwrite.")  # no cover
         _prokka.add_parameter(
             Parameter(key="--force", value="", kind="misc")
         )  # no cover
@@ -223,8 +225,7 @@ def prokka(
 
     # Input goes here, must be last positionally.
     _prokka.add_parameter(
-        Parameter(key="", value=str(_sample.files[assembly]), kind="input"),
-        _print=False,
+        Parameter(key="", value=str(_sample.files[assembly]), kind="input")
     )
 
     return _prokka
@@ -274,7 +275,7 @@ def kaiju(
         Parameter(key="-o", value=output_path, kind="output"),
     )
     for p in params:
-        kaiju_.add_parameter(p, _print=False)
+        kaiju_.add_parameter(p)
 
     if add_param_str:
         kaiju_.cmd += f" {add_param_str}"  # no cover
@@ -324,7 +325,7 @@ def kaiju2table(
     )
 
     for p in params:
-        kaiju2table_.add_parameter(p, _print=False)
+        kaiju2table_.add_parameter(p)
 
     # Add final parameter:
     kaiju2table_.cmd += f" {str(_sample.files[kaiju_output])}"

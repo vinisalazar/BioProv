@@ -9,6 +9,7 @@ Contains the Workflow class and related functions.
 """
 
 import argparse
+import logging
 from collections import OrderedDict
 from glob import glob
 from os import path
@@ -85,6 +86,8 @@ class Workflow:
                 self.add_step(step)
 
         self.parser = parser
+        if isinstance(tag, str):
+            tag = tag.replace(" ", "-")
         self.tag = tag
         self.verbose = verbose
         self.threads = threads
@@ -93,6 +96,10 @@ class Workflow:
         self.project = None
         self.project_csv = None
         self.parser = None
+
+        # Logging configuration (default is set in self.start_logging())
+        self.log_file = None
+        self._log_level = None
 
         # Only generate project if there is an input and input type
         if self.input and self.input_type:  # no cover
@@ -171,6 +178,28 @@ class Workflow:
         # Update parser:
         self.generate_parser()
 
+    def start_logging(self):
+        if self.tag is None:
+            self.tag = self.project.tag + "_" + self.name
+
+        # Start logging
+        self.log_file = f"{self.tag}.log"
+        if self.verbose:
+            self._log_level = logging.DEBUG
+        else:
+            self._log_level = logging.INFO
+        logging.basicConfig(
+            level=self._log_level,
+            format="%(asctime)s [%(levelname)s] %(message)s",
+            handlers=[
+                logging.FileHandler(self.log_file, delay=True),
+                logging.StreamHandler(),
+            ],
+        )
+        logging.info(
+            f"Starting '{self.name}' workflow for project '{self.project.tag}'."
+        )
+
     # TODO: implement Project steps
     def run_steps(self, steps_to_run):
         """
@@ -188,11 +217,20 @@ class Workflow:
         if self.project is None:
             self.generate_project()
 
-        for k, step in tqdm(self.steps.items()):
+        self.start_logging()
+        steps_str = "  " + "  \n".join(
+            [f"{ix+1}. {name}" for ix, name in enumerate(self.steps.keys())]
+        )
+        logging.info(f"Running {len(self.steps)} steps:\n{steps_str}")
+
+        # Start running steps
+        for k, step in self.steps.items():
             if k in steps_to_run:
                 if step.kind == "Sample":
+                    logging.info(f"Running '{step.name}' for each sample.")
+                    # Progress bar only for sample steps.
                     for _, sample in tqdm(self.project.items()):
-                        _run = step.run(sample=sample, _print=self.verbose)
+                        _run = step.run(sample=sample)
                         if not step.runs[
                             str(len(step.runs))
                         ].stderr:  # Add to successes if no standard error.
@@ -200,6 +238,7 @@ class Workflow:
 
                 # TODO // write this test
                 elif step.kind == "Project":  # no cover
+                    logging.info(f"Running '{step.name}' for project.")
                     self.project.add_programs(step)
                     self.project.programs[step.name].run()
                     if not step.runs[
@@ -207,8 +246,7 @@ class Workflow:
                     ].stderr:  # Add to successes if no standard error.
                         step.successes += 1
             else:  # no cover
-                if self.verbose:
-                    print(f"Skipping step '{step.name}'")
+                logging.info(f"Skipping step '{step.name}'")
 
     def _project_from_dataframe(self, df):
         """
@@ -217,7 +255,7 @@ class Workflow:
         :return: Updates self.project.
         """
         # Loading samples statement
-        print(Warnings()["sample_loading"](len(df)))
+        logging.info(Warnings()["sample_loading"](len(df)))
         project = from_df(
             df,
             index_col=self.index_col,

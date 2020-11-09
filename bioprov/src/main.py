@@ -24,6 +24,7 @@ This class also contains functions to read and write objects in JSON and tab-del
 
 import datetime
 import json
+import logging
 import tempfile
 from collections import OrderedDict
 from collections import deque
@@ -96,6 +97,10 @@ class Program:
             self._runs = dict()
         return self._runs
 
+    @runs.setter
+    def runs(self, value):
+        self._runs = value
+
     def add_runs(self, runs):
         """
         Sample method to add runs.
@@ -114,12 +119,11 @@ class Program:
         self.cmd = cmd
         return cmd
 
-    def add_parameter(self, parameter, _print=False):
+    def add_parameter(self, parameter):
         """
         Adds a parameter to the current instance and updates the command.
 
         :param parameter: an instance of the Parameter class.
-        :param _print: whether to print the parameter has been added.
         :return:
         """
         assert isinstance(parameter, Parameter), Warnings()["incorrect_type"](
@@ -129,22 +133,20 @@ class Program:
         self.params[k] = parameter
         self.param_str = generate_param_str(self.params)
         self.generate_cmd()
-        if _print:
-            print(
-                f"Added parameter {k} with value '{v}' to program {self.name}"
-            )  # no cover
+        logging.debug(
+            f"Added parameter {k} with value '{v}' to program {self.name}"
+        )  # no cover
 
-    def run(self, sample=None, _print=True):
+    def run(self, sample=None):
         """
         Runs the process.
         :param sample: An instance of the Sample class
-        :param _print: Argument to pass to Run.run()
         :return: An instance of Run class.
         """
 
         # Creates Run instance with self
         run_ = Run(self, sample=sample)
-        run_.run(_sample=sample, _print=True)
+        run_.run(_sample=sample)
         self.add_runs(run_)
         return run_
 
@@ -322,15 +324,12 @@ class Run:
         dict_ = {True: "Finished", False: "Pending"}
         return dict_[finished_status]
 
-    def run(self, _sample=None, _print=True, _print_stdout=False, _print_stderr=False):
+    def run(self, _sample=None):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
-        :type _print: bool
         :param _sample: self.sample
-        :param _print_stdout: Whether to print the stdout of the Program.
-        :param _print_stderr: Whether to print the stderr of the Program.
-        :return: self.stdout
+        :return: self
         """
         if _sample is None:
             _sample = self.sample
@@ -339,34 +338,35 @@ class Run:
         assert (
             self.program.found
         ), f"Cannot find program {self.program.name}. Make sure it is on your $PATH."
-        if _print:
-            str_ = f"Running program '{self.program.name}'"
-            if _sample is not None:
-                str_ += f" for sample {_sample.name}."
-            else:
-                str_ += "."
 
-            # Pretty printing of commands
-            split_ = self.program.cmd.split()
-            if len(self.program.cmd) > 80:
-                if len(split_) % 2 == 1:
-                    bin_, *fmt_cmd = split_
-                    last = ""
-                else:
-                    bin_, *fmt_cmd, last = split_  # no cover
-                it = iter(fmt_cmd)
-                fmt_cmd = zip(it, it)
-                fmt_cmd = " \\ \n".join(
-                    [bin_] + ["\t" + i[0] + " " + i[1] for i in fmt_cmd] + ["\t" + last]
-                )
-                str_ += f"\nCommand is:\n{fmt_cmd}\n"
-            else:
-                str_ += f"\nCommand is:\n{self.program.cmd}\n"
+        # Print block
+        str_ = f"Running program '{self.program.name}'"
+        if _sample is not None:
+            str_ += f" for sample {_sample.name}."
+        else:
+            str_ += "."
 
-            str_ = str_.strip()
-            if str_.endswith("\\"):
-                str_ = str_[:-1]
-            print(str_)
+        # Pretty printing of commands
+        split_ = self.program.cmd.split()
+        if len(self.program.cmd) > 80:
+            if len(split_) % 2 == 1:
+                bin_, *fmt_cmd = split_
+                last = ""
+            else:
+                bin_, *fmt_cmd, last = split_  # no cover
+            it = iter(fmt_cmd)
+            fmt_cmd = zip(it, it)
+            fmt_cmd = " \\ \n".join(
+                [bin_] + ["\t" + i[0] + " " + i[1] for i in fmt_cmd] + ["\t" + last]
+            )
+            str_ += f"\nCommand is:\n{fmt_cmd}\n"
+        else:
+            str_ += f"\nCommand is:\n{self.program.cmd}\n"
+
+        str_ = str_.strip()
+        if str_.endswith("\\"):
+            str_ = str_[:-1]
+        logging.info(str_)
 
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
@@ -389,11 +389,9 @@ class Run:
         self.finished = True
         self._status = self._finished_to_status(self.finished)
 
-        # These are useful for quick debugging.
-        if _print_stdout:
-            print(self.stdout)  # no cover
-        if _print_stderr:
-            print(self.stderr)  # no cover
+        if not self._auto_suppress_stdout:
+            logging.debug(self.stdout)  # no cover
+        logging.debug(self.stderr)  # no cover
 
         return self
 
@@ -533,7 +531,7 @@ class PresetProgram(Program):
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
-                self.add_parameter(param, _print=False)
+                self.add_parameter(param)
         except ValueError:
             raise Exception(
                 "Please check the output files dictionary:\n'{}'\n"
@@ -599,7 +597,7 @@ class PresetProgram(Program):
                 try:
                     parameter.value = str(self.sample.files[f"{parameter.tag}"])
                 except AttributeError:
-                    print("Warning: no sample associated with program.")
+                    logging.warning("Warning: no sample associated with program.")
                     pass  # Suppress bug for now.
             else:
                 pass
@@ -610,11 +608,10 @@ class PresetProgram(Program):
         self.cmd = generic_cmd
         return generic_cmd
 
-    def run(self, sample=None, _print=True, preffix_tag=None):
+    def run(self, sample=None, preffix_tag=None):
         """
         Runs PresetProgram for sample.
         :param sample: Instance of bioprov.Sample.
-        :param _print: Whether to print more output.
         :param preffix_tag: Preffix tag to self.create_func()
         :return:
         """
@@ -626,7 +623,7 @@ class PresetProgram(Program):
             self.create_func(sample, preffix_tag)
 
         # Update self._run, run self.run() and update self._run again.
-        Program.run(self, sample=sample, _print=_print)
+        Program.run(self, sample=sample)
 
 
 def parse_params(params):
@@ -678,7 +675,9 @@ def generate_param_str(params):
         param_str = str_.strip()
     else:
         # TODO: add more parameters options. List of tuples, List of Parameter instances, etc.
-        print("Must provide either a string or a dictionary for the parameters!")
+        logging.error(
+            "Must provide either a string or a dictionary for the parameters!"
+        )
         raise TypeError
     # Add positional arguments
     split_str = param_str.split()
@@ -851,30 +850,28 @@ class Sample:
         keys = ["files_namespace_preffix"]
         return serializer_filter(self, keys)
 
-    def run_programs(self, _print=True):
+    def run_programs(self):
         """
         Runs self._programs in order.
         :return:
         """
-        _run_programs(self, _print)
+        _run_programs(self)
 
-    def _run_program(self, program, _print=True):
+    def _run_program(self, program):
         """
         Runs program for self.
         :param program: bioprov.Program or bioprov.PresetProgram.
-        :param _print: Whether to print output of Program.
         :return: Runs Program and updates self.
         """
-        _run_program(self, program, _print)
+        _run_program(self, program)
 
-    def to_json(self, _path=None, _print=True):
+    def to_json(self, _path=None):
         """
         Exports the Sample as JSON. Similar to Project.to_json()
         :param _path: JSON output file path.
-        :param _print: Whether to print if the file was created correctly.
         :return:
         """
-        return to_json(self, self.serializer(), _path, _print=_print)
+        return to_json(self, self.serializer(), _path)
 
     def to_series(self):
         """
@@ -905,34 +902,32 @@ class Sample:
         return pd.Series(series)
 
 
-def _run_program(_object, program, _print=True):
+def _run_program(_object, program):
     """
     Runs program for _object.
 
     :param _object: bioprov.Project or bioprov.Sample
     :param program: bioprov.Program or bioprov.PresetProgram.
-    :param _print: Whether to print output of Program.
     :return: Runs Program and updates _object.
     """
     if program not in _object.programs.keys():
         _object.add_programs(program)
-    program.run(sample=_object, _print=_print)
+    program.run(sample=_object)
 
 
-def _run_programs(_object, _print=True):
+def _run_programs(_object):
     """
     Runs programs in order.
 
     :param _object: bioprov.Project or bioprov.Sample
-    :param _print: Whether to print output of Program.
     :return:
     """
     if len(_object.programs) >= 1:
         for _, p in _object.programs.items():
             # noinspection PyProtectedMember
-            _object._run_program(p, _print=_print)
+            _object._run_program(p)
     else:
-        print(f"No programs to run for {_object}")
+        logging.warning(f"No programs to run for {_object}")
 
 
 class Project:
@@ -940,7 +935,7 @@ class Project:
     Class which holds a dictionary of Sample instances, where each key is the sample name.
     """
 
-    def __init__(self, samples=None, tag=None, db=None, auto_update=False):
+    def __init__(self, tag=None, samples=None, db=None, auto_update=False):
         """
         Initiates the object by creating a sample dictionary.
         :param samples: An iterator of Sample objects.
@@ -989,9 +984,10 @@ class Project:
             value = self._samples[item]
             return value
         except KeyError:
-            print(f"Sample {item} not in Project.\n")
-            print("Check the following keys:")
-            print(" ", "\n  ".join(self.keys))
+            logging.error(
+                f"Sample {item} not in Project.\n" f"Check the following keys:" " ",
+                "\n  ".join(self.keys),
+            )
 
     def __setitem__(self, key, value):
         self._samples[key] = value
@@ -1051,10 +1047,10 @@ class Project:
             db = self.db
         result, query = self.query_db(db)
         if result:
-            print(f"Updating project '{self.tag}' at {db.db_path}")
+            logging.info(f"Updating project '{self.tag}' at {db.db_path}")
             db.update(self.serializer(), query.tag == self.tag)
         else:
-            print(f"Inserting new project '{self.tag}' in {db.db_path}")
+            logging.info(f"Inserting new project '{self.tag}' in {db.db_path}")
             db.insert(self.serializer())
 
     def auto_update_db(self):
@@ -1115,23 +1111,22 @@ class Project:
         _add_programs(self, programs)
         self.auto_update_db()
 
-    def run_programs(self, _print=True):
+    def run_programs(self):
         """
         Runs all programs in self.programs in order.
 
         :return:
         """
-        _run_programs(self, _print)
+        _run_programs(self)
 
-    def _run_program(self, program=None, _print=True):
+    def _run_program(self, program=None):
         """
         Runs program for self.
 
         :param program: bioprov.Program or bioprov.PresetProgram.
-        :param _print: Whether to print output of Program.
         :return: Runs Program and updates self.
         """
-        _run_program(self, program, _print)
+        _run_program(self, program)
 
     @staticmethod
     def is_sample_and_name(sample):
@@ -1148,7 +1143,7 @@ class Project:
         if sample.name is None:
             slug = generate_slug(2)
             sample.name = slug
-            print(f"No sample name set. Setting random name: {sample.name}")
+            logging.warning(f"No sample name set. Setting random name: {sample.name}")
 
         return sample
 
@@ -1200,14 +1195,13 @@ class Project:
     def serializer(self):
         return serializer(self)
 
-    def to_json(self, _path=None, _print=True):
+    def to_json(self, _path=None):
         """
         Exports the Project as JSON. Similar to Sample.to_json()
         :param _path: JSON output file _path.
-        :param _print: Whether to print if the file was created correctly.
         :return:
         """
-        return to_json(self, self.serializer(), _path, _print=_print)
+        return to_json(self, self.serializer(), _path)
 
     def to_df(self):
         """
@@ -1293,11 +1287,11 @@ def _add_files(object_, files):
     # Here 'files' must be a dictionary of File or Directory instances
     for k, v in files.items():
         if k in object_.files.keys():
-            print(f"Updating file {k} with value {v}.")
+            logging.info(f"Updating file {k} with value {v}.")
         object_.files[k] = v
 
 
-def to_json(object_, dictionary, _path=None, _print=True):
+def to_json(object_, dictionary, _path=None):
     """
     Exports the Sample or Project as JSON.
     :return: Writes JSON output
@@ -1309,7 +1303,7 @@ def to_json(object_, dictionary, _path=None, _print=True):
     if "json" not in object_.files.keys():
         object_.add_files({"json": _path})
 
-    return write_json(dictionary, _path, _print=_print)
+    return write_json(dictionary, _path)
 
 
 def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
@@ -1365,7 +1359,7 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
             pass
 
         # Create Project
-        project = Project(samples=samples, tag=d["tag"])
+        project = Project(tag=d["tag"], samples=samples)
 
         # Deserializing and adding project files and programs
         try:
@@ -1405,9 +1399,11 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
             project.replace_paths(other_HOME_variables, HOME, warnings=True)
 
         if replace_path:
-            print("Replacing paths:")
-            print(f"\tOld:\t{replace_path[0][0]}")
-            print(f"\tNew:\t{replace_path[1]}")
+            logging.info(
+                "Replacing paths:"
+                f"\tOld:\t{replace_path[0][0]}"
+                f"\tNew:\t{replace_path[1]}"
+            )
             project.replace_paths(replace_path[0], replace_path[1], warnings=True)
 
         return project
@@ -1479,7 +1475,7 @@ def from_df(
                 sample.attributes[attr_] = row[attr_]
         samples[ix] = sample
 
-    samples = Project(samples, tag=tag)
+    samples = Project(tag=tag, samples=samples)
     if source_file:
         samples.add_files({"project_csv": source_file})
 
@@ -1547,22 +1543,20 @@ def dict_to_sample(json_dict):
     return sample_
 
 
-def write_json(dict_, _path, _print=True):
+def write_json(dict_, _path):
     """
     Writes dictionary to JSON file.
     :param dict_: JSON dictionary.
     :param _path: String with _path to JSON file.
-    :param _print: Whether to print if the file was successfully created.
     :return: Writes JSON file.
     """
     with open(_path, "w") as f:
         json.dump(dict_, f, indent=3)
 
-    if _print:
-        if Path(_path).exists():
-            print(f"Created JSON file at {_path}.")
-        else:
-            print(f"Could not create JSON file for {_path}.")
+    if Path(_path).exists():
+        logging.info(f"Created JSON file at {_path}.")
+    else:
+        logging.info(f"Could not create JSON file for {_path}.")
 
 
 def load_project(tag):
@@ -1580,7 +1574,7 @@ def load_project(tag):
     try:
         result = config.db.search(query.tag == tag)[0]
     except (IndexError, KeyError):
-        print(f"Project not found in database at {config.db_path}")
+        logging.error(f"Project not found in database at {config.db_path}")
         return
 
     with tempfile.NamedTemporaryFile() as f:
