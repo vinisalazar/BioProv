@@ -197,7 +197,9 @@ def prokka(
         _prokka.add_parameter(param)
 
     if path.isdir(output_path):
-        logging.warning(f"Warning: {output_path} directory exists. Will overwrite.")  # no cover
+        config.logger.warning(
+            f"Warning: {output_path} directory exists. Will overwrite."
+        )  # no cover
         _prokka.add_parameter(
             Parameter(key="--force", value="", kind="misc")
         )  # no cover

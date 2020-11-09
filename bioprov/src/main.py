@@ -143,7 +143,6 @@ class Program:
         :param sample: An instance of the Sample class
         :return: An instance of Run class.
         """
-
         # Creates Run instance with self
         run_ = Run(self, sample=sample)
         run_.run(_sample=sample)
@@ -366,7 +365,7 @@ class Run:
         str_ = str_.strip()
         if str_.endswith("\\"):
             str_ = str_[:-1]
-        logging.info(str_)
+        config.logger.info(str_)
 
         p = Popen(self.program.cmd, shell=True, stdout=PIPE, stderr=PIPE)
         self.process = p
@@ -390,8 +389,8 @@ class Run:
         self._status = self._finished_to_status(self.finished)
 
         if not self._auto_suppress_stdout:
-            logging.debug(self.stdout)  # no cover
-        logging.debug(self.stderr)  # no cover
+            config.logger.debug(self.stdout)  # no cover
+        config.logger.debug(self.stderr)  # no cover
 
         return self
 
@@ -597,7 +596,7 @@ class PresetProgram(Program):
                 try:
                     parameter.value = str(self.sample.files[f"{parameter.tag}"])
                 except AttributeError:
-                    logging.warning("Warning: no sample associated with program.")
+                    config.logger.warning("Warning: no sample associated with program.")
                     pass  # Suppress bug for now.
             else:
                 pass
@@ -675,7 +674,7 @@ def generate_param_str(params):
         param_str = str_.strip()
     else:
         # TODO: add more parameters options. List of tuples, List of Parameter instances, etc.
-        logging.error(
+        config.logger.error(
             "Must provide either a string or a dictionary for the parameters!"
         )
         raise TypeError
@@ -927,7 +926,7 @@ def _run_programs(_object):
             # noinspection PyProtectedMember
             _object._run_program(p)
     else:
-        logging.warning(f"No programs to run for {_object}")
+        config.logger.warning(f"No programs to run for {_object}")
 
 
 class Project:
@@ -984,7 +983,7 @@ class Project:
             value = self._samples[item]
             return value
         except KeyError:
-            logging.error(
+            config.logger.error(
                 f"Sample {item} not in Project.\n" f"Check the following keys:" " ",
                 "\n  ".join(self.keys),
             )
@@ -1047,10 +1046,10 @@ class Project:
             db = self.db
         result, query = self.query_db(db)
         if result:
-            logging.info(f"Updating project '{self.tag}' at {db.db_path}")
+            config.logger.info(f"Updating project '{self.tag}' at {db.db_path}")
             db.update(self.serializer(), query.tag == self.tag)
         else:
-            logging.info(f"Inserting new project '{self.tag}' in {db.db_path}")
+            config.logger.info(f"Inserting new project '{self.tag}' in {db.db_path}")
             db.insert(self.serializer())
 
     def auto_update_db(self):
@@ -1143,7 +1142,9 @@ class Project:
         if sample.name is None:
             slug = generate_slug(2)
             sample.name = slug
-            logging.warning(f"No sample name set. Setting random name: {sample.name}")
+            config.logger.warning(
+                f"No sample name set. Setting random name: {sample.name}"
+            )
 
         return sample
 
@@ -1287,7 +1288,7 @@ def _add_files(object_, files):
     # Here 'files' must be a dictionary of File or Directory instances
     for k, v in files.items():
         if k in object_.files.keys():
-            logging.info(f"Updating file {k} with value {v}.")
+            config.logger.info(f"Updating file {k} with value {v}.")
         object_.files[k] = v
 
 
@@ -1399,7 +1400,7 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
             project.replace_paths(other_HOME_variables, HOME, warnings=True)
 
         if replace_path:
-            logging.info(
+            config.logger.info(
                 "Replacing paths:"
                 f"\tOld:\t{replace_path[0][0]}"
                 f"\tNew:\t{replace_path[1]}"
@@ -1554,9 +1555,9 @@ def write_json(dict_, _path):
         json.dump(dict_, f, indent=3)
 
     if Path(_path).exists():
-        logging.info(f"Created JSON file at {_path}.")
+        config.logger.info(f"Created JSON file at {_path}.")
     else:
-        logging.info(f"Could not create JSON file for {_path}.")
+        config.logger.info(f"Could not create JSON file for {_path}.")
 
 
 def load_project(tag):
@@ -1574,7 +1575,7 @@ def load_project(tag):
     try:
         result = config.db.search(query.tag == tag)[0]
     except (IndexError, KeyError):
-        logging.error(f"Project not found in database at {config.db_path}")
+        config.logger.error(f"Project not found in database at {config.db_path}")
         return
 
     with tempfile.NamedTemporaryFile() as f:
