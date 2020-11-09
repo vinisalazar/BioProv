@@ -8,9 +8,8 @@ __version__ = "0.1.19"
 """
 Testing for the workflows package.
 """
-from os import remove
-from bioprov.utils import Warnings
 from bioprov.data import genome_annotation_dataset
+from bioprov.utils import Warnings
 from bioprov.workflows.blastn import blastn_alignment
 from bioprov.workflows.genome_annotation import genome_annotation
 from bioprov.workflows.kaiju import KaijuWorkflow

@@ -19,7 +19,24 @@ Testing for the bioprov.src.main module.
 
 # TODO: organize this
 import datetime
+from os import remove
+from pathlib import Path
+
 import pandas as pd
+from coolname import generate_slug
+
+from bioprov import (
+    Sample,
+    Project,
+    SeqFile,
+    read_csv,
+    write_json,
+    from_json,
+    BioProvDocument,
+    BioProvDB,
+)
+from bioprov.data import synechococcus_genome, picocyano_dataset
+from bioprov.programs import prodigal
 from bioprov.src.main import (
     generate_param_str,
     Parameter,
@@ -31,22 +48,7 @@ from bioprov.src.main import (
     dict_to_sample,
     json_to_dict,
 )
-from coolname import generate_slug
-from os import remove
-from pathlib import Path
-from bioprov import (
-    Sample,
-    Project,
-    SeqFile,
-    read_csv,
-    write_json,
-    from_json,
-    BioProvDocument,
-    BioProvDB,
-)
 from bioprov.utils import dict_to_sha1, Warnings
-from bioprov.data import synechococcus_genome, picocyano_dataset
-from bioprov.programs import prodigal
 
 
 def test_Program():

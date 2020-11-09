@@ -7,11 +7,12 @@ __version__ = "0.1.19"
 """
 Helper functions.
 """
-import io
-import sys
-import json
 import hashlib
+import io
+import json
+import sys
 from pathlib import Path
+
 from prov.model import Namespace, QualifiedName
 
 

@@ -10,16 +10,17 @@ BioProv command-line application. This module holds the main executable.
 
 import argparse
 import sys
+from pathlib import Path
+
 import bioprov.src.config as bp_config_module
 from bioprov.src.config import config
+from bioprov.utils import parser_help, dict_to_string
 from bioprov.workflows import (
     WorkflowOptionsParser,
     genome_annotation,
     blastn_alignment,
     KaijuWorkflow,
 )
-from bioprov.utils import parser_help, dict_to_string
-from pathlib import Path
 
 
 def main(args=None):

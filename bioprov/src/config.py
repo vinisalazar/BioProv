@@ -12,13 +12,15 @@ Define your configurations in the 'config' variable at the end of the module.
 """
 
 import os
-import bioprov
-from bioprov.data import data_dir, genomes_dir
+from pathlib import Path
+
 from prov.model import Namespace
 from provstore.api import Api
-from bioprov.utils import serializer, dict_to_sha1, serializer_filter
 from tinydb import TinyDB
-from pathlib import Path
+
+import bioprov
+from bioprov.data import data_dir, genomes_dir
+from bioprov.utils import serializer, dict_to_sha1, serializer_filter
 
 
 class Config:

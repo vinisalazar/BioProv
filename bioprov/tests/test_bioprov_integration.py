@@ -10,9 +10,11 @@ Integration testing for drafting new ideas.
 """
 
 from argparse import Namespace
-import bioprov as bp
-import pytest
 from os import remove
+
+import pytest
+
+import bioprov as bp
 from bioprov.data import picocyano_dataset
 
 

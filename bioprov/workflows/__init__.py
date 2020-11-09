@@ -5,7 +5,7 @@ __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.19"
 
 
+from .blastn import blastn_alignment
 from .genome_annotation import genome_annotation
 from .kaiju import KaijuWorkflow
-from .blastn import blastn_alignment
 from .wf_parser import WorkflowOptionsParser

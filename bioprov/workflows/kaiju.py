@@ -15,13 +15,15 @@ This can be run by itself as a script or called
 with the BioProv CLI application (recommended).
 """
 
+import argparse
 from os import path, getcwd, mkdir
+
+import pandas as pd
+from tqdm import tqdm
+
 from bioprov import config, from_df
 from bioprov.programs import kaiju, kaiju2table
 from bioprov.utils import Warnings, tax_ranks
-from tqdm import tqdm
-import argparse
-import pandas as pd
 
 
 class KaijuWorkflow:

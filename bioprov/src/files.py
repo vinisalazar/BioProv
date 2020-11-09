@@ -9,10 +9,12 @@ __version__ = "0.1.19"
 Contains the File and SeqFile classes and related functions.
 """
 
-import numpy as np
 from dataclasses import dataclass
 from pathlib import Path
+
+import numpy as np
 from Bio import SeqIO, AlignIO
+
 from bioprov.utils import (
     get_size,
     Warnings,

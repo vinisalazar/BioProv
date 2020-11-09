@@ -9,13 +9,15 @@ Contains the Workflow class and related functions.
 """
 
 import argparse
-import pandas as pd
+from collections import OrderedDict
 from glob import glob
+from os import path
+
+import pandas as pd
+from tqdm import tqdm
+
 from bioprov import from_df, config, PresetProgram
 from bioprov.utils import Warnings
-from collections import OrderedDict
-from os import path
-from tqdm import tqdm
 
 
 class Workflow:

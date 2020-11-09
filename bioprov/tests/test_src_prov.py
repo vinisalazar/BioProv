@@ -11,12 +11,14 @@ Testing for prov module.
 """
 
 from os import environ
+
+from pydot import Dot
+
 from bioprov import read_csv
 from bioprov.data import picocyano_dataset
-from bioprov.src.prov import BioProvDocument
 from bioprov.src.config import EnvProv
+from bioprov.src.prov import BioProvDocument
 from bioprov.utils import dict_to_sha1
-from pydot import Dot
 
 project = read_csv(
     picocyano_dataset, sequencefile_cols="assembly", tag="picocyanobacteria"

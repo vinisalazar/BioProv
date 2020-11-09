@@ -14,8 +14,8 @@ This can be run by itself as a script or called
 with the BioProv CLI application (recommended).
 """
 
-from bioprov.src.workflow import Workflow, Step
 from bioprov.programs import prodigal  # , prokka
+from bioprov.src.workflow import Workflow, Step
 
 
 def genome_annotation(**kwargs):

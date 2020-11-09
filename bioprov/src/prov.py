@@ -11,11 +11,13 @@ This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
 from pathlib import Path
+
+from prov.dot import prov_to_dot
+from prov.model import ProvDocument
+from requests.exceptions import ConnectionError
+
 from bioprov import Project, Parameter, config
 from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
-from prov.model import ProvDocument
-from prov.dot import prov_to_dot
-from requests.exceptions import ConnectionError
 
 
 class BioProvDocument:

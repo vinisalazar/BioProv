@@ -24,22 +24,24 @@ This class also contains functions to read and write objects in JSON and tab-del
 
 import datetime
 import json
-import pandas as pd
 import tempfile
-from bioprov import config
-from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
-from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
-from bioprov.src.config import EnvProv
+from collections import OrderedDict
 from collections import deque
-from coolname import generate_slug
 from os import path
 from pathlib import Path
 from subprocess import Popen, PIPE, getoutput
 from time import time
 from types import GeneratorType
-from collections import OrderedDict
+
+import pandas as pd
+from coolname import generate_slug
 from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
+
+from bioprov import config
+from bioprov.src.config import EnvProv
+from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
+from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
 
 
 class Program:
