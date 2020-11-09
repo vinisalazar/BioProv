@@ -117,8 +117,8 @@ def blastp(sample, db, query_tag="query", outformat=6):
     :param Sample sample: Instance of BioProv.Sample.
     :param str db: A string pointing to the reference database directory and title.
     :param str query_tag: A tag for the query file.
-    :param int outformat: The output format to gather from blastn.
-    :return: Instance of PresetProgram for BLASTN.
+    :param int outformat: The output format to gather from blastp.
+    :return: Instance of PresetProgram for BLASTP.
     :rtype: BioProv.PresetProgram.
     :raises AssertionError: Path to the reference database does not exist.
     """
