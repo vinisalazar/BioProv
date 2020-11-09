@@ -10,6 +10,7 @@ Contains the Workflow class and related functions.
 
 import argparse
 import logging
+import sys
 from collections import OrderedDict
 from glob import glob
 from os import path
@@ -188,14 +189,17 @@ class Workflow:
             self._log_level = logging.DEBUG
         else:
             self._log_level = logging.INFO
+
         logging.basicConfig(
             level=self._log_level,
             format="%(asctime)s [%(levelname)s] %(message)s",
-            handlers=[
-                logging.FileHandler(self.log_file, delay=True),
-                logging.StreamHandler(),
-            ],
         )
+        logger = logging.getLogger()
+        logger_fh = logging.FileHandler(self.log_file, delay=True)
+        logger_stream = logging.StreamHandler(sys.stdout)
+        logger.addHandler(logger_fh)
+        logger.addHandler(logger_stream)
+
         logging.info(
             f"Starting '{self.name}' workflow for project '{self.project.tag}'."
         )
