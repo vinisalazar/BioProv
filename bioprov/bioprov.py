@@ -91,7 +91,7 @@ def main(args=None):
     try:
         parser.parse_options(args)  # no cover
     except KeyError:
-        parser_help(bioprov_parser)
+        raise
 
 
 class CommandOptionsParser:
