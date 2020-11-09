@@ -10,6 +10,7 @@ Helper functions.
 import hashlib
 import io
 import json
+import logging
 import sys
 from pathlib import Path
 
@@ -238,3 +239,25 @@ def pattern_replacer(pattern, iterable_of_olds, new):
         pattern = pattern.replace(old, new)
 
     return pattern
+
+
+def create_logger(log_level=logging.INFO, log_file=None, tag=None):
+    if tag is None:
+        tag = "bioprov"
+    logger = logging.getLogger(tag)
+    logger.setLevel(log_level)
+
+    # Console handler
+    stream_handler = logging.StreamHandler(sys.stdout)
+    simple_fmt = logging.Formatter("%(message)s")
+    stream_handler.setFormatter(simple_fmt)
+    logger.addHandler(stream_handler)
+
+    # File handler
+    if log_file:
+        timestamp_fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        fh_handler = logging.FileHandler(log_file, delay=True)
+        fh_handler.setFormatter(timestamp_fmt)
+        logger.addHandler(fh_handler)
+
+    return logger

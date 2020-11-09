@@ -18,9 +18,9 @@ from prov.model import Namespace
 from provstore.api import Api
 from tinydb import TinyDB
 
-import bioprov
+from bioprov import __file__ as bp_file
 from bioprov.data import data_dir, genomes_dir
-from bioprov.utils import serializer, dict_to_sha1, serializer_filter
+from bioprov.utils import serializer, dict_to_sha1, serializer_filter, create_logger
 
 
 class Config:
@@ -42,7 +42,7 @@ class Config:
         self.db = None
         self.db_path = None
         self.threads = threads
-        self.bioprov_dir = Path(bioprov.__file__).parent
+        self.bioprov_dir = Path(bp_file).parent
         self.data = data_dir
         self.genomes = genomes_dir
         if db_path is None:
@@ -54,6 +54,7 @@ class Config:
         self._provstore_token = None
         self._provstore_api = None
         self._provstore_endpoint = "https://openprovenance.org/store/api/v0/"
+        self._logger = None
 
     def __repr__(self):
         return f"BioProv Config class set in {__file__}"
@@ -114,6 +115,16 @@ class Config:
     @provstore_token.setter
     def provstore_token(self, value):
         self._provstore_token = value
+
+    @property
+    def logger(self):
+        if self._logger is None:
+            self._logger = create_logger()
+        return self._logger
+
+    @logger.setter
+    def logger(self, value):
+        self._logger = value
 
     def create_provstore_file(self, user=None, token=None):  # no cover
         with open(self.provstore_file, "w") as f:
