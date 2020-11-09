@@ -243,8 +243,7 @@ class Workflow:
                     self.logger.info(f"Running '{step.name}' for each sample.")
                     # Progress bar only for sample steps.
                     for _, sample in tqdm(self.project.items()):
-                        step.sample = sample
-                        _run = step.run()
+                        step.run(sample=sample)
                         if not step.runs[
                             str(len(step.runs))
                         ].stderr:  # Add to successes if no standard error.
@@ -255,10 +254,6 @@ class Workflow:
                     self.logger.info(f"Running '{step.name}' for project.")
                     self.project.add_programs(step)
                     self.project.programs[step.name].run()
-                    if not step.runs[
-                        str(len(step.runs))
-                    ].stderr:  # Add to successes if no standard error.
-                        step.successes += 1
             else:  # no cover
                 self.logger.info(f"Skipping step '{step.name}'")
 

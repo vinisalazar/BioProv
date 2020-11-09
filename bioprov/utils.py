@@ -256,7 +256,7 @@ def create_logger(log_level=logging.INFO, log_file=None, tag=None):
     # File handler
     if log_file:
         timestamp_fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-        fh_handler = logging.FileHandler(log_file, delay=True)
+        fh_handler = logging.FileHandler(log_file, mode="w", delay=True)
         fh_handler.setFormatter(timestamp_fmt)
         logger.addHandler(fh_handler)
 
