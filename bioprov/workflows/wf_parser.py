@@ -27,7 +27,7 @@ class WorkflowOptionsParser:
         Runs blastn alignment workflow
         :return:
         """
-        main = blastn_alignment(db=options.database)
+        main = blastn_alignment(db=options.database, sep=options.sep, tag=options.tag)
         main.input = options.input
         steps = options.steps
         main.run_steps(steps)
@@ -38,7 +38,7 @@ class WorkflowOptionsParser:
         Runs genome annotation workflow
         :return:
         """
-        main = genome_annotation()
+        main = genome_annotation(sep=options.sep, tag=options.tag)
         main.input = options.input
         steps = options.steps
         main.run_steps(steps)

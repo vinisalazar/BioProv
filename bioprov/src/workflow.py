@@ -10,7 +10,6 @@ Contains the Workflow class and related functions.
 
 import argparse
 import logging
-import sys
 from collections import OrderedDict
 from glob import glob
 from os import path
@@ -19,7 +18,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from bioprov import from_df, config, PresetProgram
-from bioprov.utils import Warnings
+from bioprov.utils import Warnings, create_logger
 
 
 class Workflow:
@@ -33,7 +32,7 @@ class Workflow:
         self,
         name=None,
         description=None,
-        input_=None,
+        input=None,
         input_type="dataframe",
         index_col="sample-id",
         file_columns=None,
@@ -49,7 +48,7 @@ class Workflow:
         """
         :param name: Name of the workflow, with no spaces.
         :param description: A brief (one sentence) description of the workflows.
-        :param input_: Input of workflow. May be a directory or a tab-delimited file.
+        :param input: Input of workflow. May be a directory or a tab-delimited file.
         :param input_type: Input type of the workflow. Choose from ('directory', 'dataframe', 'both')
         :param index_col: Name of index column which will define sample names if input_type is 'dataframe'.
         :param file_columns: Name of columns containing files if input_type is 'dataframe'.
@@ -65,7 +64,7 @@ class Workflow:
         """
         self.name = name
         self.description = description
-        self.input = input_
+        self.input = input
         self.input_type = input_type
         self.index_col = index_col
         self.file_columns = file_columns
@@ -101,6 +100,7 @@ class Workflow:
         # Logging configuration (default is set in self.start_logging())
         self.log_file = None
         self._log_level = None
+        self.logger = None
 
         # Only generate project if there is an input and input type
         if self.input and self.input_type:  # no cover
@@ -126,6 +126,13 @@ class Workflow:
             "directory": self._load_directory_input,
         }
         self.project = _generate_project[self.input_type]()
+        if self.tag is None:
+            self.tag = self.project.tag + "_" + self.name
+        else:
+            self.project.tag = self.tag
+
+        # Logging starts once the project is loaded.
+        self.start_logging()
 
     def generate_parser(self):
         parser = argparse.ArgumentParser(
@@ -150,13 +157,21 @@ class Workflow:
             default=config.threads,
         )
         parser.add_argument(
+            "-v",
             "--verbose",
             help="More verbose output",
             action="store_true",
             default=False,
             required=False,
         )
-        parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
+        parser.add_argument("-t", "--tag", help="A tag for the Project", required=False)
+        parser.add_argument(
+            "-s",
+            "--sep",
+            help="Separator for the tab-delimited file.",
+            required=False,
+            default="\t",
+        )
         parser.add_argument(
             "--steps",
             help=f"A comma-delimited string of which steps will be run in the workflow.\n"
@@ -190,19 +205,14 @@ class Workflow:
         else:
             self._log_level = logging.INFO
 
-        logging.basicConfig(
-            level=self._log_level,
-            format="%(asctime)s [%(levelname)s] %(message)s",
+        # Set self.logger as the config.logger
+        self.logger = config.logger = create_logger(
+            self._log_level, self.log_file, self.tag
         )
-        logger = logging.getLogger()
-        logger_fh = logging.FileHandler(self.log_file, delay=True)
-        logger_stream = logging.StreamHandler(sys.stdout)
-        logger.addHandler(logger_fh)
-        logger.addHandler(logger_stream)
-
-        logging.info(
+        self.logger.info(
             f"Starting '{self.name}' workflow for project '{self.project.tag}'."
         )
+        self.logger.info(f"Loading {len(self.project.samples)} samples.")
 
     # TODO: implement Project steps
     def run_steps(self, steps_to_run):
@@ -221,20 +231,20 @@ class Workflow:
         if self.project is None:
             self.generate_project()
 
-        self.start_logging()
         steps_str = "  " + "  \n".join(
             [f"{ix+1}. {name}" for ix, name in enumerate(self.steps.keys())]
         )
-        logging.info(f"Running {len(self.steps)} steps:\n{steps_str}")
+        self.logger.info(f"Running {len(self.steps)} steps:\n{steps_str}")
 
         # Start running steps
         for k, step in self.steps.items():
             if k in steps_to_run:
                 if step.kind == "Sample":
-                    logging.info(f"Running '{step.name}' for each sample.")
+                    self.logger.info(f"Running '{step.name}' for each sample.")
                     # Progress bar only for sample steps.
                     for _, sample in tqdm(self.project.items()):
-                        _run = step.run(sample=sample)
+                        step.sample = sample
+                        _run = step.run()
                         if not step.runs[
                             str(len(step.runs))
                         ].stderr:  # Add to successes if no standard error.
@@ -242,7 +252,7 @@ class Workflow:
 
                 # TODO // write this test
                 elif step.kind == "Project":  # no cover
-                    logging.info(f"Running '{step.name}' for project.")
+                    self.logger.info(f"Running '{step.name}' for project.")
                     self.project.add_programs(step)
                     self.project.programs[step.name].run()
                     if not step.runs[
@@ -250,7 +260,7 @@ class Workflow:
                     ].stderr:  # Add to successes if no standard error.
                         step.successes += 1
             else:  # no cover
-                logging.info(f"Skipping step '{step.name}'")
+                self.logger.info(f"Skipping step '{step.name}'")
 
     def _project_from_dataframe(self, df):
         """
@@ -258,8 +268,6 @@ class Workflow:
         :param df: Instance of pd.DataFrame.
         :return: Updates self.project.
         """
-        # Loading samples statement
-        logging.info(Warnings()["sample_loading"](len(df)))
         project = from_df(
             df,
             index_col=self.index_col,
@@ -315,15 +323,15 @@ class Workflow:
         """
 
         index_col = self.index_col
-        input_ = self.input
+        input = self.input
         file_columns = self.file_columns
 
         # Assert input file exists
-        assert path.isfile(input_), Warnings()["not_exist"]
+        assert path.isfile(input), Warnings()["not_exist"]
 
         # Read input
-        df = pd.read_csv(input_, sep=self.sep)
-        self.project_csv = input_
+        df = pd.read_csv(input, sep=self.sep)
+        self.project_csv = input
 
         # Assert index_col exists in df.columns
         assert (
@@ -398,3 +406,6 @@ class Step(PresetProgram):
         self.description = description
         self.successes = 0
         self.kind = kind
+
+    def __repr__(self):
+        return f"Step '{self.name}' with {len(self.params)} parameter(s) and kind '{self.kind}'."
