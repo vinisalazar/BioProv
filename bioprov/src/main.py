@@ -119,7 +119,7 @@ class Program:
         self.cmd = cmd
         return cmd
 
-    def add_parameter(self, parameter):
+    def add_parameter(self, parameter, _generate_cmd=True):
         """
         Adds a parameter to the current instance and updates the command.
 
@@ -132,10 +132,11 @@ class Program:
         k, v = parameter.key, parameter.value
         self.params[k] = parameter
         self.param_str = generate_param_str(self.params)
-        self.generate_cmd()
         logging.debug(
             f"Added parameter {k} with value '{v}' to program {self.name}"
         )  # no cover
+        if _generate_cmd:
+            self.generate_cmd()
 
     def run(self, sample=None):
         """
@@ -147,7 +148,6 @@ class Program:
         run_ = Run(self, sample=sample)
         run_.run(_sample=sample)
         self.add_runs(run_)
-        return run_
 
     def serializer(self):
         keys = [
@@ -475,7 +475,6 @@ class PresetProgram(Program):
         self.output_files = output_files
         self.preffix_tag = preffix_tag
         self.ready = False
-        self.generate_cmd()
 
         if self.sample is not None:
             self.create_func(sample=self.sample, preffix_tag=self.preffix_tag)
@@ -501,7 +500,7 @@ class PresetProgram(Program):
             param = Parameter(
                 key=k, value=str(self.sample.files[tag]), kind="input", tag=tag
             )
-            self.add_parameter(param)
+            self.add_parameter(param, _generate_cmd=False)
 
     def _parse_output_files(self):
         """
@@ -530,7 +529,7 @@ class PresetProgram(Program):
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
-                self.add_parameter(param)
+                self.add_parameter(param, _generate_cmd=False)
         except ValueError:
             raise Exception(
                 "Please check the output files dictionary:\n'{}'\n"
@@ -558,8 +557,12 @@ class PresetProgram(Program):
         self._parse_input_files()
         self._parse_output_files()
 
+        # Add self to sample automatically
+        self.sample.add_programs(self)
+
         # Set ready state
         self.ready = True
+        self.generate_cmd()
 
     def validate_sample(self):
         """
@@ -577,13 +580,11 @@ class PresetProgram(Program):
         """
         assert isinstance(self, Program), Warnings()["incorrect_type"](self, Program)
 
-    def generate_cmd(self, from_files=True):
+    def generate_cmd(self):
         """
         TODO: improve this function
 
         Generates a wildcard command string, independent of samples.
-        :param from_files: Generate command from self.input_files and self.output_files (recommended) If False,
-        will generate from parameter dictionary instead.
         :return: Updates self.cmd.
         """
         self.validate_program()
@@ -618,11 +619,11 @@ class PresetProgram(Program):
             sample = self.sample
         if preffix_tag is None:
             preffix_tag = self.preffix_tag
-        if not self.ready:
-            self.create_func(sample, preffix_tag)
 
-        # Update self._run, run self.run() and update self._run again.
-        Program.run(self, sample=sample)
+        self.create_func(sample, preffix_tag)
+        run_ = Run(self, sample=sample)
+        run_.run(_sample=sample)
+        self.add_runs(run_)
 
 
 def parse_params(params):
