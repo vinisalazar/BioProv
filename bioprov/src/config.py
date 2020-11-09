@@ -113,12 +113,12 @@ class Config:
     def provstore_token(self, value):
         self._provstore_token = value
 
-    def create_provstore_file(self, user=None, token=None):
+    def create_provstore_file(self, user=None, token=None):  # no cover
         with open(self.provstore_file, "w") as f:
             if user is None:
-                user = input("Please paste your ProvStore user: ")  # no cover
+                user = input("Please paste your ProvStore user: ")
             if token is None:
-                token = input("Please paste your ProvStore API token: ")  # no cover
+                token = input("Please paste your ProvStore API token: ")
             f.write(user + "\n")
             f.write(token + "\n")
 
