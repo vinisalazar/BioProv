@@ -7,6 +7,11 @@
     * .describe []
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
 
+### v0.1.19
+* Improve file deserializer [ ]
+* Add more presets [ ]
+* TBD [ ]
+
 ### v0.1.18a
 * Patch file deserializer bug [x]
 
