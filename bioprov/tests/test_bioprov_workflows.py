@@ -44,8 +44,9 @@ def test_genome_annotation():
         for key, file in sample.files.items():
             assert file.exists, Warnings()["not_exist"](file.path)
 
-    assert Path(workflow.log_file).exists()
-    remove(workflow.log_file)
+    log_file = "test-project.log"
+    assert Path(log_file).exists()
+    remove(log_file)
 
 
 def test_kaiju_workflow():
