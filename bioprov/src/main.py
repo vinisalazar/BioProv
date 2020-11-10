@@ -24,7 +24,6 @@ This class also contains functions to read and write objects in JSON and tab-del
 
 import datetime
 import json
-import logging
 import tempfile
 from collections import OrderedDict
 from collections import deque
@@ -132,7 +131,7 @@ class Program:
         k, v = parameter.key, parameter.value
         self.params[k] = parameter
         self.param_str = generate_param_str(self.params)
-        logging.debug(
+        config.logger.debug(
             f"Added parameter {k} with value '{v}' to program {self.name}"
         )  # no cover
         if _generate_cmd:
@@ -148,6 +147,7 @@ class Program:
         run_ = Run(self, sample=sample)
         run_.run(_sample=sample)
         self.add_runs(run_)
+        return run_
 
     def serializer(self):
         keys = [
@@ -624,6 +624,7 @@ class PresetProgram(Program):
         run_ = Run(self, sample=sample)
         run_.run(_sample=sample)
         self.add_runs(run_)
+        return run_
 
 
 def parse_params(params):
