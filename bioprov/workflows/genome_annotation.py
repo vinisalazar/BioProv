@@ -40,8 +40,3 @@ def genome_annotation(**kwargs):
         _genome_annotation.add_step(_step)
 
     return _genome_annotation
-
-
-if __name__ == "__main__":
-    workflow = genome_annotation()
-    workflow.main()

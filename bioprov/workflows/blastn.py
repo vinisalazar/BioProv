@@ -50,8 +50,3 @@ def blastn_alignment(**kwargs):
     )
 
     return _blastn_alignment
-
-
-if __name__ == "__main__":
-    workflow = blastn_alignment()
-    workflow.main()

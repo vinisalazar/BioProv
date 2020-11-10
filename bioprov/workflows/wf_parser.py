@@ -22,57 +22,48 @@ class WorkflowOptionsParser:
         pass
 
     @staticmethod
-    def _blastn_alignment(options):
+    def _blastn_alignment(kwargs, steps):
         """
         Runs blastn alignment workflow
         :return:
         """
-        main = blastn_alignment(db=options.database, sep=options.sep, tag=options.tag)
-        main.input = options.input
-        steps = options.steps
+        main = blastn_alignment(**kwargs)
         main.run_steps(steps)
 
     @staticmethod
-    def _genome_annotation(options):
+    def _genome_annotation(kwargs, steps):
         """
         Runs genome annotation workflow
         :return:
         """
-        main = genome_annotation(sep=options.sep, tag=options.tag)
-        main.input = options.input
-        steps = options.steps
+        main = genome_annotation(**kwargs)
         main.run_steps(steps)
 
     @staticmethod
-    def _kaiju_workflow(options):
+    def _kaiju_workflow(kwargs, steps):
         """
         Runs Kaiju workflow
         :return:
         """
-        KaijuWorkflow.main(
-            input_file=options.input,
-            output_path=options.output_directory,
-            kaijudb=options.kaiju_db,
-            nodes=options.nodes,
-            names=options.names,
-            threads=options.threads,
-            _tag=options.tag,
-            verbose=options.verbose,
-            kaiju_params=options.kaiju_params,
-            kaiju2table_params=options.kaiju2table_params,
-        )
+        _ = steps
+        KaijuWorkflow.main(**kwargs)
 
     def parse_options(self, options):
         """
         Parses options and returns correct workflow.
-        :param options:
-        :return:
+        :type options: argparse.Namespace
+        :param options: arguments passed by the parser.
+        :return: Runs the specified subparser in options.subparser_name.
         """
         subparsers = {
-            "genome_annotation": lambda _options: self._genome_annotation(_options),
-            "blastn": lambda _options: self._blastn_alignment(_options),
-            "kaiju": lambda _options: self._kaiju_workflow(_options),
+            "genome_annotation": lambda _options, _steps: self._genome_annotation(
+                _options, _steps
+            ),
+            "blastn": lambda _options, _steps: self._blastn_alignment(_options, _steps),
+            "kaiju": lambda _options, _steps: self._kaiju_workflow(_options, _steps),
         }
 
         # Run desired subparser
-        subparsers[options.subparser_name](options)
+        kwargs = dict(options._get_kwargs())
+        steps = kwargs.pop("steps")
+        subparsers[options.subparser_name](kwargs, steps)
