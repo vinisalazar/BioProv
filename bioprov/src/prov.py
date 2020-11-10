@@ -336,7 +336,7 @@ class BioProvDocument:
 
     def _add_activities_namespace(self):
         """
-        Add activities Namespace to self
+        Add activities Namespace to self.
         :return:
         """
 
@@ -356,8 +356,8 @@ class BioProvDocument:
         if api is None:
             api = config.provstore_api
         try:
-            self.ProvDocument = api.document.create(
-                self.provstore_document, name=self.project.tag
+            self.provstore_document = api.document.create(
+                self.ProvDocument, name=self.project.tag
             )
         except ConnectionError:
             logging.error(

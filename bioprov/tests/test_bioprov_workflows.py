@@ -8,6 +8,8 @@ __version__ = "0.1.19"
 """
 Testing for the workflows package.
 """
+from os import remove
+from pathlib import Path
 from bioprov.data import genome_annotation_dataset
 from bioprov.utils import Warnings
 from bioprov.workflows.blastn import blastn_alignment
@@ -31,7 +33,7 @@ def test_genome_annotation():
     Tests the 'genome_annotation' workflow with the 'prodigal' step.
     :return:
     """
-    workflow = genome_annotation()
+    workflow = genome_annotation(tag="test-project")
     workflow.input = genome_annotation_dataset
     steps = [
         "prodigal",
@@ -41,6 +43,9 @@ def test_genome_annotation():
     for _, sample in workflow.project.items():
         for key, file in sample.files.items():
             assert file.exists, Warnings()["not_exist"](file.path)
+
+    assert Path(workflow.log_file).exists()
+    remove(workflow.log_file)
 
 
 def test_kaiju_workflow():
