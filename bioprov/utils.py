@@ -248,7 +248,7 @@ def create_logger(log_level=logging.INFO, log_file=None, tag=None):
     logger.setLevel(log_level)
 
     # Console handler
-    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler = logging.StreamHandler()
     simple_fmt = logging.Formatter("%(message)s")
     stream_handler.setFormatter(simple_fmt)
     logger.addHandler(stream_handler)
