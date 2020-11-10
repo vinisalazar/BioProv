@@ -8,11 +8,15 @@
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
 
 ### v0.1.19
-* Add more presets [ ]
-* Improve BioProvDB query methods [ ]
-* Debug API endpoint (#23) [ ]
-* Add logging [ ]
-* TBD [ ]
+* Debug API endpoint (#23) [x]
+* Implement logging [x]
+    * Implement Workflow logging [x]
+* Debug Workflow Steps [x]
+* Remove workflow main methods [x]
+    * Workflows must now be called only from the CLI [x]
+* Implement post-workflow actions [ ]
+    * Update db [ ]
+    * Upload to ProvStore [ ]
 
 ### v0.1.18a
 * Patch file deserializer bug [x]
