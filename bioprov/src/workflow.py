@@ -359,20 +359,6 @@ class Workflow:
         project = self._project_from_dataframe(df)
         return project
 
-    # TODO // this is related to refactoring command-line parsers
-    def main(self):  # no cover
-        """
-        Parses command-line arguments and runs the workflow.
-        :return:
-        """
-        if self.parser is None:
-            self.generate_parser()
-        args = self.parser.parse_args()
-        self.input = args.input
-        self.input_type = args.input_type
-        steps = args.steps
-        self.run_steps(steps)
-
 
 class Step(PresetProgram):
     """
