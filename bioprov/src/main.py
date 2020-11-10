@@ -123,7 +123,9 @@ class Program:
         Adds a parameter to the current instance and updates the command.
 
         :param parameter: an instance of the Parameter class.
-        :return:
+        :param _generate_cmd: Refreshes self.cmd when a Parameter is added.
+
+        :return: Updates self.params and self.cmd if _generate_cmd is True.
         """
         assert isinstance(parameter, Parameter), Warnings()["incorrect_type"](
             parameter, Parameter
