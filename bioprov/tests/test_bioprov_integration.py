@@ -114,10 +114,11 @@ def test_CLI():
         list=False,
         show_provstore=False,
     )
-    with pytest.raises(AttributeError) as pytest_wrapped_e:
+
+    with pytest.raises(KeyError) as pytest_wrapped_e:
         main(args)
 
-    assert pytest_wrapped_e.type == AttributeError
+    assert pytest_wrapped_e.type == KeyError
 
     args = Namespace(
         show_config=False, show_db=False, version=False, list=True, show_provstore=False
