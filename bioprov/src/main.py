@@ -24,6 +24,7 @@ This class also contains functions to read and write objects in JSON and tab-del
 
 import datetime
 import json
+import logging
 import tempfile
 from collections import OrderedDict
 from collections import deque
@@ -41,7 +42,13 @@ from tinydb import Query
 from bioprov import config
 from bioprov.src.config import EnvProv
 from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
-from bioprov.utils import Warnings, serializer, serializer_filter, dict_to_sha1
+from bioprov.utils import (
+    Warnings,
+    serializer,
+    serializer_filter,
+    dict_to_sha1,
+    create_logger,
+)
 
 
 class Program:
@@ -722,6 +729,8 @@ def _add_programs(object_, programs):
     for program in programs:
         object_.programs[program.name] = program
 
+    object_.auto_update_db()
+
 
 def _add_runs(object_, runs):
     """
@@ -796,10 +805,15 @@ class Sample:
             attributes = dict()
         self.attributes = attributes
         self.programs = OrderedDict()
+        self.project = None
 
         # This is an attribute used by the src.prov module
         self.namespace_preffix = f"samples:{self.name}"
         self.files_namespace_preffix = None
+
+    def auto_update_db(self):
+        if self.project is not None:
+            self.project.auto_update_db()
 
     def __repr__(self):
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
@@ -850,7 +864,7 @@ class Sample:
         Custom serializer for Sample class. Serializes runs, programs, and files attributes.
         :return:
         """
-        keys = ["files_namespace_preffix"]
+        keys = ["files_namespace_preffix", "project"]
         return serializer_filter(self, keys)
 
     def run_programs(self):
@@ -916,6 +930,7 @@ def _run_program(_object, program):
     if program not in _object.programs.keys():
         _object.add_programs(program)
     program.run(sample=_object)
+    _object.auto_update_db()
 
 
 def _run_programs(_object):
@@ -938,7 +953,14 @@ class Project:
     Class which holds a dictionary of Sample instances, where each key is the sample name.
     """
 
-    def __init__(self, tag=None, samples=None, db=None, auto_update=False):
+    def __init__(
+        self,
+        tag=None,
+        samples=None,
+        db=None,
+        auto_update=False,
+        log_to_file=False,
+    ):
         """
         Initiates the object by creating a sample dictionary.
         :param samples: An iterator of Sample objects.
@@ -946,6 +968,8 @@ class Project:
         :param db: path to TinyDB to store project in JSON format.
         :param auto_update: Whether to auto_update the BioProvDB record.
                             Disabled by default.
+        :param log_to_file: Whether to log the Project to a File. You can define this later with
+                            the self.start_logging() method.
         """
         if tag is None:
             tag = generate_slug(2)
@@ -975,6 +999,13 @@ class Project:
         if db is None:
             db = config.db
         self.db = db
+
+        # Log attributes
+        self.log_to_file = log_to_file
+        self.log_file = None
+        self.logger = None
+        if self.log_to_file:
+            self.start_logging()
 
     def __len__(self):
         return len(self._samples)
@@ -1050,7 +1081,6 @@ class Project:
             db = self.db
         result, query = self.query_db(db)
         if result:
-            config.logger.info(f"Updating project '{self.tag}' at {db.db_path}")
             db.update(self.serializer(), query.tag == self.tag)
         else:
             config.logger.info(f"Inserting new project '{self.tag}' in {db.db_path}")
@@ -1095,6 +1125,30 @@ class Project:
             for _, file in sample.files.items():
                 file.replace_path(old_terms, new, warnings)
 
+    def start_logging(
+        self, log_file=None, level=logging.INFO, _custom_start_message=None
+    ):
+        """
+        Starts logging Project to File.
+
+        :param log_file: Path to log file. If None will be defined automatically.
+        :param level: Logging level.
+        :param _custom_start_message: Custom starting message to start the log.
+        :return: Creates logger attributes and refreshes bp.config.logger
+        """
+        if log_file is None:
+            log_file = f"{self.tag}.log"
+        self.log_file = log_file
+        self.logger = config.logger = create_logger(level, self.log_file, self.tag)
+        if _custom_start_message is None:
+            _custom_start_message = f"Starting log for project '{self.tag}'."
+
+        self.logger.info(_custom_start_message)
+
+        self.add_files(File(self.log_file, tag="log"))
+        self.logger.info(f"Writing log to {self.files['log']}")
+        self.logger.info(f"Loading {len(self)} samples.")
+
     def add_files(self, files):
         """
         Adds Files to self.files. See documentation to bioprov.src.main.add_files().
@@ -1103,7 +1157,6 @@ class Project:
         :return: Updates self.files
         """
         _add_files(self, files)
-        self.auto_update_db()
 
     def add_programs(self, programs):
         """
@@ -1112,7 +1165,6 @@ class Project:
         :return: Updates self.programs
         """
         _add_programs(self, programs)
-        self.auto_update_db()
 
     def run_programs(self):
         """
@@ -1169,8 +1221,7 @@ class Project:
 
         return constructor
 
-    @staticmethod
-    def build_sample_dict(constructor):
+    def build_sample_dict(self, constructor):
         """
         Build sample dictionary from passed constructor.
         :param constructor: Iterable or NoneType
@@ -1186,6 +1237,7 @@ class Project:
         for sample in constructor:
             sample = Project.is_sample_and_name(sample)
             samples[sample.name] = sample
+            samples[sample.name].project = self
 
         return samples
 
@@ -1294,6 +1346,8 @@ def _add_files(object_, files):
         if k in object_.files.keys():
             config.logger.info(f"Updating file {k} with value {v}.")
         object_.files[k] = v
+
+    object_.auto_update_db()
 
 
 def to_json(object_, dictionary, _path=None):
