@@ -166,10 +166,19 @@ class BioProvDocument:
                 )
 
     def _iter_samples(self):
-        for _, sample in self.project.items():
-            self._create_sample_bundle(sample)
-            self._create_sample_file_entities(sample)
-            self._create_program_entities(sample)
+        for _, sample in self.project.samples.items():
+            for statement in (
+                self._create_sample_bundle(sample),
+                self._create_sample_file_entities(sample),
+                self._create_program_entities(sample),
+            ):
+                try:
+                    statement
+                except KeyError:
+                    config.logger.debug(
+                        f"Could not run function '{statement.__name__}' for sample {sample.name}."
+                    )
+                    pass
 
     def _create_sample_bundle(self, object_, kind="Sample"):
         """
