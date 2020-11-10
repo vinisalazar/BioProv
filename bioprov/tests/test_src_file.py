@@ -2,19 +2,21 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 
 """
 Testing for the File module.
 """
+from pathlib import Path
+
+from coolname import generate_slug
+from prov.model import ProvEntity
+
 import bioprov as bp
 from bioprov import File, SeqFile, Directory, utils
-from bioprov.src.files import seqrecordgenerator
-from coolname import generate_slug
-from pathlib import Path
 from bioprov.data import synechococcus_genome
-from prov.model import ProvEntity
+from bioprov.src.files import seqrecordgenerator
 
 
 def test_File_and_Directory():

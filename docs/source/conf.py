@@ -24,7 +24,7 @@ copyright = "2020, Vini Salazar"
 author = "Vini Salazar"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.18a"
+release = "0.1.19"
 
 
 # -- General configuration ---------------------------------------------------

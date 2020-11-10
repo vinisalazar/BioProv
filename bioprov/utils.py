@@ -2,16 +2,18 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 """
 Helper functions.
 """
-import io
-import sys
-import json
 import hashlib
+import io
+import json
+import logging
+import sys
 from pathlib import Path
+
 from prov.model import Namespace, QualifiedName
 
 
@@ -237,3 +239,25 @@ def pattern_replacer(pattern, iterable_of_olds, new):
         pattern = pattern.replace(old, new)
 
     return pattern
+
+
+def create_logger(log_level=logging.INFO, log_file=None, tag=None):
+    if tag is None:
+        tag = "bioprov"
+    logger = logging.getLogger(tag)
+    logger.setLevel(log_level)
+
+    # Console handler
+    stream_handler = logging.StreamHandler()
+    simple_fmt = logging.Formatter("%(message)s")
+    stream_handler.setFormatter(simple_fmt)
+    logger.addHandler(stream_handler)
+
+    # File handler
+    if log_file:
+        timestamp_fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+        fh_handler = logging.FileHandler(log_file, mode="w", delay=True)
+        fh_handler.setFormatter(timestamp_fmt)
+        logger.addHandler(fh_handler)
+
+    return logger

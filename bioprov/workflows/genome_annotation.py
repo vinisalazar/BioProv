@@ -3,7 +3,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 """
 Genome annotation workflow module.
@@ -14,8 +14,8 @@ This can be run by itself as a script or called
 with the BioProv CLI application (recommended).
 """
 
-from bioprov.src.workflow import Workflow, Step
 from bioprov.programs import prodigal  # , prokka
+from bioprov.src.workflow import Workflow, Step
 
 
 def genome_annotation(**kwargs):
@@ -40,8 +40,3 @@ def genome_annotation(**kwargs):
         _genome_annotation.add_step(_step)
 
     return _genome_annotation
-
-
-if __name__ == "__main__":
-    workflow = genome_annotation()
-    workflow.main()

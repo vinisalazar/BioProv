@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 """
 BioProv command-line application. This module holds the main executable.
@@ -10,16 +10,17 @@ BioProv command-line application. This module holds the main executable.
 
 import argparse
 import sys
+from pathlib import Path
+
 import bioprov.src.config as bp_config_module
 from bioprov.src.config import config
+from bioprov.utils import parser_help, dict_to_string
 from bioprov.workflows import (
     WorkflowOptionsParser,
     genome_annotation,
     blastn_alignment,
     KaijuWorkflow,
 )
-from bioprov.utils import parser_help, dict_to_string
-from pathlib import Path
 
 
 def main(args=None):
@@ -90,7 +91,7 @@ def main(args=None):
     try:
         parser.parse_options(args)  # no cover
     except KeyError:
-        parser_help(bioprov_parser)
+        raise
 
 
 class CommandOptionsParser:

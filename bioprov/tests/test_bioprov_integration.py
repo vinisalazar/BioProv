@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 
 """
@@ -10,9 +10,11 @@ Integration testing for drafting new ideas.
 """
 
 from argparse import Namespace
-import bioprov as bp
-import pytest
 from os import remove
+
+import pytest
+
+import bioprov as bp
 from bioprov.data import picocyano_dataset
 
 
@@ -112,10 +114,11 @@ def test_CLI():
         list=False,
         show_provstore=False,
     )
-    with pytest.raises(AttributeError) as pytest_wrapped_e:
+
+    with pytest.raises(KeyError) as pytest_wrapped_e:
         main(args)
 
-    assert pytest_wrapped_e.type == AttributeError
+    assert pytest_wrapped_e.type == KeyError
 
     args = Namespace(
         show_config=False, show_db=False, version=False, list=True, show_provstore=False

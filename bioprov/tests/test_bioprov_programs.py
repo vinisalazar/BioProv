@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 
 """
@@ -47,20 +47,6 @@ def test_diamond():
     dmnd_params = list(dmnd_extra.serializer()["params"].keys())
 
     assert dmnd_params == expected
-
-
-def test_blastn():
-
-    s = Sample("Synechococcus", files={"query": synechococcus_genome})
-    reference_db = "./path_to_a_valid_blastdb"
-
-    blast = blastn(s, reference_db)
-    blast_params = blast.serializer()["params"]
-
-    expected = ["-db", "-outfmt", "-query", "-out"]
-
-    assert list(blast_params.keys()) == expected
-    assert blast_params["-outfmt"]["value"] == "6"
 
 
 def test_blastn():

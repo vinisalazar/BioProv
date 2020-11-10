@@ -3,7 +3,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 """
 BLAST nucleotide alignment workflow
@@ -14,8 +14,8 @@ This can be run by itself as a script or called
 with the BioProv CLI application (recommended).
 """
 
-from bioprov.src.workflow import Workflow, Step
 from bioprov.programs import blastn
+from bioprov.src.workflow import Workflow, Step
 
 
 def blastn_alignment(**kwargs):
@@ -50,8 +50,3 @@ def blastn_alignment(**kwargs):
     )
 
     return _blastn_alignment
-
-
-if __name__ == "__main__":
-    workflow = blastn_alignment()
-    workflow.main()

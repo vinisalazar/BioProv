@@ -2,20 +2,22 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 
 """
 Testing for the Config module.
 """
 
-import bioprov as bp
-from bioprov.src.config import Config, BioProvDB
 from os import environ, remove
 from pathlib import Path
-from tinydb import TinyDB, Query
-from coolname import generate_slug
 from tempfile import NamedTemporaryFile
+
+from coolname import generate_slug
+from tinydb import TinyDB, Query
+
+import bioprov as bp
+from bioprov.src.config import Config, BioProvDB
 
 
 def test_Config():

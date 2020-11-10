@@ -2,20 +2,23 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 """
 Contains the Workflow class and related functions.
 """
 
 import argparse
-import pandas as pd
-from glob import glob
-from bioprov import from_df, config, PresetProgram
-from bioprov.utils import Warnings
+import logging
 from collections import OrderedDict
+from glob import glob
 from os import path
+
+import pandas as pd
 from tqdm import tqdm
+
+from bioprov import from_df, config, PresetProgram, BioProvDocument, File
+from bioprov.utils import Warnings, create_logger
 
 
 class Workflow:
@@ -29,7 +32,7 @@ class Workflow:
         self,
         name=None,
         description=None,
-        input_=None,
+        input=None,
         input_type="dataframe",
         index_col="sample-id",
         file_columns=None,
@@ -40,12 +43,18 @@ class Workflow:
         verbose=None,
         threads=None,
         sep="\t",
+        log=None,
+        _log_to_file=True,
+        update_db=False,
+        upload_to_provstore=False,
+        write_provn=False,
+        write_pdf=False,
         **kwargs,
     ):
         """
         :param name: Name of the workflow, with no spaces.
         :param description: A brief (one sentence) description of the workflows.
-        :param input_: Input of workflow. May be a directory or a tab-delimited file.
+        :param input: Input of workflow. May be a directory or a tab-delimited file.
         :param input_type: Input type of the workflow. Choose from ('directory', 'dataframe', 'both')
         :param index_col: Name of index column which will define sample names if input_type is 'dataframe'.
         :param file_columns: Name of columns containing files if input_type is 'dataframe'.
@@ -57,11 +66,17 @@ class Workflow:
         :param verbose: Verbose output of workflow.
         :param threads: Number of threads in workflow. Defaults to bioprov.config.threads
         :param sep: Separator if input_type is 'dataframe'.
+        :param _log_to_file: Whether to write log to file.
+        :param log: Path of the file to write the log to. Default is f'{workflow.tag}.log'.
+        :param update_db: Whether to automatically update the BioProv DB when running the workflow.
+        :param write_provn: Write PROVN output at the end of the workflow.
+        :param write_pdf: Write graphical output at the end of the workflow.
+        :param upload_to_provstore: Upload BioProvDocument to ProvStore at the end of the workflow.
         :param kwargs: Other keyword arguments to be passed to workflow.
         """
         self.name = name
         self.description = description
-        self.input = input_
+        self.input = input
         self.input_type = input_type
         self.index_col = index_col
         self.file_columns = file_columns
@@ -70,6 +85,13 @@ class Workflow:
         self.steps = (
             OrderedDict()
         )  # Will only update if isinstance(steps, (list, dict, tuple):
+
+        # Post workflow actions
+        self._bioprovdocument = None
+        self.update_db = update_db
+        self.write_provn = write_provn
+        self.write_pdf = write_pdf
+        self.upload_to_provstore = upload_to_provstore
 
         # Parse steps arg - dict
         if isinstance(steps, dict):  # no cover
@@ -83,6 +105,8 @@ class Workflow:
                 self.add_step(step)
 
         self.parser = parser
+        if isinstance(tag, str):
+            tag = tag.replace(" ", "-")
         self.tag = tag
         self.verbose = verbose
         self.threads = threads
@@ -91,6 +115,12 @@ class Workflow:
         self.project = None
         self.project_csv = None
         self.parser = None
+
+        # Logging configuration (default is set in self.start_logging())
+        self._log_to_file = _log_to_file
+        self.log_file = log
+        self._log_level = None
+        self.logger = None
 
         # Only generate project if there is an input and input type
         if self.input and self.input_type:  # no cover
@@ -106,6 +136,44 @@ class Workflow:
         ):
             self.generate_parser()
 
+    def __repr__(self):
+        return f"bioprov.Workflow '{self.name}'"
+
+    def create_provenance(self):
+        self._bioprovdocument = BioProvDocument(self.project)
+
+    def _update_db(self):
+        self.project.update_db()
+
+    @property
+    def bioprovdocument(self):
+        if self._bioprovdocument is None:
+            self.create_provenance()
+        return self._bioprovdocument
+
+    def _upload_to_provstore(self):
+        self.bioprovdocument.upload_to_provstore()
+
+    def _write_provn(self):
+        self.bioprovdocument.write_provn()
+
+    def _write_pdf(self):
+        self.bioprovdocument.dot.write_pdf(self.project.tag + ".pdf")
+
+    def _post_wf_actions(self):
+        self.create_provenance()
+        if self.update_db:
+            config.logger.info(
+                f"Updating project '{self.project.tag}' at {config.db_path}"
+            )
+            self._update_db()
+        if self.upload_to_provstore:
+            self._upload_to_provstore()
+        if self.write_provn:
+            self._write_provn()
+        if self.write_pdf:
+            self._write_pdf()
+
     def generate_project(self):
         """
         Generate Project instance from input.
@@ -116,6 +184,15 @@ class Workflow:
             "directory": self._load_directory_input,
         }
         self.project = _generate_project[self.input_type]()
+        if self.tag is None:
+            self.tag = self.project.tag + "_" + self.name
+        else:
+            self.project.tag = self.tag
+
+        if self.update_db:
+            self.project.auto_update = True
+        # Logging starts once the project is loaded.
+        self.start_logging()
 
     def generate_parser(self):
         parser = argparse.ArgumentParser(
@@ -140,19 +217,58 @@ class Workflow:
             default=config.threads,
         )
         parser.add_argument(
+            "-v",
             "--verbose",
             help="More verbose output",
             action="store_true",
             default=False,
             required=False,
         )
-        parser.add_argument("-t", "--tag", help="A tag for the dataset", required=False)
+        parser.add_argument("-t", "--tag", help="A tag for the Project", required=False)
+        parser.add_argument(
+            "-s",
+            "--sep",
+            help="Separator for the tab-delimited file.",
+            required=False,
+            default="\t",
+        )
+        parser.add_argument(
+            "-l",
+            "--log",
+            help="Path to write log file to. If not set, will be defined automatically.",
+            required=False,
+            default=None,
+        )
         parser.add_argument(
             "--steps",
             help=f"A comma-delimited string of which steps will be run in the workflow.\n"
             f"Possible steps:\n{list(self.steps.keys())}",
             default=self.default_steps,
-        ),
+        )
+        parser.add_argument(
+            "--update_db",
+            help="Whether to update the Project in the BioProvDB.",
+            action="store_true",
+            required=False,
+        )
+        parser.add_argument(
+            "--upload_to_provstore",
+            help="Whether to upload the Project to ProvStore at the end of the execution.",
+            action="store_true",
+            required=False,
+        )
+        parser.add_argument(
+            "--write_provn",
+            help="Whether to write PROVN output at the end of the execution.",
+            action="store_true",
+            required=False,
+        )
+        parser.add_argument(
+            "--write_pdf",
+            help="Whether to write graphical output at the end of the execution.",
+            action="store_true",
+            required=False,
+        )
 
         self.parser = parser
 
@@ -168,6 +284,19 @@ class Workflow:
         self.steps[step.name] = step
         # Update parser:
         self.generate_parser()
+
+    def start_logging(self):
+        if self.verbose:
+            self._log_level = logging.DEBUG
+        else:
+            self._log_level = logging.INFO
+        _custom_start_message = (
+            f"Starting '{self.name}' workflow for project '{self.project.tag}'."
+        )
+        self.project.start_logging(
+            level=self._log_level, _custom_start_message=_custom_start_message
+        )
+        self.logger = self.project.logger
 
     # TODO: implement Project steps
     def run_steps(self, steps_to_run):
@@ -186,11 +315,19 @@ class Workflow:
         if self.project is None:
             self.generate_project()
 
-        for k, step in tqdm(self.steps.items()):
+        steps_str = "  " + "  \n".join(
+            [f"{ix+1}. {name}" for ix, name in enumerate(self.steps.keys())]
+        )
+        self.logger.info(f"Running {len(self.steps)} steps:\n{steps_str}")
+
+        # Start running steps
+        for k, step in self.steps.items():
             if k in steps_to_run:
                 if step.kind == "Sample":
+                    self.logger.info(f"Running '{step.name}' for each sample.")
+                    # Progress bar only for sample steps.
                     for _, sample in tqdm(self.project.items()):
-                        _run = step.run(sample=sample, _print=self.verbose)
+                        step.run(sample=sample)
                         if not step.runs[
                             str(len(step.runs))
                         ].stderr:  # Add to successes if no standard error.
@@ -198,15 +335,13 @@ class Workflow:
 
                 # TODO // write this test
                 elif step.kind == "Project":  # no cover
+                    self.logger.info(f"Running '{step.name}' for project.")
                     self.project.add_programs(step)
                     self.project.programs[step.name].run()
-                    if not step.runs[
-                        str(len(step.runs))
-                    ].stderr:  # Add to successes if no standard error.
-                        step.successes += 1
             else:  # no cover
-                if self.verbose:
-                    print(f"Skipping step '{step.name}'")
+                self.logger.info(f"Skipping step '{step.name}'")
+
+        self._post_wf_actions()
 
     def _project_from_dataframe(self, df):
         """
@@ -214,8 +349,6 @@ class Workflow:
         :param df: Instance of pd.DataFrame.
         :return: Updates self.project.
         """
-        # Loading samples statement
-        print(Warnings()["sample_loading"](len(df)))
         project = from_df(
             df,
             index_col=self.index_col,
@@ -271,15 +404,15 @@ class Workflow:
         """
 
         index_col = self.index_col
-        input_ = self.input
+        input = self.input
         file_columns = self.file_columns
 
         # Assert input file exists
-        assert path.isfile(input_), Warnings()["not_exist"]
+        assert path.isfile(input), Warnings()["not_exist"]
 
         # Read input
-        df = pd.read_csv(input_, sep=self.sep)
-        self.project_csv = input_
+        df = pd.read_csv(input, sep=self.sep)
+        self.project_csv = input
 
         # Assert index_col exists in df.columns
         assert (
@@ -312,20 +445,6 @@ class Workflow:
         project = self._project_from_dataframe(df)
         return project
 
-    # TODO // this is related to refactoring command-line parsers
-    def main(self):  # no cover
-        """
-        Parses command-line arguments and runs the workflow.
-        :return:
-        """
-        if self.parser is None:
-            self.generate_parser()
-        args = self.parser.parse_args()
-        self.input = args.input
-        self.input_type = args.input_type
-        steps = args.steps
-        self.run_steps(steps)
-
 
 class Step(PresetProgram):
     """
@@ -354,3 +473,6 @@ class Step(PresetProgram):
         self.description = description
         self.successes = 0
         self.kind = kind
+
+    def __repr__(self):
+        return f"Step '{self.name}' with {len(self.params)} parameter(s) and kind '{self.kind}'."

@@ -7,6 +7,21 @@
     * .describe []
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
 
+### v0.1.19
+* Debug API endpoint (#23) [x]
+* Implement logging [x]
+    * Implement Workflow logging [x]
+* Debug Workflow Steps [x]
+* Remove workflow main methods [x]
+    * Workflows must now be called only from the CLI [x]
+* Implement post-workflow actions [x]
+    * Update db [x]
+    * Upload to ProvStore [x]
+    * Write PROVN [x]
+    * Write PDF [x]
+* Add Sample.auto_update_db() methods [x]
+* Remove logger call when updating Project in database [x]
+
 ### v0.1.18a
 * Patch file deserializer bug [x]
 

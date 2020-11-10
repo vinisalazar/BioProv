@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 """
 Module containing base provenance attributes.
@@ -10,12 +10,15 @@ Module containing base provenance attributes.
 This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
+import logging
 from pathlib import Path
+
+from prov.dot import prov_to_dot
+from prov.model import ProvDocument
+from requests.exceptions import ConnectionError
+
 from bioprov import Project, Parameter, config
 from bioprov.utils import Warnings, build_prov_attributes, serializer_filter
-from prov.model import ProvDocument
-from prov.dot import prov_to_dot
-from requests.exceptions import ConnectionError
 
 
 class BioProvDocument:
@@ -163,10 +166,19 @@ class BioProvDocument:
                 )
 
     def _iter_samples(self):
-        for _, sample in self.project.items():
-            self._create_sample_bundle(sample)
-            self._create_sample_file_entities(sample)
-            self._create_program_entities(sample)
+        for _, sample in self.project.samples.items():
+            for statement in (
+                self._create_sample_bundle(sample),
+                self._create_sample_file_entities(sample),
+                self._create_program_entities(sample),
+            ):
+                try:
+                    statement
+                except KeyError:
+                    config.logger.debug(
+                        f"Could not run function '{statement.__name__}' for sample {sample.name}."
+                    )
+                    pass
 
     def _create_sample_bundle(self, object_, kind="Sample"):
         """
@@ -333,7 +345,7 @@ class BioProvDocument:
 
     def _add_activities_namespace(self):
         """
-        Add activities Namespace to self
+        Add activities Namespace to self.
         :return:
         """
 
@@ -353,11 +365,11 @@ class BioProvDocument:
         if api is None:
             api = config.provstore_api
         try:
-            self.ProvDocument = api.document.create(
-                self.provstore_document, name=self.project.tag
+            self.provstore_document = api.document.create(
+                self.ProvDocument, name=self.project.tag
             )
         except ConnectionError:
-            print(
+            logging.error(
                 "Could not create remote document. Please check your internet connection and ProvStore credentials."
             )
 
@@ -379,9 +391,9 @@ class BioProvDocument:
         ), f"Directory '{path.parent}' not found.\nPlease provide a valid directory."
 
         if path.exists():
-            print(f"Overwriting file at '{path}'")
+            logging.info(f"Overwriting file at '{path}'")
 
         with open(path, "w") as f:
             f.write(self.provn)
-
-        print(f"Wrote PROVN record to {path}.")
+            if path.exists():
+                logging.info(f"Wrote PROVN record to {path}.")

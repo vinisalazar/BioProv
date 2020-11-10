@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 
 """
@@ -12,13 +12,15 @@ Define your configurations in the 'config' variable at the end of the module.
 """
 
 import os
-import bioprov
-from bioprov.data import data_dir, genomes_dir
+from pathlib import Path
+
 from prov.model import Namespace
 from provstore.api import Api
-from bioprov.utils import serializer, dict_to_sha1, serializer_filter
 from tinydb import TinyDB
-from pathlib import Path
+
+from bioprov import __file__ as bp_file
+from bioprov.data import data_dir, genomes_dir
+from bioprov.utils import serializer, dict_to_sha1, serializer_filter, create_logger
 
 
 class Config:
@@ -40,7 +42,7 @@ class Config:
         self.db = None
         self.db_path = None
         self.threads = threads
-        self.bioprov_dir = Path(bioprov.__file__).parent
+        self.bioprov_dir = Path(bp_file).parent
         self.data = data_dir
         self.genomes = genomes_dir
         if db_path is None:
@@ -52,6 +54,7 @@ class Config:
         self._provstore_token = None
         self._provstore_api = None
         self._provstore_endpoint = "https://openprovenance.org/store/api/v0/"
+        self._logger = None
 
     def __repr__(self):
         return f"BioProv Config class set in {__file__}"
@@ -76,7 +79,7 @@ class Config:
             self._provstore_api = Api(
                 username=self.provstore_user, api_key=self.provstore_token
             )
-            Api.base_url = self._provstore_endpoint
+            self._provstore_api.base_url = self._provstore_endpoint
         return self._provstore_api
 
     @provstore_api.setter
@@ -113,12 +116,22 @@ class Config:
     def provstore_token(self, value):
         self._provstore_token = value
 
-    def create_provstore_file(self, user=None, token=None):
+    @property
+    def logger(self):
+        if self._logger is None:
+            self._logger = create_logger()
+        return self._logger
+
+    @logger.setter
+    def logger(self, value):
+        self._logger = value
+
+    def create_provstore_file(self, user=None, token=None):  # no cover
         with open(self.provstore_file, "w") as f:
             if user is None:
-                user = input("Please paste your ProvStore user: ")  # no cover
+                user = input("Please paste your ProvStore user: ")
             if token is None:
-                token = input("Please paste your ProvStore API token: ")  # no cover
+                token = input("Please paste your ProvStore API token: ")
             f.write(user + "\n")
             f.write(token + "\n")
 

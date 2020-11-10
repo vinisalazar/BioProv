@@ -3,7 +3,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.18a"
+__version__ = "0.1.19"
 
 
 """
@@ -15,13 +15,16 @@ This can be run by itself as a script or called
 with the BioProv CLI application (recommended).
 """
 
+import argparse
+import logging
 from os import path, getcwd, mkdir
-from bioprov import config, from_df
+
+import pandas as pd
+from tqdm import tqdm
+
+from bioprov import config, from_df, Sample
 from bioprov.programs import kaiju, kaiju2table
 from bioprov.utils import Warnings, tax_ranks
-from tqdm import tqdm
-import argparse
-import pandas as pd
 
 
 class KaijuWorkflow:
@@ -85,13 +88,14 @@ class KaijuWorkflow:
                     file_
                 ), f"File '{file_}' was not found! Make sure all file paths are correct in input file."
 
-        print(Warnings()["sample_loading"](len(df)))
+        logging.warning(Warnings()["sample_loading"](len(df)))
 
         # Create BioProv Project
         ss = from_df(df, index_col="sample-id", file_cols=("R1", "R2"), tag=_tag)
 
         success, skip = 0, 0
 
+        sample: Sample
         for k, sample in tqdm(ss.items()):
             kaiju_ = kaiju(
                 sample,
@@ -124,7 +128,7 @@ class KaijuWorkflow:
                     names=names,
                     add_param_str=kaiju2table_params,
                 )
-                k2t_run = kaiju2table_.run(sample, _print=False)
+                kaiju2table_.run(sample)
 
             all_files_exist = False
             for k_, v in sample.files.items():
