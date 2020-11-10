@@ -899,7 +899,7 @@ class Sample:
         series = {}
 
         # Can't apply serializer_filter here.
-        keys = ["files_namespace_preffix", "namespace_preffix", "_programs"]
+        keys = ["files_namespace_preffix", "namespace_preffix", "_programs", "project"]
         modified_dict = self.__dict__.copy()
         for key in keys:
             try:
