@@ -95,7 +95,7 @@ You can import data into BioProv using Pandas objects.
 
 ### Installation
 
-```
+```sh
 # Install from pip
 $ pip install bioprov
 
