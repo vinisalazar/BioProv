@@ -14,6 +14,7 @@ from bioprov.data import synechococcus_genome
 from bioprov.programs import (
     blastn,
     blastp,
+    muscle,
     diamond,
     kaiju,
     kaiju2table,
@@ -75,6 +76,18 @@ def test_blastp():
 
     assert list(blast_params.keys()) == expected
     assert blast_params["-outfmt"]["value"] == "6"
+
+
+def test_muscle():
+
+    s = Sample("Synechococcus", files={"input": synechococcus_genome})
+
+    muscle_prog = muscle(sample=s, msf=True)
+    muscle_params = muscle_prog.serializer()["params"]
+
+    expected = ["-in", "-out", "-msf"]
+
+    assert list(muscle_params.keys()) == expected
 
 
 def test_prodigal():
