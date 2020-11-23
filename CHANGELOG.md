@@ -3,9 +3,13 @@
 ### To-do
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
+
+### v0.1.20
 * Create methods for Sample and Project
-    * .describe []
-    * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir()
+    * .describe [ ]
+    * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
+* Add logger calls when saving to JSON and uploading to PyPI [ ]
+* Add Muscle PresetProgram [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]
