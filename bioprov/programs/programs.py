@@ -130,6 +130,28 @@ def blastp(sample, db, query_tag="query", outformat=6):
     return _blastp
 
 
+def muscle(sample, input_tag="input", msf=False):
+    """
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str input_tag: A tag for the input multi-fasta file.
+    :param bool msf: Whether or not to have the output in msf format.
+    :return: Instance of PresetProgram for Muscle.
+    :rtype: BioProv.PresetProgram.
+    """
+
+    _muscle = PresetProgram(
+        name="muscle",
+        sample=sample,
+        input_files={"-in": input_tag},
+        output_files={"-out": ("_muscle_hits", "_muscle_hits.afa")},
+    )
+
+    if msf:
+        _muscle.add_parameter(Parameter(key="-msf"))
+
+    return _muscle
+
+
 def prokka_():
     """
     :return: Instance of PresetProgram containing Prokka.
