@@ -154,9 +154,10 @@ def muscle(sample, input_tag="input", msf=False):
 
 def mafft(sample, input_tag="input"):
     """
-    :param sample: Instance of BioProv.Sample.
-    :param input_tag: Instance of BioProv.Sample.
-    :return: Instance of PresetProgram containing Prodigal.
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str input_tag:  A tag for the input fasta file.
+    :return: Instance of PresetProgram containing MAFFT.
+    :rtype: BioProv.PresetProgram.
     """
     _mafft = PresetProgram(
         name="mafft",
