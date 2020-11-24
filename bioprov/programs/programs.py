@@ -152,6 +152,23 @@ def muscle(sample, input_tag="input", msf=False):
     return _muscle
 
 
+def mafft(sample, input_tag="input"):
+    """
+    :param sample: Instance of BioProv.Sample.
+    :param input_tag: Instance of BioProv.Sample.
+    :return: Instance of PresetProgram containing Prodigal.
+    """
+    _mafft = PresetProgram(
+        name="mafft",
+        sample=sample,
+        input_files={"": input_tag},
+        output_files={">": ("aligned", "_aligned.afa")},
+        preffix_tag=input_tag,
+    )
+
+    return _mafft
+
+
 def prokka_():
     """
     :return: Instance of PresetProgram containing Prokka.
