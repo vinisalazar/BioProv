@@ -9,7 +9,7 @@ tags:
  - PROV
  - JSON
 authors:
- - name: Vinícius W. Salazar^
+ - name: Vinícius W. Salazar^[Corresponding author]
    orcid: 0000-0002-8362-3195
    affiliation: 1
  - name: João Vitor Ferreira Cavalcante
@@ -39,7 +39,7 @@ In an era where it can be argued that all biology is computational biology [@Mar
  ensure the reproducibility of *in silico* experiments. A major aspect of best practices in 
  scientific computing [@wilson2017good] is managing the **provenance** of data. Provenance
  can be broadly defined as the "description of the origins of an artefact and the processes
- which produced it" (adapted from [@Buneman2001]). 
+ which produced it" (adapted from @Buneman2001). 
 
 # Statement of need
 
@@ -49,7 +49,7 @@ Lorem ipsum.
 
 Lorem ipsum.
 
-# Provenance documents.
+# Provenance documents
 
 Lorem ipsum.
 
