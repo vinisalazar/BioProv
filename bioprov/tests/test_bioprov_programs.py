@@ -15,6 +15,7 @@ from bioprov.programs import (
     blastn,
     blastp,
     muscle,
+    mafft,
     diamond,
     kaiju,
     kaiju2table,
@@ -88,6 +89,18 @@ def test_muscle():
     expected = ["-in", "-out", "-msf"]
 
     assert list(muscle_params.keys()) == expected
+
+
+def test_mafft():
+
+    s = Sample("Synechococcus", files={"input": synechococcus_genome})
+
+    mafft_prog = mafft(s)
+    mafft_params = mafft_prog.serializer()["params"]
+
+    expected = ["", ">"]
+
+    assert list(mafft_params.keys()) == expected
 
 
 def test_prodigal():
