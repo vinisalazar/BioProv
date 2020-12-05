@@ -199,6 +199,9 @@ def test_Sample():
     sample.directory = Path(".")
     assert sample.directory.path == Path(".").absolute()
 
+    # test Sample.__delitem__
+    del sample["proteins"]
+
 
 def test_Project():
     """
