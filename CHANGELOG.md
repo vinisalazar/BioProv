@@ -11,6 +11,7 @@
 * Add logger calls when saving to JSON and uploading to PyPI [ ]
 * Add Muscle PresetProgram [x]
 * Add MAFFT PresetProgram [x]
+* Add extra_flags attribute to PresetProgram [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]
