@@ -13,6 +13,7 @@ from .programs import (
     muscle,
     mafft,
     prokka,
+    kallisto_quant,
     kaiju,
     kaiju2table,
 )

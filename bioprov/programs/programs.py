@@ -179,6 +179,38 @@ def mafft(sample, input_tag="input", extra_flags=None):
     return _mafft
 
 
+def kallisto_quant(sample, index, output_dir="./", extra_flags=None):
+    """
+    Run kallisto's alignment and quantification
+
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str index: A path to a kallisto index file.
+    :param str output_dir: A path to kallisto's output directory.
+    :param list extra_flags: A list of extra parameters to pass to kallisto
+        (e.g. --single or --plaintext).
+    :return: Instance of PresetProgram containing kallisto.
+    :rtype: BioProv.PresetProgram.
+    """
+
+    _kallisto = PresetProgram(
+        name="kallisto",
+        params=(
+            Parameter(key="quant"),
+            Parameter(key="--index", value=index),
+            Parameter(key="--output-dir", value=output_dir),
+        ),
+        sample=sample,
+        extra_flags=extra_flags,
+    )
+
+    input_files = [Parameter(key=str(fastq.path)) for fastq in sample.files.values()]
+
+    for read in input_files:
+        _kallisto.add_parameter(read)
+
+    return _kallisto
+
+
 def prokka_():
     """
     :return: Instance of PresetProgram containing Prokka.
