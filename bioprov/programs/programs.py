@@ -42,12 +42,8 @@ def diamond(blast_type, sample, db, query_tag="query", outformat=6, extra_flags=
         sample=sample,
         input_files={"--query": query_tag},
         output_files={"--out": ("_dmnd_hits", "_dmnd_hits.tsv")},
+        extra_flags=extra_flags,
     )
-
-    if extra_flags is not None:
-        params = [Parameter(key=command) for command in extra_flags]
-        for param in params:
-            _diamond.add_parameter(param)
 
     return _diamond
 
