@@ -499,7 +499,8 @@ class PresetProgram(Program):
                 file_ = self.sample.files[tag]
             except KeyError:
                 raise Exception(
-                    f"Key '{tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'"
+                    f"Key '{tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'."
+                    f"\nPlease specify a valid input tag."
                 )
 
             # If in sample, check if it exists
@@ -819,8 +820,11 @@ class Sample:
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
         return str_
 
-    def __getitem__(self, item):
-        return self.files[item]
+    def __getitem__(self, key):
+        return self.files[key]
+
+    def __delitem__(self, key):
+        del self.files[key]
 
     def __setitem__(self, key, value):
         assert isinstance(
