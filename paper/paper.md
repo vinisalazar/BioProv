@@ -35,17 +35,29 @@ bibliography: paper.bib
 # Summary
 
 In an era where it can be argued that all biology is computational biology [@Markowetz2017],
- it is increasingly important to properly manage computational analyses and data in order to
- ensure the reproducibility of *in silico* experiments. A major aspect of best practices in 
- scientific computing [@wilson2017good] is managing the **provenance** of data. Provenance
- can be broadly defined as the "description of the origins of an artefact and the processes
- which produced it" (adapted from @Buneman2001). 
+it is increasingly important to properly manage computational analyses and data in order to
+ensure the reproducibility of *in silico* experiments. A major aspect of best practices in 
+scientific computing [@wilson2017good] is managing the **provenance** of data. The World Wide Web
+Consortium (W3C) Provenance Working Group defines provenance as ["a record that describes the people,
+institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
+data or a thing"](https://www.w3.org/TR/prov-overview/) [@Groth2013]. 
+
+Therefore, for bioinformatics workflows, where there are usually numerous, and many times complex,
+steps in data processing, capturing and storing provenance rapidly becomes a challenge.
+This provenance data should not only be intelligible to humans, but structured and machine-readable; 
+this is fundamental to ensure reproducibility in present and future research in bioinformatics and
+many other fields of scientific research [@Pasquier2017]. A proposed standard for interoperability of provenance
+data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically designed to share provenance data
+across the web. However, modelling bioinformatics workflows with the W3C-PROV standard can be costly to both 
+researchers writing and performing the analyses and developers responsible for storing information about these workflows
+in web systems. We introduce BioProv as a library which aims to facilitate the creation of W3C-PROV compliant documents
+for bioinformatics workflows, capturing the provenance of the workflow steps between different users and computing environments.
 
 # Statement of need
 
 Lorem ipsum.
 
-# Data model
+# Features and data model
 
 Lorem ipsum.
 
@@ -56,3 +68,5 @@ Lorem ipsum.
 # Acknowledgements
 
 We thank CNPq for funding scholarships for all authors.
+
+# References
