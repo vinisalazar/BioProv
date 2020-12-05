@@ -44,6 +44,7 @@ from bioprov.src.main import (
     Directory,
     parse_params,
     Program,
+    PresetProgram,
     Run,
     dict_to_sample,
     json_to_dict,
@@ -155,6 +156,13 @@ def test_generate_param_str():
     assert (
         test_string == correct_string
     ), f"Test string is\n'{test_string}'\nCorrect string is \n'{correct_string}'. "
+
+
+def test_preset_extra_flags():
+
+    grep_test = PresetProgram(name="grep", extra_flags=["--version", "--help"])
+
+    assert "--version --help" in grep_test.cmd
 
 
 """

@@ -458,6 +458,7 @@ class PresetProgram(Program):
         input_files=None,
         output_files=None,
         preffix_tag=None,
+        extra_flags=None,
     ):
         """
         :param name: Instance of bioprov.Program
@@ -473,6 +474,8 @@ class PresetProgram(Program):
         :param preffix_tag: A value in the input_files argument, which corresponds
                             to a key in self.sample.files. All file names of output
                             files will be stemmed from this file, hence 'preffix'.
+        :param extra_flags: A list of command line parameters (strings), known as flags or
+                            switches, to add to the program's command.
         """
         super().__init__(name, params)
         self.sample = sample
@@ -483,10 +486,16 @@ class PresetProgram(Program):
         self.input_files = input_files
         self.output_files = output_files
         self.preffix_tag = preffix_tag
+        self.extra_flags = extra_flags
         self.ready = False
 
         if self.sample is not None:
             self.create_func(sample=self.sample, preffix_tag=self.preffix_tag)
+
+        if self.extra_flags is not None:
+            _extra_flags = [Parameter(key=flag) for flag in self.extra_flags]
+            for _flag in _extra_flags:
+                self.add_parameter(_flag)
 
     def _parse_input_files(self):
         """
