@@ -10,6 +10,7 @@
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
 * Add logger calls when saving to JSON and uploading to PyPI [ ]
 * Add Muscle PresetProgram [x]
+* Add MAFFT PresetProgram [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]

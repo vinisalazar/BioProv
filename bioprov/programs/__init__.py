@@ -11,6 +11,7 @@ from .programs import (
     blastn,
     blastp,
     muscle,
+    mafft,
     prokka,
     kaiju,
     kaiju2table,

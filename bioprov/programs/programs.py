@@ -152,6 +152,24 @@ def muscle(sample, input_tag="input", msf=False):
     return _muscle
 
 
+def mafft(sample, input_tag="input"):
+    """
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str input_tag:  A tag for the input fasta file.
+    :return: Instance of PresetProgram containing MAFFT.
+    :rtype: BioProv.PresetProgram.
+    """
+    _mafft = PresetProgram(
+        name="mafft",
+        sample=sample,
+        input_files={"": input_tag},
+        output_files={">": ("aligned", "_aligned.afa")},
+        preffix_tag=input_tag,
+    )
+
+    return _mafft
+
+
 def prokka_():
     """
     :return: Instance of PresetProgram containing Prokka.
