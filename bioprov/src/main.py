@@ -994,7 +994,7 @@ class Project:
         # PROV attributes
         self._entity = None
         self._bundle = None
-        self.namespace_preffix = f"project:{self}"
+        self._namespace_preffix = f"project:{str(self)}"
         self.files_namespace_preffix = None
 
         # Hash and db attributes
@@ -1032,6 +1032,11 @@ class Project:
 
     def __delitem__(self, key):
         del self._samples[key]
+
+    @property
+    def namespace_preffix(self):
+        self._namespace_preffix = f"project:{str(self)}"
+        return self._namespace_preffix
 
     def keys(self):
         return self._samples.keys()
