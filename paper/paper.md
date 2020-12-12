@@ -55,7 +55,8 @@ for bioinformatics workflows, capturing the provenance of the workflow steps bet
 
 # Statement of need
 
-Lorem ipsum.
+BioProv is a Python library which captures and stores provenance data in the W3C-PROV format. It is designed to facilitate
+the modelling of bioinformatics workflows, providing several 
 
 # Features and data model
 
