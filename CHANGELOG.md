@@ -9,6 +9,7 @@
     * .describe [ ]
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
 * Add logger calls when saving to JSON and uploading to PyPI [ ]
+* Debug graphical DOT output [x]
 * Add Muscle PresetProgram [x]
 * Add MAFFT PresetProgram [x]
 
