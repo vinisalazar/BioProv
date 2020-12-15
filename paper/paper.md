@@ -42,23 +42,37 @@ Consortium (W3C) Provenance Working Group defines provenance as ["a record that 
 institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
 data or a thing"](https://www.w3.org/TR/prov-overview/) [@Groth2013]. 
 
-Therefore, for bioinformatics workflows, where there are usually numerous, and many times complex,
+Therefore, for bioinformatics workflows (BWFs), where there are usually numerous, and many times complex,
 steps in data processing, capturing and storing provenance rapidly becomes a challenge.
 This provenance data should not only be intelligible to humans, but structured and machine-readable; 
 this is fundamental to ensure reproducibility in present and future research in bioinformatics and
-many other fields of scientific research [@Pasquier2017]. A proposed standard for interoperability of provenance
+many other fields of scientific research [@Kanwal2017; @Pasquier2017]. A proposed standard for interoperability of provenance
 data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically designed to share provenance data
-across the web. However, modelling bioinformatics workflows with the W3C-PROV standard can be costly to both 
+across the web. However, modelling BWFs with the W3C-PROV standard can be costly to both 
 researchers writing and performing the analyses and developers responsible for storing information about these workflows
 in web systems. We introduce BioProv as a library which aims to facilitate the creation of W3C-PROV compliant documents
-for bioinformatics workflows, capturing the provenance of the workflow steps between different users and computing environments.
+for BWFs, capturing the provenance of the workflow steps between different users and computing environments.
 
 # Statement of need
 
-BioProv is a Python library which captures and stores provenance data in the W3C-PROV format. It is designed to facilitate
-the modelling of bioinformatics workflows, providing several 
+BioProv is a Python library for **generating provenance documents of bioinformatics workflows.** It works by modelling 
+the elements of a BWF in a hierarchical, JSON-serializable data structure. Thus, BioProv objects can be easily stored
+and shared across computing environments, and can be exported as W3C-PROV compliant documents, allowing better integration
+with web systems.  Although there are excellent tools orchestrating scientific workflows which are freely available, such as Nextflow,
+Snakemake and Toil [@Jackson2020], and also tools which specialize in capturing and storing provenance data during workflow runtime
+[@Silva2018; @Khan2019], to the best of our knowledge, there is not any library which specializes in capturing provenance of BWFs
+Some of these workflow management systems provide reports such as execution trace or graph, but they are not W3C-PROV compatible and/or
+are not serializable, and the collection of domain specific information must be collected by the user in an *ad hoc* manner.
+This can be very costly to both users and developers of BWFs looking to collect provenance data, as much effort can be spent
+in modelling these workflows in a satisfactory data structure which can be easily updated during runtime. BioProv attempts to fill
+this gap, by providing features which facilitate the capture of W3C-PROV compatible provenance data and support the specificities of
+bioinformatics applications.
+
+
 
 # Features and data model
+
+
 
 Lorem ipsum.
 
