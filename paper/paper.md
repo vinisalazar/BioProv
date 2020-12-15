@@ -59,7 +59,7 @@ BioProv is a Python library for **generating provenance documents of bioinformat
 Presently, there are excellent, freely available tools for orchestrating scientific workflows, such as Nextflow,
 Snakemake and Toil [@Jackson2020], and others which specialize in capturing and storing provenance data during workflow runtime
 [@Silva2018; @Khan2019]. However, to the best of our knowledge, there is not yet any library which specializes in capturing provenance of BWFs.
-Some of these workflow management systems provide reports such as execution trace or graph, but they are not W3C-PROV compatible and/or
+Some of these workflow management systems provide reports such as execution trace or graph, but theyse reports are not W3C-PROV compatible and/or
 are not serializable, and the collection of domain specific information usually must be collected by the user in an *ad hoc* manner.
 This can be very costly to both users and developers of BWFs looking to collect provenance data, as much effort can be spent
 in modelling these workflows in a satisfactory data structure which can be easily updated during runtime [@DePaula2013]. BioProv attempts
@@ -68,23 +68,35 @@ bioinformatics applications.
 
 # Features and data model
 
+## Overview
+
 BioProv is **project-based**, and works by modelling the elements of a BWF in a hierarchical, JSON-serializable data structure.
 Thus, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
-allowing better integration with web systems. BioProv implements five main classes (Table 1)
+allowing better integration with web systems. It can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
+or from the command line (CLI), as it can be used to quickly write provenance-aware workflows which can be launched using
+the `bioprov <workflow_name>` command. BioProv uses the BioPython [@Cock2009] library as a wrapper to parse bioinformatics file formats, as it supports
+several file formats for both [sequence](https://biopython.org/wiki/SeqIO) and [alignment](https://biopython.org/wiki/AlignIO) data, allowing the user
+to easily extract domain data without having to write any parsers.
 
-| Class   | Description                                                                                                                          | PROV element |
-|---------|--------------------------------------------------------------------------------------------------------------------------------------|--------------|
-| Project | Higher level structure which contains core project information. Contains associated samples, files, and programs.                    | Entity       |
-| Sample  | Describes biological samples. Has attributes and contains associated files and programs.                                             | Entity       |
-| File    | Describes computer files which may be associated with a Sample or Project (i.e. if it is associated with zero, two or more samples). | Entity       |
-| Program | Describes programs which process and create files.                                                                                   | Activity     |
+## Classes
+
+BioProv implements five main classes:
+
+* **Project:** Higher level structure which contains core project information. Contains associated samples, files, and programs.
+* **Sample:** Describes biological samples. Has attributes and contains associated files and programs.
+* **File:** Describes computer files which may be associated with a Sample or Project (i.e. if it is associated with zero, two or more samples).
+* **Program:** Describes programs which process and create files.
+* **Workflow:** Describes a sequence of programs which are run on project- or sample-level files. Used mostly with the CLI functionality.
 
 
-Lorem ipsum.
+
+## IO and database system
 
 # Provenance documents
 
-Lorem ipsum.
+Lorem ipsum. This is a reference to Figure 1 \autoref{fig:project}.
+
+![Caption for example figure.\label{fig:project}](figures/project.png)
 
 # Acknowledgements
 
