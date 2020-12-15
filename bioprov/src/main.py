@@ -976,7 +976,11 @@ class Project:
                             the self.start_logging() method.
         """
         if tag is None:
-            tag = generate_slug(2)
+            slug = generate_slug(2)
+            config.logger.warning(
+                f"No Project tag was set. Generated random tag: '{slug}'."
+            )
+            tag = slug
         self.tag = tag.replace(" ", "_")
         self._name = self.tag
         self.files = dict()
@@ -1015,7 +1019,7 @@ class Project:
         return len(self._samples)
 
     def __repr__(self):
-        return f"Project '{self.tag}' with {len(self._samples)} samples."
+        return self.tag
 
     def __getitem__(self, item):
         try:
