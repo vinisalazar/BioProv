@@ -9,9 +9,11 @@
     * .describe [ ]
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
 * Add logger calls when saving to JSON and uploading to PyPI [ ]
+* Debug graphical DOT output [x]
 * Add Muscle PresetProgram [x]
 * Add MAFFT PresetProgram [x]
 * Add extra_flags attribute to PresetProgram [x]
+* Refactor EnvProv class as Environment [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]

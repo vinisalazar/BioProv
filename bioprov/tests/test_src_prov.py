@@ -16,7 +16,7 @@ from pydot import Dot
 
 from bioprov import read_csv
 from bioprov.data import picocyano_dataset
-from bioprov.src.config import EnvProv
+from bioprov.src.config import Environment
 from bioprov.src.prov import BioProvDocument
 from bioprov.utils import dict_to_sha1
 
@@ -27,10 +27,10 @@ project = read_csv(
 
 def test_EnvProv():
     """
-    Tests the construction of an instance of EnvProv.
+    Tests the construction of an instance of Environment.
     :return:
     """
-    env = EnvProv()
+    env = Environment()
     for statement in (
         env.env_dict == dict(environ.items()),
         env.env_hash == dict_to_sha1(env.env_dict),

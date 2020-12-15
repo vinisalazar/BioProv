@@ -192,7 +192,7 @@ class BioProvDocument:
         # Sample PROV attributes: bundle, namespace, entity
         object_.ProvBundle = self.ProvDocument.bundle(object_.namespace_preffix)
         object_.ProvBundle.set_default_namespace(object_.name)
-        self._entities[object_.name] = object_.ProvBundle.entity(
+        self._entities[object_.name] = object_.entity = object_.ProvBundle.entity(
             object_.namespace_preffix
         )
         if kind == "Sample":

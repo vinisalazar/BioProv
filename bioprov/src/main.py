@@ -40,7 +40,7 @@ from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
 
 from bioprov import config
-from bioprov.src.config import EnvProv
+from bioprov.src.config import Environment
 from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
 from bioprov.utils import (
     Warnings,
@@ -508,7 +508,8 @@ class PresetProgram(Program):
                 file_ = self.sample.files[tag]
             except KeyError:
                 raise Exception(
-                    f"Key '{tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'"
+                    f"Key '{tag}' not found in files dictionary of sample '{self.sample.name}':\n'{self.sample.files}'."
+                    f"\nPlease specify a valid input tag."
                 )
 
             # If in sample, check if it exists
@@ -828,8 +829,11 @@ class Sample:
         str_ = f"Sample {self.name} with {len(self.files)} file(s)."
         return str_
 
-    def __getitem__(self, item):
-        return self.files[item]
+    def __getitem__(self, key):
+        return self.files[key]
+
+    def __delitem__(self, key):
+        del self.files[key]
 
     def __setitem__(self, key, value):
         assert isinstance(
@@ -999,7 +1003,7 @@ class Project:
         # PROV attributes
         self._entity = None
         self._bundle = None
-        self.namespace_preffix = f"project:{self}"
+        self._namespace_preffix = f"project:{str(self)}"
         self.files_namespace_preffix = None
 
         # Hash and db attributes
@@ -1037,6 +1041,11 @@ class Project:
 
     def __delitem__(self, key):
         del self._samples[key]
+
+    @property
+    def namespace_preffix(self):
+        self._namespace_preffix = f"project:{str(self)}"
+        return self._namespace_preffix
 
     def keys(self):
         return self._samples.keys()
@@ -1447,10 +1456,10 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
             for user, env in d["users"].items():
                 for env_hash, env_dict in env.items():
                     try:
-                        project.users[user][env_hash] = EnvProv()
+                        project.users[user][env_hash] = Environment()
                     except KeyError:
                         project.users[user] = dict()
-                        project.users[user][env_hash] = EnvProv()
+                        project.users[user][env_hash] = Environment()
                     for env_attr_, attr_value_ in env_dict.items():
                         if env_attr_ == "env_namespace":
                             attr_value_ = Namespace(

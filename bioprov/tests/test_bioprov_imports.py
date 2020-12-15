@@ -32,7 +32,7 @@ def test_import_classes_and_functions():
     from bioprov import (
         BioProvDocument,
         config,
-        EnvProv,
+        Environment,
         File,
         Program,
         Parameter,
@@ -48,7 +48,7 @@ def test_import_classes_and_functions():
     del (
         BioProvDocument,
         config,
-        EnvProv,
+        Environment,
         File,
         Program,
         Parameter,
