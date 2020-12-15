@@ -7,7 +7,6 @@ __version__ = "0.1.23"
 
 """
 Module for holding preset instances of the Program class.
-Module for holding preset instances of the Program class.
 """
 
 from os import path
