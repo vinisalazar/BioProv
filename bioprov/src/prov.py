@@ -57,11 +57,18 @@ class BioProvDocument:
         # Don't add attributes if you plan on exporting to graphic format
         self.add_attributes = add_attributes
 
+        # Set this before running Namespaces
+        if _iter_envs_and_users:
+            self._create_envs_and_users = True
+
+        else:
+            self._create_envs_and_users = False
+
         # Default actions to create the document
         if _add_project_namespaces:
             self._add_project_namespaces()
 
-        if _iter_envs_and_users:
+        if self._create_envs_and_users:
             self._iter_envs_and_users()
 
         if _iter_project:
@@ -108,7 +115,8 @@ class BioProvDocument:
         :return:
         """
         self._add_project_namespace()
-        self._add_env_and_user_namespace()
+        if self._create_envs_and_users:
+            self._add_env_and_user_namespace()
         self._add_samples_namespace()
         self._add_activities_namespace()
 
@@ -270,9 +278,10 @@ class BioProvDocument:
                     endTime=last_run.end_time,
                 )
 
-            sample.ProvBundle.wasAssociatedWith(
-                self._activities[program.name], self._agents[last_run.env]
-            )
+            if self._create_envs_and_users:
+                sample.ProvBundle.wasAssociatedWith(
+                    self._activities[program.name], self._agents[last_run.env]
+                )
 
             inputs, outputs = self._get_IO_from_params(program)
             self._add_IO_relationships(sample, program, inputs, "input")

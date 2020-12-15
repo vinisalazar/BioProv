@@ -13,6 +13,7 @@
 * Add Muscle PresetProgram [x]
 * Add MAFFT PresetProgram [x]
 * Refactor EnvProv class as Environment [x]
+* Allow creation of users and envs to be optional [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]
