@@ -3,18 +3,19 @@
 ### To-do
 * Fix documentation issues [ ]
     * Add subpackage docstrings [ ]
-
-### v0.1.20
 * Create methods for Sample and Project
     * .describe [ ]
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
 * Add logger calls when saving to JSON and uploading to PyPI [ ]
+
+### v0.1.20
 * Debug graphical DOT output [x]
 * Add Muscle PresetProgram [x]
 * Add MAFFT PresetProgram [x]
 * Add extra_flags attribute to PresetProgram [x]
 * Refactor EnvProv class as Environment [x]
 * Allow creation of users and envs to be optional [x]
+* Create environments only when there's an associated activity [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]
