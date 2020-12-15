@@ -70,7 +70,7 @@ bioinformatics applications.
 
 ## Overview
 
-BioProv is **project-based**, and works by modelling the elements of a BWF in a hierarchical, JSON-serializable data structure.
+BioProv is **project-based**, and works by modelling the provenance elements of a BWF in a hierarchical, JSON-serializable data structure.
 Thus, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
 allowing better integration with web systems. It can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
 or from the command line (CLI), as it can be used to quickly write provenance-aware workflows which can be launched using
@@ -88,7 +88,7 @@ BioProv implements five main classes:
 * **Program:** Describes programs which process and create files.
 * **Workflow:** Describes a sequence of programs which are run on project- or sample-level files. Used mostly with the CLI functionality.
 
-
+The project 
 
 ## IO and database system
 
