@@ -40,7 +40,7 @@ from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
 
 from bioprov import config
-from bioprov.src.config import EnvProv
+from bioprov.src.config import Environment
 from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
 from bioprov.utils import (
     Warnings,
@@ -1447,10 +1447,10 @@ def from_json(json_file, kind="Project", replace_path=None, replace_home=False):
             for user, env in d["users"].items():
                 for env_hash, env_dict in env.items():
                     try:
-                        project.users[user][env_hash] = EnvProv()
+                        project.users[user][env_hash] = Environment()
                     except KeyError:
                         project.users[user] = dict()
-                        project.users[user][env_hash] = EnvProv()
+                        project.users[user][env_hash] = Environment()
                     for env_attr_, attr_value_ in env_dict.items():
                         if env_attr_ == "env_namespace":
                             attr_value_ = Namespace(

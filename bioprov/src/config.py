@@ -35,7 +35,7 @@ class Config:
         """
         # This duplication is to order the keys in the __dict__ attribute.
         self.user = None
-        self.env = EnvProv()
+        self.env = Environment()
         self.user = self.env.user
         if not threads:
             threads = int(os.cpu_count() / 2)
@@ -248,7 +248,7 @@ class BioProvDB(TinyDB):
             print("Canceled operation.")
 
 
-class EnvProv:
+class Environment:
     """
     Class containing provenance information about the current environment.
     """
