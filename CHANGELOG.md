@@ -12,6 +12,7 @@
 * Debug graphical DOT output [x]
 * Add Muscle PresetProgram [x]
 * Add MAFFT PresetProgram [x]
+* Add Kallisto PresetProgram [x]
 * Add extra_flags attribute to PresetProgram [x]
 * Refactor EnvProv class as Environment [x]
 * Allow creation of users and envs to be optional [x]
