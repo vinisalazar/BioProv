@@ -265,7 +265,7 @@ class Environment:
         self.update()
 
     def __repr__(self):
-        return f"Environment_{self.env_hash}"
+        return self.env_hash
 
     def update(self):
         """
