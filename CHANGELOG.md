@@ -12,6 +12,7 @@
 * Debug graphical DOT output [x]
 * Add Muscle PresetProgram [x]
 * Add MAFFT PresetProgram [x]
+* Add extra_flags attribute to PresetProgram [x]
 * Refactor EnvProv class as Environment [x]
 
 ### v0.1.19
