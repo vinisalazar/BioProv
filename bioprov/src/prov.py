@@ -52,6 +52,7 @@ class BioProvDocument:
         self._entities = dict()
         self._activities = dict()
         self._agents = dict()
+        self._user_bundles = dict()
         self._provstore_document = None
 
         # Don't add attributes if you plan on exporting to graphic format
@@ -153,25 +154,14 @@ class BioProvDocument:
     def _iter_envs_and_users(self):
         for _user, _env_dict in self.project.users.items():
             _user_preffix = f"users:{_user}"
-            _user_bundle = self.ProvDocument.bundle(_user_preffix)
+            _user_bundle = self._user_bundles[_user] = self.ProvDocument.bundle(
+                _user_preffix
+            )
             _user_bundle.set_default_namespace(_user)
             _user_bundle.add_namespace(
                 "envs", f"Environments associated with User '{_user}'"
             )
             self._agents[_user] = _user_bundle.agent(_user_preffix)
-            for _env_hash, _env in _env_dict.items():
-                if self.add_attributes:
-                    self._agents[_env_hash] = _user_bundle.agent(
-                        f"envs:{_env}",
-                        other_attributes=build_prov_attributes(
-                            _env.env_dict, _env.env_namespace
-                        ),
-                    )
-                else:
-                    self._agents[_env_hash] = _user_bundle.agent(f"envs:{_env}")
-                _user_bundle.actedOnBehalfOf(
-                    self._agents[_env_hash], self._agents[_user]
-                )
 
     def _iter_samples(self):
         for _, sample in self.project.samples.items():
@@ -226,14 +216,14 @@ class BioProvDocument:
             # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(
-                    f"{sample.files_namespace_preffix}:{file.basename}",
+                    f"{sample.files_namespace_preffix}:{file.tag}",
                     other_attributes=build_prov_attributes(
                         file.serializer(), sample.file_namespace
                     ),
                 )
             else:
                 self._entities[file.name] = sample.ProvBundle.entity(
-                    f"{sample.files_namespace_preffix}:{file.name}",
+                    f"{sample.files_namespace_preffix}:{file.tag}",
                 )
 
             # Adding relationships
@@ -279,6 +269,21 @@ class BioProvDocument:
                 )
 
             if self._create_envs_and_users:
+                for _user, _env_dict in self.project.users.items():
+                    _user_bundle = self._user_bundles[_user]
+                    for _env_hash, _env in _env_dict.items():
+                        if self.add_attributes:
+                            self._agents[_env_hash] = _user_bundle.agent(
+                                f"envs:{_env}",
+                                other_attributes=build_prov_attributes(
+                                    _env.env_dict, _env.env_namespace
+                                ),
+                            )
+                        else:
+                            self._agents[_env_hash] = _user_bundle.agent(f"envs:{_env}")
+                        _user_bundle.actedOnBehalfOf(
+                            self._agents[_env_hash], self._agents[_user]
+                        )
                 sample.ProvBundle.wasAssociatedWith(
                     self._activities[program.name], self._agents[last_run.env]
                 )
