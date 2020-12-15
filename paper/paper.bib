@@ -26,12 +26,35 @@ journal = {Bioinformatics},
 title = {{Biopython: Freely available Python tools for computational molecular biology and bioinformatics}},
 year = {2009}
 }
+@article{DePaula2013,
+abstract = {In this work, we used the PROV-DM model to manage data provenance in workflows of genome projects. This provenance model allows the storage of details of one workflow execution, e.g., raw and produced data and computational tools, their versions and parameters. Using this model, biologists can access details of one particular execution of a workflow, compare results produced by different executions, and plan new experiments more efficiently. In addition to this, a provenance simulator was created, which facilitates the inclusion of provenance data of one genome project workflow execution. Finally, we discuss one case study, which aims to identify genes involved in specific metabolic pathways of Bacillus cereus, as well as to compare this isolate with other phylogenetic related bacteria from the Bacillus group. B. cereus is an extremophilic bacteria, collected in warm water in the Midwestern Region of Brazil, its DNA samples having been sequenced with an NGS machine.},
+author = {de Paula, Renato and Holanda, Maristela and Gomes, Luciana S.A. and Lifschitz, Sergio and Walter, Maria Emilia M.T.},
+doi = {10.1186/1471-2105-14-S11-S6},
+issn = {14712105},
+journal = {BMC bioinformatics},
+number = {Suppl 11},
+pages = {S6},
+publisher = {BioMed Central},
+title = {{Provenance in bioinformatics workflows.}},
+volume = {14 Suppl 1},
+year = {2013}
+}
 @misc{Dong2020,
 author = {Dong, Trung},
 journal = {GitHub repository},
 publisher = {GitHub},
 title = {{PROV: A Python library for W3C Provenance Data Model}},
 year = {2020}
+}
+@book{Groth2013,
+author = {Groth, Paul and Moreau, Luc},
+doi = {10.2200/S00528ED1V01Y201308WEB007},
+editor = {Hendler, James and Ding, Ying},
+isbn = {9781627052214},
+pages = {131},
+publisher = {Morgan {\&} Claypool},
+title = {{An Introduction to PROV}},
+year = {2013}
 }
 @article{Markowetz2017,
 author = {Markowetz, Florian},
@@ -56,16 +79,40 @@ title = {{Towards supporting the life cycle of large scale scientific experiment
 volume = {5},
 year = {2010}
 }
-@book{Groth2013,
-author = {Groth, Paul and Moreau, Luc},
-doi = {10.2200/S00528ED1V01Y201308WEB007},
-editor = {Hendler, James and Ding, Ying},
-isbn = {9781627052214},
-pages = {131},
-publisher = {Morgan {\&} Claypool},
-title = {{An Introduction to PROV}},
-year = {2013}
+@article{Jackson2020,
+author = {Jackson, Michael J and Wallace, Edward and Kavoussanakis, Kostas},
+journal = {bioRxiv},
+pages = {2020.08.04.236208},
+title = {{Using rapid prototyping to choose a bioinformatics workflow management system}},
+url = {https://doi.org/10.1101/2020.08.04.236208},
+year = {2020}
 }
+@article{Kanwal2017,
+abstract = {Background: Computational bioinformatics workflows are extensively used to analyse genomics data, with different approaches available to support implementation and execution of these workflows. Reproducibility is one of the core principles for any scientific workflow and remains a challenge, which is not fully addressed. This is due to incomplete understanding of reproducibility requirements and assumptions of workflow definition approaches. Provenance information should be tracked and used to capture all these requirements supporting reusability of existing workflows. Results: We have implemented a complex but widely deployed bioinformatics workflow using three representative approaches to workflow definition and execution. Through implementation, we identified assumptions implicit in these approaches that ultimately produce insufficient documentation of workflow requirements resulting in failed execution of the workflow. This study proposes a set of recommendations that aims to mitigate these assumptions and guides the scientific community to accomplish reproducible science, hence addressing reproducibility crisis. Conclusions: Reproducing, adapting or even repeating a bioinformatics workflow in any environment requires substantial technical knowledge of the workflow execution environment, resolving analysis assumptions and rigorous compliance with reproducibility requirements. Towards these goals, we propose conclusive recommendations that along with an explicit declaration of workflow specification would result in enhanced reproducibility of computational genomic analyses.},
+author = {Kanwal, Sehrish and Khan, Farah Zaib and Lonie, Andrew and Sinnott, Richard O.},
+doi = {10.1186/s12859-017-1747-0},
+issn = {14712105},
+journal = {BMC Bioinformatics},
+keywords = {Common Workflow Language (CWL),Cpipe,Galaxy,Provenance,Reproducibility,Workflow},
+month = {jul},
+number = {1},
+pages = {337},
+publisher = {BioMed Central Ltd.},
+title = {{Investigating reproducibility and tracking provenance - A genomic workflow case study}},
+url = {http://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-017-1747-0},
+volume = {18},
+year = {2017}
+}
+
+@inproceedings{de2010scicumulus,
+author = {de Oliveira, Daniel and Ogasawara, Eduardo and Bai{\~{a}}o, Fernanda and Mattoso, Marta},
+booktitle = {2010 IEEE 3rd International Conference on Cloud Computing},
+organization = {IEEE},
+pages = {378--385},
+title = {{Scicumulus: A lightweight cloud middleware to explore many task computing paradigm in scientific workflows}},
+year = {2010}
+}
+
 @article{Pasquier2017,
 author = {Pasquier, Thomas and Lau, Matthew K. and Trisovic, Ana and Boose, Emery R. and Couturier, Ben and Crosas, Merc{\`{e}} and Ellison, Aaron M. and Gibson, Valerie and Jones, Chris R. and Seltzer, Margo},
 doi = {10.1038/sdata.2017.114},
@@ -75,6 +122,17 @@ pages = {1--5},
 title = {{If these data could talk}},
 volume = {4},
 year = {2017}
+}
+@article{Silva2018,
+abstract = {We present DfAnalyzer, a tool that enables monitoring, debugging, steering, and analysis of dataflows while being generated by scientific applications. It works by capturing strategic domain data, registering provenance and execution data to enable queries at runtime. DfAnalyzer provides lightweight dataflow monitoring components to be invoked by high performance applications. It can be plugged in scientific code scripts, or Spark applications, in the same way users already plug visualization library components. During this demo, we will show how DfAnalyzer captures the dataflow, provenance, as well as how it provides runtime data analyses of applications. We will also encourage attendees to use DfAnalyzer for their own applications.},
+author = {Silva, V{\'{i}}tor and de Oliveira, Daniel and Valduriez, Patrick and Mattoso, Marta},
+doi = {10.14778/3229863.3236265},
+number = {12},
+pages = {2082--2085},
+title = {{DfAnalyzer: Runtime Dataflow Analysis of Scientific Applications using Provenance}},
+url = {https://doi.org/10.14778/3229863.3236265},
+volume = {11},
+year = {2018}
 }
 @article{Stevens2007,
 author = {Stevens, Robert and Zhao, Jun and Goble, Carole},
