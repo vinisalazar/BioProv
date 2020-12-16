@@ -30,14 +30,20 @@ class BioProvDocument:
         self,
         project,
         add_attributes=False,
+        add_users=True,
         _add_project_namespaces=True,
-        _iter_envs_and_users=True,
         _iter_samples=True,
         _iter_project=True,
     ):
         """
-        Constructs base provenance for a Project.
-        :param project: Project being processed.
+        Constructs the W3C-PROV document for a project.
+
+        :param Project project: instance of bioprov.src.Project.
+        :param bool add_attributes: whether to add object attributes.
+        :param bool add_users: whether to add users and environments.
+        :param bool _add_project_namespaces:
+        :param bool _iter_samples:
+        :param bool _iter_project:
         """
 
         # Assert Project is good before constructing instance
@@ -59,7 +65,7 @@ class BioProvDocument:
         self.add_attributes = add_attributes
 
         # Set this before running Namespaces
-        if _iter_envs_and_users:
+        if add_users:
             self._create_envs_and_users = True
 
         else:
