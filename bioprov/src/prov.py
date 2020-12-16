@@ -213,6 +213,9 @@ class BioProvDocument:
         )
         # Files PROV attributes: namespace, entities
         for key, file in sample.files.items():
+            # This prevents errors when the file refers to a project csv or JSON
+            if file.name == sample.name:
+                file.name = file.basename
             # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(

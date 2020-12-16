@@ -1013,7 +1013,7 @@ class Project:
         # PROV attributes
         self._entity = None
         self._bundle = None
-        self._namespace_preffix = f"project:{str(self)}"
+        self._namespace_preffix = f"project:{self.tag}"
         self.files_namespace_preffix = None
 
         # Hash and db attributes

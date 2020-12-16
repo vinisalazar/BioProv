@@ -17,6 +17,7 @@
 * Allow creation of users and envs to be optional [x]
 * Create environments only when there's an associated activity [x]
 * Create Sample dunder enter and dunder exit methods [x]
+* Fixing wasDerivedFrom bug when sample and file have same names [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]
