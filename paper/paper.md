@@ -100,7 +100,7 @@ to create and/or modify files. Files and Programs can also be associated directl
 particular Sample (\autoref{fig:json}).
 
 ![The BioProv data model follows an hierarchical, JSON-serializable structure. This example is adapted for illustrative purposes.
-\label{fig:json}](figures/json.png)
+\label{fig:json}](figures/figure_1.png)
 
 BioProv detects the current user and environment variables and stores them alongside the Project;
 each Program, when run, is automatically associated with the current computing environment. This way, BioProv can represent which process
@@ -293,9 +293,20 @@ In [5]: prov.write_provn()
 In [6]: prov.dot.write_pdf("myProject.pdf")
 ```
 
+Lastly, **BioProvDocuments** can be uploaded to [ProvStore](https://openprovenance.org/store/), a web service for storage and visualization
+of W3C-PROV documents. The credentials to the ProvStore API are set with the `bioprov --create_provstore` command, and a document can be
+uploaded with the `upload_to_provstore()` method:
+
+```
+In [7]: prov.upload_to_provstore()
+```
+
+This feature enables the immediate publication of provenance documents that have a uniform resource identifier (URI)
+through their ProvStore address.
+
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
 sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
-file.\label{fig:project}](figures/project.png)
+file.\label{fig:project}](figures/figure_2.png)
 
 # Conclusion
 
