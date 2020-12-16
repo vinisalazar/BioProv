@@ -63,14 +63,14 @@ Some of these workflow management systems provide reports such as execution trac
 are not serializable, and the collection of domain-specific information usually must be collected by the user in an *ad hoc* manner.
 This can be very costly to both users and developers of BWFs looking to collect provenance data, as much effort can be spent
 in modelling these workflows in a satisfactory data structure that can be easily updated during runtime [@DePaula2013]. BioProv attempts
-to fill this gap, by providing features that facilitate the capture of W3C-PROV compatible provenance data and support the specificities of
+to fill this gap, by providing features that allow capturing W3C-PROV compatible provenance data and support the specificities of
 bioinformatics applications.
 
 # Features and data model
 
 ## Overview
 
-BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF in a hierarchical, JSON-serializable data structure.
+BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF in a hierarchical, JSON-serializable data structure
 Thus, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
 allowing better integration with web systems. It can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
 or from the command line (CLI), as it can be used to quickly write provenance-aware workflows that can be launched using
@@ -79,33 +79,103 @@ several file formats for both [sequence](https://biopython.org/wiki/SeqIO) and [
 to easily extract domain data without having to write any parsers. Here we present some of the core features of BioProv, but for a more complete introduction,
 we recommend the package's [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb) in Jupyter Notebook format, that
 can also be launched [via Binder](https://mybinder.org/v2/gh/vinisalazar/bioprov/master?filepath=docs%2Ftutorials%2F), and the [documentation page](https://bioprov.readthedocs.io/).
+For example data, we provide five small bacterial genomes and a BLAST database that is a subset of MEGARES [@Lakin2017]. These two datasets can 
+be used to test the installation and illustrate some of the core features of BioProv.
 
 ## Classes
 
-BioProv implements five main classes:
+BioProv implements four main classes:
 
 * **Project:** The higher-level structure that contains core project information. Contains associated samples, files, and programs.
 * **Sample:** Describes biological samples. Has attributes and contains associated files and programs.
 * **File:** Describes computer files that may be associated with a Sample or Project (i.e. if it is associated with zero, two, or more samples).
 * **Program:** Describes programs that process and create files.
-* **Workflow:** Describes a sequence of programs that are run on project- or sample-level files. Used mostly with the CLI functionality.
+<!-- * **Workflow:** Describes a sequence of programs that are run on project- or sample-level files. Used mostly with the CLI functionality. -->
 
 A **Project** will be the top-level object in a BioProv workflow. It will contain $n$ biological **Samples** that may have
 individually associated **Files** (for example, raw sequence data in FASTQ format) and **Programs**, which are processes that can be run
 to create and/or modify files. Files and Programs can also be associated directly with the Project, instead of being associated with a 
-particular Sample (\autoref{fig:json}.) BioProv detects the current user and environment variables and stores them alongside the Project;
+particular Sample (\autoref{fig:json}).
+
+![The BioProv data model follows an hierarchical, JSON-serializable structure. This example is adapted for illustrative purposes.
+\label{fig:json}](figures/json.png)
+
+BioProv detects the current user and environment variables and stores them alongside the Project;
 each Program, when run, is automatically associated with the current computing environment. This way, BioProv can represent which process
 is associated with each user and environment, allowing for traceable collaborative work.
 
-![The BioProv data model follows an hierarchical, JSON-serializable structure.\label{fig:json}](figures/json.png)
+These four classes constitute the basis of a BioProv workflow. The library stores relevant metadata of each object:
+for Samples, the attributes must be added upon data import, but for both Files and Programs, relevant information
+is automatically captured, such as processes' start and end time and file size. 
+Files containing biological sequences that are supported by BioPython can be parsed with the **SeqFile** class.
+This class inherits from File and can extract metadata about the file contents, such as number of sequences,
+number of base pairs, GC content (if it's a nucleotide file), and other metrics. This feature allows users to extract
+domain data for their provenance reports by leveraging the available parsers in BioPython.
+
+<!-- Mention Workflows, PresetPrograms here -->
 
 ## IO and database system
+
+There are a few ways to import and export data with BioProv. If a project has not been previously imported, the most convenient
+way to import it is by generating a table containing one sample per row, and columns with the path to each file associated with that sample.
+Columns that are not files will be processed as sample attributes. For example, assume the following table:
+
+| sample-id 	| assembly        	| report       	| source   	|
+|-----------	|-----------------	|--------------	|----------	|
+| sample_1  	| contigs_1.fasta 	| report_1.txt 	| seawater 	|
+| sample_2  	| contigs_2.fasta 	| report_2.txt 	| soil     	|
+
+The `sample-id` column will be our index, each sample will be identified by it. It is a good practice to make this the first column
+in the table. The `assembly` column contains the path to the genome assembly of each sample (therefore, a "sequence file").
+The `report` column points to a plain text file contaning the assembly report (therefore, a "file").
+The other columns will be parsed as sample attributes. This can be easily done with the `read_csv()` function:
+
+```
+In [1]: import bioprov as bp
+
+In [2]: project = bp.read_csv("myTable.csv",
+                      file_cols="report",
+                      sequencefile_cols="assembly"
+                      tag="myProject",
+                      import_data=True)
+```
+
+The table from which the data was source will automatically be added as a project file:
+
+```
+In [3]: project.files
+Out[3]: {'project_csv': /home/user/myProject/myTable.csv}
+```
+
+And Samples will be created with associated files and attributes:
+
+```
+In [4]: project['sample_1']
+Out[4]: Sample sample_1 with 2 file(s).
+
+In [5]: project['sample_1'].files
+Out[5]: 
+{'report': /Users/vini/Bio/BioProv/paper/example/report_1.txt,
+ 'assembly': /Users/vini/Bio/BioProv/paper/example/contigs_1.fasta}
+
+In [6]: project['sample_1'].attributes                                                                                                                                                                           
+Out[6]: {'source': 'seawater'}
+```
+
+Sequence metadata is extracted from sequence files, as set by the `import_data=True` parameter:
+
+```
+In [7]: project['sample_1'].files['assembly'].GC                                                                                                                                                                
+Out[7]: 0.36442
+```
+
 
 # Provenance documents
 
 Lorem ipsum. This is a reference to \autoref{fig:project}.
 
-![Provenance graph created by BioProv with the PROV and PyDot libraries.\label{fig:project}](figures/project.png)
+![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
+sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins` file.\label{fig:project}](figures/project.png)
 
 # Acknowledgements
 
