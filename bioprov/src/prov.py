@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.19"
+__version__ = "0.1.20"
 
 """
 Module containing base provenance attributes.
@@ -30,14 +30,20 @@ class BioProvDocument:
         self,
         project,
         add_attributes=False,
+        add_users=True,
         _add_project_namespaces=True,
-        _iter_envs_and_users=True,
         _iter_samples=True,
         _iter_project=True,
     ):
         """
-        Constructs base provenance for a Project.
-        :param project: Project being processed.
+        Constructs the W3C-PROV document for a project.
+
+        :param Project project: instance of bioprov.src.Project.
+        :param bool add_attributes: whether to add object attributes.
+        :param bool add_users: whether to add users and environments.
+        :param bool _add_project_namespaces:
+        :param bool _iter_samples:
+        :param bool _iter_project:
         """
 
         # Assert Project is good before constructing instance
@@ -52,16 +58,24 @@ class BioProvDocument:
         self._entities = dict()
         self._activities = dict()
         self._agents = dict()
+        self._user_bundles = dict()
         self._provstore_document = None
 
         # Don't add attributes if you plan on exporting to graphic format
         self.add_attributes = add_attributes
 
+        # Set this before running Namespaces
+        if add_users:
+            self._create_envs_and_users = True
+
+        else:
+            self._create_envs_and_users = False
+
         # Default actions to create the document
         if _add_project_namespaces:
             self._add_project_namespaces()
 
-        if _iter_envs_and_users:
+        if self._create_envs_and_users:
             self._iter_envs_and_users()
 
         if _iter_project:
@@ -108,7 +122,8 @@ class BioProvDocument:
         :return:
         """
         self._add_project_namespace()
-        self._add_env_and_user_namespace()
+        if self._create_envs_and_users:
+            self._add_env_and_user_namespace()
         self._add_samples_namespace()
         self._add_activities_namespace()
 
@@ -145,25 +160,14 @@ class BioProvDocument:
     def _iter_envs_and_users(self):
         for _user, _env_dict in self.project.users.items():
             _user_preffix = f"users:{_user}"
-            _user_bundle = self.ProvDocument.bundle(_user_preffix)
+            _user_bundle = self._user_bundles[_user] = self.ProvDocument.bundle(
+                _user_preffix
+            )
             _user_bundle.set_default_namespace(_user)
             _user_bundle.add_namespace(
                 "envs", f"Environments associated with User '{_user}'"
             )
             self._agents[_user] = _user_bundle.agent(_user_preffix)
-            for _env_hash, _env in _env_dict.items():
-                if self.add_attributes:
-                    self._agents[_env_hash] = _user_bundle.agent(
-                        f"envs:{_env}",
-                        other_attributes=build_prov_attributes(
-                            _env.env_dict, _env.env_namespace
-                        ),
-                    )
-                else:
-                    self._agents[_env_hash] = _user_bundle.agent(f"envs:{_env}")
-                _user_bundle.actedOnBehalfOf(
-                    self._agents[_env_hash], self._agents[_user]
-                )
 
     def _iter_samples(self):
         for _, sample in self.project.samples.items():
@@ -192,7 +196,7 @@ class BioProvDocument:
         # Sample PROV attributes: bundle, namespace, entity
         object_.ProvBundle = self.ProvDocument.bundle(object_.namespace_preffix)
         object_.ProvBundle.set_default_namespace(object_.name)
-        self._entities[object_.name] = object_.ProvBundle.entity(
+        self._entities[object_.name] = object_.entity = object_.ProvBundle.entity(
             object_.namespace_preffix
         )
         if kind == "Sample":
@@ -215,17 +219,20 @@ class BioProvDocument:
         )
         # Files PROV attributes: namespace, entities
         for key, file in sample.files.items():
+            # This prevents errors when the file refers to a project csv or JSON
+            if file.name == sample.name:
+                file.name = file.basename
             # Same function call, but in the first we pass the 'other_attributes' argument
             if self.add_attributes:
                 self._entities[file.name] = sample.ProvBundle.entity(
-                    f"{sample.files_namespace_preffix}:{file.basename}",
+                    f"{sample.files_namespace_preffix}:{file.tag}",
                     other_attributes=build_prov_attributes(
                         file.serializer(), sample.file_namespace
                     ),
                 )
             else:
                 self._entities[file.name] = sample.ProvBundle.entity(
-                    f"{sample.files_namespace_preffix}:{file.name}",
+                    f"{sample.files_namespace_preffix}:{file.tag}",
                 )
 
             # Adding relationships
@@ -270,9 +277,28 @@ class BioProvDocument:
                     endTime=last_run.end_time,
                 )
 
-            sample.ProvBundle.wasAssociatedWith(
-                self._activities[program.name], self._agents[last_run.env]
-            )
+            if self._create_envs_and_users:
+                for _user, _env_dict in self.project.users.items():
+                    _user_bundle = self._user_bundles[_user]
+                    for _env_hash, _env in _env_dict.items():
+                        if _env_hash == last_run.env:
+                            if self.add_attributes:
+                                self._agents[_env_hash] = _user_bundle.agent(
+                                    f"envs:{_env}",
+                                    other_attributes=build_prov_attributes(
+                                        _env.env_dict, _env.env_namespace
+                                    ),
+                                )
+                            else:
+                                self._agents[_env_hash] = _user_bundle.agent(
+                                    f"envs:{_env}"
+                                )
+                            _user_bundle.actedOnBehalfOf(
+                                self._agents[_env_hash], self._agents[_user]
+                            )
+                sample.ProvBundle.wasAssociatedWith(
+                    self._activities[program.name], self._agents[last_run.env]
+                )
 
             inputs, outputs = self._get_IO_from_params(program)
             self._add_IO_relationships(sample, program, inputs, "input")

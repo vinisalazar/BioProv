@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.19"
+__version__ = "0.1.20"
 
 
 """
@@ -44,6 +44,7 @@ from bioprov.src.main import (
     Directory,
     parse_params,
     Program,
+    PresetProgram,
     Run,
     dict_to_sample,
     json_to_dict,
@@ -157,6 +158,13 @@ def test_generate_param_str():
     ), f"Test string is\n'{test_string}'\nCorrect string is \n'{correct_string}'. "
 
 
+def test_preset_extra_flags():
+
+    grep_test = PresetProgram(name="grep", extra_flags=["--version", "--help"])
+
+    assert "--version --help" in grep_test.cmd
+
+
 """
 Testing for the Sample module.
 """
@@ -198,6 +206,9 @@ def test_Sample():
     assert sample.directory.path == sample.files["proteins"].directory
     sample.directory = Path(".")
     assert sample.directory.path == Path(".").absolute()
+
+    # test Sample.__delitem__
+    del sample["proteins"]
 
 
 def test_Project():

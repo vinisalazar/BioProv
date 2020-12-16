@@ -126,4 +126,5 @@ Before you submit a pull request, if your pull request includes code changes che
 * If the pull request adds functionality:
     * Put your new functionality into a function or class with a docstring;
     * Make a new test for said functionality.
+* Add a one-line description of the contribution to the CHANGELOG.md file under the current development version.
 * Make sure your code changes were formatted with the Black styling tool.

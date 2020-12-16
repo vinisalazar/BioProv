@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.19"
+__version__ = "0.1.20"
 
 
 """
@@ -42,20 +42,17 @@ def diamond(blast_type, sample, db, query_tag="query", outformat=6, extra_flags=
         sample=sample,
         input_files={"--query": query_tag},
         output_files={"--out": ("_dmnd_hits", "_dmnd_hits.tsv")},
+        extra_flags=extra_flags,
     )
-
-    if extra_flags is not None:
-        params = [Parameter(key=command) for command in extra_flags]
-        for param in params:
-            _diamond.add_parameter(param)
 
     return _diamond
 
 
-def prodigal(sample=None, input_tag="assembly"):
+def prodigal(sample=None, input_tag="assembly", extra_flags=None):
     """
     :param sample: Instance of BioProv.Sample.
     :param input_tag: Instance of BioProv.Sample.
+    :param list extra_flags: A list of extra parameters to pass to Prodigal.
     :return: Instance of PresetProgram containing Prodigal.
     """
     _prodigal = PresetProgram(
@@ -68,12 +65,13 @@ def prodigal(sample=None, input_tag="assembly"):
             "-s": ("scores", "_scores.cds"),
         },
         preffix_tag=input_tag,
+        extra_flags=extra_flags,
     )
 
     return _prodigal
 
 
-def _create_blast_preset(blast_type, sample, db, query_tag, outformat):
+def _create_blast_preset(blast_type, sample, db, query_tag, outformat, extra_flags):
     """
     :param str blast_type: What BLAST program to build (e.g. 'blastn');
     :return: Instance of PresetProgram for the chosen blast program type.
@@ -93,41 +91,124 @@ def _create_blast_preset(blast_type, sample, db, query_tag, outformat):
         sample=sample,
         input_files={"-query": query_tag},
         output_files={"-out": (f"{blast_type}_hits", f"_{blast_type}_hits.txt")},
+        extra_flags=extra_flags,
     )
 
     return _blast_program
 
 
-def blastn(sample=None, db=None, query_tag="query", outformat=6):
+def blastn(sample=None, db=None, query_tag="query", outformat=6, extra_flags=None):
     """
     :param Sample sample: Instance of BioProv.Sample.
     :param str db: A string pointing to the reference database directory and title.
     :param str query_tag: A tag for the query file.
     :param int outformat: The output format to gather from blastn.
+    :param list extra_flags: A list of extra parameters to pass to BLASTN.
     :return: Instance of PresetProgram for BLASTN.
     :rtype: BioProv.PresetProgram.
     :raises AssertionError: Path to the reference database does not exist.
     """
 
-    _blastn = _create_blast_preset("blastn", sample, db, query_tag, outformat)
+    _blastn = _create_blast_preset(
+        "blastn", sample, db, query_tag, outformat, extra_flags
+    )
 
     return _blastn
 
 
-def blastp(sample, db, query_tag="query", outformat=6):
+def blastp(sample, db, query_tag="query", outformat=6, extra_flags=None):
     """
     :param Sample sample: Instance of BioProv.Sample.
     :param str db: A string pointing to the reference database directory and title.
     :param str query_tag: A tag for the query file.
     :param int outformat: The output format to gather from blastp.
+    :param list extra_flags: A list of extra parameters to pass to BLASTP.
     :return: Instance of PresetProgram for BLASTP.
     :rtype: BioProv.PresetProgram.
     :raises AssertionError: Path to the reference database does not exist.
     """
 
-    _blastp = _create_blast_preset("blastp", sample, db, query_tag, outformat)
+    _blastp = _create_blast_preset(
+        "blastp", sample, db, query_tag, outformat, extra_flags
+    )
 
     return _blastp
+
+
+def muscle(sample, input_tag="input", msf=False, extra_flags=None):
+    """
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str input_tag: A tag for the input multi-fasta file.
+    :param bool msf: Whether or not to have the output in msf format.
+    :param list extra_flags: A list of extra parameters to pass to Muscle.
+    :return: Instance of PresetProgram for Muscle.
+    :rtype: BioProv.PresetProgram.
+    """
+
+    _muscle = PresetProgram(
+        name="muscle",
+        sample=sample,
+        input_files={"-in": input_tag},
+        output_files={"-out": ("_muscle_hits", "_muscle_hits.afa")},
+        extra_flags=extra_flags,
+    )
+
+    if msf:
+        _muscle.add_parameter(Parameter(key="-msf"))
+
+    return _muscle
+
+
+def mafft(sample, input_tag="input", extra_flags=None):
+    """
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str input_tag:  A tag for the input fasta file.
+    :param list extra_flags: A list of extra parameters to pass to MAFFT.
+    :return: Instance of PresetProgram containing MAFFT.
+    :rtype: BioProv.PresetProgram.
+    """
+    _mafft = PresetProgram(
+        name="mafft",
+        sample=sample,
+        input_files={"": input_tag},
+        output_files={">": ("aligned", "_aligned.afa")},
+        preffix_tag=input_tag,
+        extra_flags=extra_flags,
+    )
+
+    return _mafft
+
+
+def kallisto_quant(sample, index, output_dir="./", extra_flags=None):
+    """
+    Run kallisto's alignment and quantification
+
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str index: A path to a kallisto index file.
+    :param str output_dir: A path to kallisto's output directory.
+    :param list extra_flags: A list of extra parameters to pass to kallisto
+        (e.g. --single or --plaintext).
+    :return: Instance of PresetProgram containing kallisto.
+    :rtype: BioProv.PresetProgram.
+    """
+
+    _kallisto = PresetProgram(
+        name="kallisto",
+        params=(
+            Parameter(key="quant"),
+            Parameter(key="--index", value=index),
+            Parameter(key="--output-dir", value=output_dir),
+        ),
+        sample=sample,
+        extra_flags=extra_flags,
+    )
+
+    input_files = [Parameter(key=str(fastq.path)) for fastq in sample.files.values()]
+
+    for read in input_files:
+        _kallisto.add_parameter(read)
+
+    return _kallisto
 
 
 def prokka_():

@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.19"
+__version__ = "0.1.20"
 
 
 """
@@ -32,7 +32,7 @@ def test_import_classes_and_functions():
     from bioprov import (
         BioProvDocument,
         config,
-        EnvProv,
+        Environment,
         File,
         Program,
         Parameter,
@@ -48,7 +48,7 @@ def test_import_classes_and_functions():
     del (
         BioProvDocument,
         config,
-        EnvProv,
+        Environment,
         File,
         Program,
         Parameter,

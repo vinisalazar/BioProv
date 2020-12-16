@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.19"
+__version__ = "0.1.20"
 
 
 """
@@ -14,7 +14,10 @@ from bioprov.data import synechococcus_genome
 from bioprov.programs import (
     blastn,
     blastp,
+    muscle,
+    mafft,
     diamond,
+    kallisto_quant,
     kaiju,
     kaiju2table,
     prodigal,
@@ -75,6 +78,45 @@ def test_blastp():
 
     assert list(blast_params.keys()) == expected
     assert blast_params["-outfmt"]["value"] == "6"
+
+
+def test_muscle():
+
+    s = Sample("Synechococcus", files={"input": synechococcus_genome})
+
+    muscle_prog = muscle(sample=s, msf=True)
+    muscle_params = muscle_prog.serializer()["params"]
+
+    expected = ["-in", "-out", "-msf"]
+
+    assert list(muscle_params.keys()) == expected
+
+
+def test_mafft():
+
+    s = Sample("Synechococcus", files={"input": synechococcus_genome})
+
+    mafft_prog = mafft(s)
+    mafft_params = mafft_prog.serializer()["params"]
+
+    expected = ["", ">"]
+
+    assert list(mafft_params.keys()) == expected
+
+
+def test_kallisto():
+
+    s = Sample(
+        "Synechococcus", files={"R1": "fake_first_read", "R2": "fake_second_read"}
+    )
+
+    kall_prog = kallisto_quant(s, "fake_index_file.idx")
+    kall_params = list(kall_prog.serializer()["params"].keys())
+
+    expected = ["quant", "--index", "--output-dir"]
+
+    assert kall_params[0:3] == expected
+    assert len(kall_params) == 5
 
 
 def test_prodigal():

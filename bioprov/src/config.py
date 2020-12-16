@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.19"
+__version__ = "0.1.20"
 
 
 """
@@ -35,7 +35,7 @@ class Config:
         """
         # This duplication is to order the keys in the __dict__ attribute.
         self.user = None
-        self.env = EnvProv()
+        self.env = Environment()
         self.user = self.env.user
         if not threads:
             threads = int(os.cpu_count() / 2)
@@ -248,7 +248,7 @@ class BioProvDB(TinyDB):
             print("Canceled operation.")
 
 
-class EnvProv:
+class Environment:
     """
     Class containing provenance information about the current environment.
     """
@@ -265,7 +265,7 @@ class EnvProv:
         self.update()
 
     def __repr__(self):
-        return f"Environment_{self.env_hash}"
+        return self.env_hash
 
     def update(self):
         """
