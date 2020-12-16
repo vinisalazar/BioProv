@@ -1034,7 +1034,7 @@ class Project:
         return len(self._samples)
 
     def __repr__(self):
-        return self.tag
+        return f"Project '{self.tag}' with {len(self)} samples"
 
     def __getitem__(self, item):
         try:

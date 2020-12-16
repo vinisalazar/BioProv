@@ -275,18 +275,21 @@ class BioProvDocument:
                 for _user, _env_dict in self.project.users.items():
                     _user_bundle = self._user_bundles[_user]
                     for _env_hash, _env in _env_dict.items():
-                        if self.add_attributes:
-                            self._agents[_env_hash] = _user_bundle.agent(
-                                f"envs:{_env}",
-                                other_attributes=build_prov_attributes(
-                                    _env.env_dict, _env.env_namespace
-                                ),
+                        if _env_hash == last_run.env:
+                            if self.add_attributes:
+                                self._agents[_env_hash] = _user_bundle.agent(
+                                    f"envs:{_env}",
+                                    other_attributes=build_prov_attributes(
+                                        _env.env_dict, _env.env_namespace
+                                    ),
+                                )
+                            else:
+                                self._agents[_env_hash] = _user_bundle.agent(
+                                    f"envs:{_env}"
+                                )
+                            _user_bundle.actedOnBehalfOf(
+                                self._agents[_env_hash], self._agents[_user]
                             )
-                        else:
-                            self._agents[_env_hash] = _user_bundle.agent(f"envs:{_env}")
-                        _user_bundle.actedOnBehalfOf(
-                            self._agents[_env_hash], self._agents[_user]
-                        )
                 sample.ProvBundle.wasAssociatedWith(
                     self._activities[program.name], self._agents[last_run.env]
                 )
