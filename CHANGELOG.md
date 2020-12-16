@@ -6,7 +6,7 @@
 * Create methods for Sample and Project
     * .describe [ ]
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
-* Add logger calls when saving to JSON and uploading to PyPI [ ]
+* Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.20
 * Debug graphical DOT output [x]
@@ -16,6 +16,7 @@
 * Refactor EnvProv class as Environment [x]
 * Allow creation of users and envs to be optional [x]
 * Create environments only when there's an associated activity [x]
+* Create Sample dunder enter and dunder exit methods [x]
 
 ### v0.1.19
 * Debug API endpoint (#23) [x]

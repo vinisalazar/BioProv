@@ -826,7 +826,7 @@ class Sample:
             self.project.auto_update_db()
 
     def __repr__(self):
-        str_ = f"Sample {self.name} with {len(self.files)} file(s)."
+        str_ = f"Sample '{self.name}' with {len(self.files)} file(s)."
         return str_
 
     def __getitem__(self, key):
@@ -840,6 +840,12 @@ class Sample:
             value, (File, SeqFile)
         ), f"To create file in sample, must be either a bioprov.File or bioprov.SequenceFile instance."
         self.files[key] = value
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        return
 
     @property
     def directory(self):
