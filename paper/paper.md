@@ -56,9 +56,9 @@ for BWFs, capturing the provenance of the workflow steps between different users
 # Statement of need
 
 BioProv is a Python library for **generating provenance documents of bioinformatics workflows.**
-Presently, there are excellent, freely available tools for orchestrating scientific workflows, such as Nextflow,
-Snakemake, and Toil [@Jackson2020], and others that focus in capturing and storing provenance data during workflow runtime
-[@Silva2018; @Khan2019]. However, to the best of our knowledge, there is not yet any library that specializes in capturing the provenance of BWFs.
+Presently, there are excellent, freely available tools for both orchestrating scientific workflows [@Koster2012; @DiTommaso2017] and
+capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019].
+However, to the best of our knowledge, there is not yet any library that specializes in capturing the provenance of BWFs.
 Some of these workflow management systems provide reports such as execution trace or graph, but these reports are not W3C-PROV compatible and/or
 are not serializable, and the collection of domain-specific information usually must be collected by the user in an *ad hoc* manner.
 This can be very costly to both users and developers of BWFs looking to collect provenance data, as much effort can be spent
@@ -112,9 +112,24 @@ This class inherits from File and can extract metadata about the file contents, 
 number of base pairs, GC content (if it's a nucleotide file), and other metrics. This feature allows users to extract
 domain data for their provenance reports by leveraging the available parsers in BioPython.
 
-<!-- Mention Workflows, PresetPrograms here -->
+Programs in BioProv can be created manually or loaded as a preset. We offer a few preset programs for common bioinformatics
+tasks, such as sequence alignment search, multiple sequence alignment, gene prediction and quantification of gene expression. Some of the included programs are:
 
-## IO and database system
+* **BLAST+:** sequence alignment search [@camacho2009blast]
+* **Diamond:** sequence alignment search [@Buchfink2014]
+* **MAFFT:** multiple sequence alignment [@Katoh2005]
+* **Muscle:** multiple sequence alignment [@Edgar2004]
+* **Prodigal:** prokaryotic gene prediction [@Hyatt2010]
+
+Users can create their own presets with either the Program class or the **PresetProgram** class, which inherits from Program
+and possesses additional methods for batch execution. To manually create programs (that are not presets), the user should
+create the program as it is called from the command line, and add **Parameters** to it. A **Parameter** is another BioProv class
+which represents specific parameters associated with a program. Presets will contain parameters specific to that program.
+Parameters will be added to the program's command string which will be evaluated on the system's shell, by means of Python's
+[`subprocess` module](https://docs.python.org/3/library/subprocess.html). For a more complete walkthrough of how to build programs
+and add them to your workflow, please refer to the [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb).
+
+## Importing and exporting data
 
 There are a few ways to import and export data with BioProv. If a project has not been previously imported, the most convenient
 way to import it is by generating a table containing one sample per row, and columns with the path to each file associated with that sample.
@@ -134,13 +149,13 @@ The other columns will be parsed as sample attributes. This can be easily done w
 In [1]: import bioprov as bp
 
 In [2]: project = bp.read_csv("myTable.csv",
-                      file_cols="report",
-                      sequencefile_cols="assembly"
-                      tag="myProject",
-                      import_data=True)
+                              file_cols="report",
+                              sequencefile_cols="assembly"
+                              tag="myProject",
+                              import_data=True)
 ```
 
-The table from which the data was source will automatically be added as a project file:
+The table from which the data was sourced will automatically be added as a project file:
 
 ```
 In [3]: project.files
@@ -150,25 +165,97 @@ Out[3]: {'project_csv': /home/user/myProject/myTable.csv}
 And Samples will be created with associated files and attributes:
 
 ```
-In [4]: project['sample_1']
+In [4]: project["sample_1"]
 Out[4]: Sample sample_1 with 2 file(s).
 
-In [5]: project['sample_1'].files
+In [5]: project["sample_1"].files
 Out[5]: 
 {'report': /Users/vini/Bio/BioProv/paper/example/report_1.txt,
  'assembly': /Users/vini/Bio/BioProv/paper/example/contigs_1.fasta}
 
-In [6]: project['sample_1'].attributes                                                                                                                                                                           
+In [6]: project["sample_1"].attributes                                                                                                                                                                           
 Out[6]: {'source': 'seawater'}
 ```
 
 Sequence metadata is extracted from sequence files, as set by the `import_data=True` parameter:
 
 ```
-In [7]: project['sample_1'].files['assembly'].GC                                                                                                                                                                
+In [7]: project["sample_1"].files["assembly"].GC                                                                                                                                                                
 Out[7]: 0.36442
 ```
 
+Now that their project is loaded, the user can add new files, samples and programs. Programs can be run and execution provenance
+will be captured (such as **stdout** and **stderr**, start and end time, associated files). To export the project, there are
+a few options. The user can either:
+* export the project in a tabular format such as the one presented in `myTable.csv`. This will omit project information (about programs, for example),
+but will preserve information of samples and files. Done with the `Project.to_csv()` method;
+* export the project as JSON, the preferred option, as BioProv can deserialize this format back into a `Project` object with all related information; Done with
+the `Project.to_json()` method;
+* store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
+
+```
+In [8]: project.to_csv()  # exports in tabular format
+
+In [9]: project.to_json()  # exports as JSON
+
+In [10]: project.update_db()  # stores in the BioProv database
+Inserting new project 'myProject' in /path/to/bioprov/db.json                                                                                                                                                   
+```
+
+## Database system
+BioProv implements an internal database using [TinyDB](https://tinydb.readthedocs.io/en/latest/), a document-oriented, pure
+Python database. Projects can be easily loaded by their ID (the `Project.tag` attribute) and can be updated during runtime, by
+setting the `Project.auto_update = True` option. Assuming the user has run the previous code example, this could be done in a 
+new session:
+
+```
+In [1]: import bioprov as bp
+
+In [2]: project = bp.load_project("myProject")  # call projects by their tag
+
+In [3]: project.auto_update = True
+``` 
+
+Now all future modifications to `myProject` will auto-update its record in BioProv's database. 
+The database can be managed from BioProv's CLI application.
+
+## Command line application and workflows
+
+To use the CLI, after installing, simply type `bioprov`:
+
+```
+~/ $ bioprov
+usage: bioprov [-h]
+               [--show_config | --show_provstore | --create_provstore |
+                --show_db | --clear_db | -v | -l]
+               {genome_annotation,blastn,kaiju} ...
+
+BioProv command-line application. Choose a command to begin.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --show_config         Show location of config file.
+  --show_provstore      Show location of ProvStore credentials file.
+  --create_provstore    Create ProvStore credentials file.
+  --show_db             Show location of database file.
+  --clear_db            Clears all records in database.
+  -v, --version         Show BioProv version
+  -l, --list            List Projects in the BioProv database.
+
+workflows:
+  {genome_annotation,blastn,kaiju}
+```
+
+The `bioprov --show_db` and `bioprov --list` commands, for example, can be used to show the location of BioProv's
+database and list all projects in it. The `workflows` are preset pipelines that can be run directly from the CLI.
+They are implemented with BioProv's **Workflow** class and handle the creation of the BioProv project while
+running the desired pipeline. A user can write their own **Workflow** and the command-line parser will be automatically generated
+based on the parameters set by the user. For more information, please refer to BioProv's 
+[`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored or type
+run the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. <!-- Presently, BioProv workflows are still 
+simplistic, serving only as a reference for the user to write their own workflow. However, one of the main future goals of the library is to
+develop a range of common BWFs. We actively encourage users to contribute their workflows by following the 
+[contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or by opening an issue in the repository.-->
 
 # Provenance documents
 
