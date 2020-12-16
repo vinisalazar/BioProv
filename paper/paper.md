@@ -133,8 +133,9 @@ and add them to your workflow, please refer to the [tutorials](https://github.co
 
 ## Importing and exporting data
 
-There are a few ways to import and export data with BioProv. If a project has not been previously imported, the most convenient
-way to import it is by generating a table containing one sample per row, and columns with the path to each file associated with that sample.
+There are a few ways to import and export data with BioProv. Here we present a few lines of code which produce an example
+project to showcase this. If a project has not been previously imported, the most convenient way to import it is by
+generating a table containing one sample per row, and columns with the path to each file associated with that sample.
 Columns that are not files will be processed as sample attributes. For example, assume the following table:
 
 | sample-id 	| assembly        	| report       	| source   	|
@@ -172,8 +173,8 @@ Out[4]: Sample sample_1 with 2 file(s).
 
 In [5]: project["sample_1"].files
 Out[5]: 
-{'report': /Users/vini/Bio/BioProv/paper/example/report_1.txt,
- 'assembly': /Users/vini/Bio/BioProv/paper/example/contigs_1.fasta}
+{'report': /home/user/myProject/report_1.txt,
+ 'assembly': /home/user/myProject/contigs_1.fasta}
 
 In [6]: project["sample_1"].attributes                                                                                                                                                                           
 Out[6]: {'source': 'seawater'}
