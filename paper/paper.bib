@@ -17,7 +17,7 @@ url = {http://homepages.inf.ed.ac.uk/opb/papers/ICDT2001.pdf},
 volume = {1973},
 year = {2001}
 }
-@article{camacho2009blast+,
+@article{camacho2009blast,
 author = {Camacho, Christiam and Coulouris, George and Avagyan, Vahram and Ma, Ning and Papadopoulos, Jason and Bealer, Kevin and Madden, Thomas L},
 journal = {BMC bioinformatics},
 number = {1},
@@ -48,6 +48,19 @@ title = {{Provenance in bioinformatics workflows.}},
 volume = {14 Suppl 1},
 year = {2013}
 }
+@article{DiTommaso2017,
+abstract = {In spite of over two decades of intense research, illumination and pose invariance remain prohibitively challenging aspects of face recognition for most practical applications. The objective of this work is to recognize faces using video sequences both for training and recognition input, in a realistic, unconstrained setup in which lighting, pose and user motion pattern have a wide variability and face images are of low resolution. The central contribution is an illumination invariant, which we show to be suitable for recognition from video of loosely constrained head motion. In particular there are three contributions: (i) we show how a photometric model of image formation can be combined with a statistical model of generic face appearance variation to exploit the proposed invariant and generalize in the presence of extreme illumination changes; (ii) we introduce a video sequence re-illumination algorithm to achieve fine alignment of two video sequences; and (iii) we use the smoothness of geodesically local appearance manifold structure and a robust same-identity likelihood to achieve robustness to unseen head poses. We describe a fully automatic recognition system based on the proposed method and an extensive evaluation on 323 individuals and 1474 video sequences with extreme illumination, pose and head motion variation. Our system consistently achieved a nearly perfect recognition rate (over 99.7{\%} on all four databases). ?? 2012 Elsevier Ltd All rights reserved.},
+author = {{Di Tommaso}, Paolo and Chatzou, Maria and Floden, Evan W. and Barja, Pablo Prieto and Palumbo, Emilio and Notredame, Cedric},
+doi = {10.1038/nbt.3820},
+issn = {15461696},
+journal = {Nature Biotechnology},
+number = {4},
+pages = {316--319},
+title = {{Nextflow enables reproducible computational workflows}},
+volume = {35},
+year = {2017}
+}
+
 @misc{Dong2020,
 author = {Dong, Trung},
 journal = {GitHub repository},
@@ -93,6 +106,19 @@ url = {http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2848648{\&}tool
 volume = {11},
 year = {2010}
 }
+@article{Koster2012,
+abstract = {Snakemake is a workflow engine that provides a readable Python-based workflow definition language and a powerful execution environment that scales from single-core workstations to compute clusters without modifying the workflow. It is the first system to support the use of automatically inferred multiple named wildcards (or variables) in input and output filenames. {\textcopyright} The Author 2012. Published by Oxford University Press. All rights reserved.},
+author = {K{\"{o}}ster, Johannes and Rahmann, Sven},
+doi = {10.1093/bioinformatics/bts480},
+issn = {14602059},
+journal = {Bioinformatics},
+number = {19},
+pages = {2520--2522},
+pmid = {29788404},
+title = {{Snakemake-a scalable bioinformatics workflow engine}},
+volume = {28},
+year = {2012}
+}
 @article{Lakin2017,
 abstract = {{\textcopyright} The Author(s) 2016. Antimicrobial resistance has become an imminent concern for public health. As methods for detection and characterization of antimicrobial resistance move from targeted culture and polymerase chain reaction to high throughput metagenomics, appropriate resources for the analysis of large-scale data are required. Currently, antimicrobial resistance databases are tailored to smaller-scale, functional profiling of genes using highly descriptive annotations. Such characteristics do not facilitate the analysis of large-scale, ecological sequence datasets such as those produced with the use of metagenomics for surveillance. In order to overcome these limitations, we present MEGARes (https://megares.meglab.org), a hand-curated antimicrobial resistance database and annotation structure that provides a foundation for the development of high throughput acyclical classifiers and hierarchical statistical analysis of big data. MEGARes can be browsed as a stand-alone resource through the website or can be easily integrated into sequence analysis pipelines through download. Also via the website, we provide documentation for AmrPlusPlus, a user-friendly Galaxy pipeline for the analysis of high throughput sequencing data that is pre-packaged for use with the MEGARes database.},
 author = {Lakin, Steven M. and Dean, Chris and Noyes, Noelle R. and Dettenwanger, Adam and Ross, Anne Spencer and Doster, Enrique and Rovira, Pablo and Abdo, Zaid and Jones, Kenneth L. and Ruiz, Jaime and Belk, Keith E. and Morley, Paul S. and Boucher, Christina},
@@ -129,14 +155,6 @@ pages = {79},
 title = {{Towards supporting the life cycle of large scale scientific experiments}},
 volume = {5},
 year = {2010}
-}
-@article{Jackson2020,
-author = {Jackson, Michael J and Wallace, Edward and Kavoussanakis, Kostas},
-journal = {bioRxiv},
-pages = {2020.08.04.236208},
-title = {{Using rapid prototyping to choose a bioinformatics workflow management system}},
-url = {https://doi.org/10.1101/2020.08.04.236208},
-year = {2020}
 }
 @article{Kanwal2017,
 abstract = {Background: Computational bioinformatics workflows are extensively used to analyse genomics data, with different approaches available to support implementation and execution of these workflows. Reproducibility is one of the core principles for any scientific workflow and remains a challenge, which is not fully addressed. This is due to incomplete understanding of reproducibility requirements and assumptions of workflow definition approaches. Provenance information should be tracked and used to capture all these requirements supporting reusability of existing workflows. Results: We have implemented a complex but widely deployed bioinformatics workflow using three representative approaches to workflow definition and execution. Through implementation, we identified assumptions implicit in these approaches that ultimately produce insufficient documentation of workflow requirements resulting in failed execution of the workflow. This study proposes a set of recommendations that aims to mitigate these assumptions and guides the scientific community to accomplish reproducible science, hence addressing reproducibility crisis. Conclusions: Reproducing, adapting or even repeating a bioinformatics workflow in any environment requires substantial technical knowledge of the workflow execution environment, resolving analysis assumptions and rigorous compliance with reproducibility requirements. Towards these goals, we propose conclusive recommendations that along with an explicit declaration of workflow specification would result in enhanced reproducibility of computational genomic analyses.},
