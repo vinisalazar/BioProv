@@ -17,6 +17,7 @@ from bioprov.programs import (
     muscle,
     mafft,
     diamond,
+    kallisto_quant,
     kaiju,
     kaiju2table,
     prodigal,
@@ -101,6 +102,21 @@ def test_mafft():
     expected = ["", ">"]
 
     assert list(mafft_params.keys()) == expected
+
+
+def test_kallisto():
+
+    s = Sample(
+        "Synechococcus", files={"R1": "fake_first_read", "R2": "fake_second_read"}
+    )
+
+    kall_prog = kallisto_quant(s, "fake_index_file.idx")
+    kall_params = list(kall_prog.serializer()["params"].keys())
+
+    expected = ["quant", "--index", "--output-dir"]
+
+    assert kall_params[0:3] == expected
+    assert len(kall_params) == 5
 
 
 def test_prodigal():
