@@ -1,0 +1,4 @@
+sample-id,assembly,report,source
+sample_1,contigs_1.fasta,report_1.txt,seawater
+sample_2,contigs_2.fasta,report_2.txt,soil
+
