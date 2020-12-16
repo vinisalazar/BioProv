@@ -84,7 +84,7 @@ be used to test the installation and illustrate some of the core features of Bio
 
 ## Classes
 
-BioProv implements four main classes:
+BioProv implements several classes in order to model BWFs (hereafter highlighted in bold text), but the four main ones are:
 
 * **Project:** The higher-level structure that contains core project information. Contains associated samples, files, and programs.
 * **Sample:** Describes biological samples. Has attributes and contains associated files and programs.
@@ -191,9 +191,8 @@ to illustrate this. Prodigal runs a gene prediction algorithm for prokaryotic ge
 In [8]: from bioprov.programs import prodigal                                                                                                                                                                                              
 
 In [9]: with project["sample_1"] as sample: 
-            sample.add_programs(prodigal(sample))                                                                                                                                                                                                                                 
-
-In [10]: project["sample_1"].) 
+            sample.add_programs(prodigal(sample))
+            sample.run_programs()
 ```
 
 Now that their project is loaded, the user can add new files, samples and programs. Programs can be run and execution provenance
@@ -206,11 +205,11 @@ the `Project.to_json()` method;
 * store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
 
 ```
-In [11]: project.to_csv()  # exports in tabular format
+In [10]: project.to_csv()  # exports in tabular format
 
-In [12]: project.to_json()  # exports as JSON
+In [11]: project.to_json()  # exports as JSON
 
-In [13]: project.update_db()  # stores in the BioProv database
+In [12]: project.update_db()  # stores in the BioProv database
 Inserting new project 'myProject' in /path/to/bioprov/db.json                                                                                                                                                   
 ```
 
@@ -271,7 +270,9 @@ develop a range of common BWFs. We actively encourage users to contribute their 
 
 # Provenance documents
 
-Lorem ipsum. This is a reference to \autoref{fig:project}.
+To create W3C-PROV documents, the **Project** is imported into an instance of the **BioProvDocument** class
+
+. This is a reference to \autoref{fig:project}.
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
 sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
