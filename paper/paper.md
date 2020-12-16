@@ -110,7 +110,7 @@ is automatically captured, such as processes' start and end time and file size.
 Files containing biological sequences that are supported by BioPython can be parsed with the **SeqFile** class.
 This class inherits from File and can extract metadata about the file contents, such as number of sequences,
 number of base pairs, GC content (if it's a nucleotide file), and other metrics. This feature allows users to extract
-domain data for their provenance reports by leveraging the available parsers in BioPython.
+domain data for their provenance reports by using all parsers available in BioPython.
 
 Programs in BioProv can be created manually or loaded as a preset. We offer a few preset programs for common bioinformatics
 tasks, such as sequence alignment search, multiple sequence alignment, gene prediction and quantification of gene expression. Some of the included programs are:
@@ -263,20 +263,37 @@ They are implemented with BioProv's **Workflow** class and handle the creation o
 running the desired pipeline. A user can write their own **Workflow** and the command-line parser will be automatically generated
 based on the parameters set by the user. For more information, please refer to BioProv's 
 [`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored or run 
-the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. <!-- Presently, BioProv workflows are still 
+the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. Presently, BioProv workflows are still 
 simplistic, serving only as a reference for the user to write their own workflow. However, one of the main future goals of the library is to
 develop a range of common BWFs. We actively encourage users to contribute their workflows by following the 
-[contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or by opening an issue in the repository.-->
+[contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or by opening an issue in the repository.
 
 # Provenance documents
 
-To create W3C-PROV documents, the **Project** is imported into an instance of the **BioProvDocument** class
+To create W3C-PROV documents, BioProv utilizes the PROV library [@Dong2020], and models its native objects onto
+the three PROV elements: **entities**, **agents**, and **activities** (@Groth2013 provide a detailed description of the PROV ontology).
+To do this, a **Project** is imported by an instance of a **BioProvDocument**. A W3C-PROV compatible document will be created, with
+associated relationships between PROV elements for each object of the project. BioProv defines one "bundle" for the project, and one 
+for each sample and user. Bundles are documents nested within the top-level **BioProvDocument**, used to describe individual entities (for the Sample bundles)
+or agents (for the user bundles). Computing environments are also agents, which **act on behalf of** users through **activities**
+(which correspond to BioProv's **Programs**). By leveraging the PROV library, the resulting document can be exported in a number of ways, such as 
+graphical format and [PROV-N](https://www.w3.org/TR/prov-n/) (a human-readable provenance format).
 
-. This is a reference to \autoref{fig:project}.
+The following code will generate the \autoref{fig:project} and a PROV-N record.
+
+```
+In [4]: prov = bp.BioProvDocument(project, add_users=False)
+
+In [5]: prov.dot.write_pdf("myProject.pdf")
+
+In [6]: prov.write_provn()
+```
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
 sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
 file.\label{fig:project}](figures/project.png)
+
+# Conclusion
 
 # Acknowledgements
 
