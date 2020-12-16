@@ -187,7 +187,10 @@ Out[7]: 0.36442
 ```
 
 To run a program using BioProv, it must be added to the project or to a sample. We can use the preset `prodigal` program
-to illustrate this. Prodigal runs a gene prediction algorithm for prokaryotic genomes and creates three output files:
+to illustrate this. Prodigal runs a gene prediction algorithm for prokaryotic genomes, and creates three output files:
+
+Now that their project is loaded, the user can add new files, samples and programs. Programs can be run and execution provenance
+will be captured (such as **stdout** and **stderr**, start and end time, and files involved).
 
 ```
 In [8]: from bioprov.programs import prodigal                                                                                                                                                                                              
@@ -197,9 +200,8 @@ In [9]: with project["sample_1"] as sample:
             sample.run_programs()
 ```
 
-Now that their project is loaded, the user can add new files, samples and programs. Programs can be run and execution provenance
-will be captured (such as **stdout** and **stderr**, start and end time, associated files). To export the project, there are
-a few options. The user can either:
+To export the project, there are a few options. The user can either:
+
 * export the project in a tabular format such as the one presented in `myTable.csv`. This will omit project information (about programs, for example),
 but will preserve information of samples and files. Done with the `Project.to_csv()` method;
 * export the project as JSON, the preferred option, as BioProv can deserialize this format back into a `Project` object with all related information; Done with
@@ -260,7 +262,7 @@ workflows:
 ```
 
 The `bioprov --show_db` and `bioprov --list` commands, for example, can be used to show the location of BioProv's
-database and list all projects in it. The `workflows` are preset pipelines that can be run directly from the CLI.
+database and list all projects it contains. The `workflows` are preset pipelines that can be run directly from the CLI.
 They are implemented with BioProv's **Workflow** class and handle the creation of the BioProv project while
 running the desired pipeline. A user can write their own **Workflow** and the command-line parser will be automatically generated
 based on the parameters set by the user. For more information, please refer to BioProv's 
