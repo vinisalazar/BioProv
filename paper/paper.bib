@@ -1,11 +1,10 @@
-@article{Brooksbank2014,
-author = {Brooksbank, Cath and Schneider, Maria Victoria and Radivojac, Predrag and Lewitter, Fran and Welch, Lonnie and Gaeta, Bruno and Schwartz, Russell},
-doi = {10.1371/journal.pcbi.1003496},
-journal = {PLoS Computational Biology},
-number = {3},
-pages = {e1003496},
-title = {{Bioinformatics Curriculum Guidelines: Toward a Definition of Core Competencies}},
-volume = {10},
+@misc{Buchfink2014,
+abstract = {The alignment of sequencing reads against a protein reference database is a major computational bottleneck in metagenomics and data-intensive evolutionary projects. Although recent tools offer improved performance over the gold standard BLASTX, they exhibit only a modest speedup or low sensitivity. We introduce DIAMOND, an open-source algorithm based on double indexing that is 20,000 times faster than BLASTX on short reads and has a similar degree of sensitivity.},
+author = {Buchfink, Benjamin and Xie, Chao and Huson, Daniel H.},
+booktitle = {Nature Methods},
+doi = {10.1038/nmeth.3176},
+issn = {15487105},
+title = {{Fast and sensitive protein alignment using DIAMOND}},
 year = {2014}
 }
 @article{Buneman2001,
@@ -17,6 +16,16 @@ title = {{Why and Where: A Characterization of Data Provenance}},
 url = {http://homepages.inf.ed.ac.uk/opb/papers/ICDT2001.pdf},
 volume = {1973},
 year = {2001}
+}
+@article{camacho2009blast+,
+author = {Camacho, Christiam and Coulouris, George and Avagyan, Vahram and Ma, Ning and Papadopoulos, Jason and Bealer, Kevin and Madden, Thomas L},
+journal = {BMC bioinformatics},
+number = {1},
+pages = {421},
+publisher = {BioMed Central},
+title = {{BLAST+: architecture and applications}},
+volume = {10},
+year = {2009}
 }
 @article{Cock2009,
 author = {Cock, Peter J.A. and Antao, Tiago and Chang, Jeffrey T. and Chapman, Brad A. and Cox, Cymon J. and Dalke, Andrew and Friedberg, Iddo and Hamelryck, Thomas and Kauff, Frank and Wilczynski, Bartek and {De Hoon}, Michiel J.L.},
@@ -46,6 +55,19 @@ publisher = {GitHub},
 title = {{PROV: A Python library for W3C Provenance Data Model}},
 year = {2020}
 }
+@article{Edgar2004,
+abstract = {We describe MUSCLE, a new computer program for creating multiple alignments of protein sequences. Elements of the algorithm include fast distance estimation using kmer counting, progressive alignment using a new profile function we call the log-expectation score, and refinement using tree-dependent restricted partitioning. The speed and accuracy of MUSCLE are compared with T-Coffee, MAFFT and CLUSTALW on four test sets of reference alignments: BAliBASE, SABmark, SMART and a new benchmark, PREFAB. MUSCLE achieves the highest, or joint highest, rank in accuracy on each of these sets. Without refinement, MUSCLE achieves average accuracy statistically indistinguishable from T-Coffee and MAFFT, and is the fastest of the tested methods for large numbers of sequences, aligning 5000 sequences of average length 350 in 7 min on a current desktop computer. The MUSCLE program, source code and PREFAB test data are freely available at http://www.drive5.com/muscle. {\textcopyright} Oxford University Press 20004; all rights reserved.},
+author = {Edgar, Robert C.},
+doi = {10.1093/nar/gkh340},
+issn = {03051048},
+journal = {Nucleic Acids Research},
+number = {5},
+pages = {1792--1797},
+pmid = {15034147},
+title = {{MUSCLE: Multiple sequence alignment with high accuracy and high throughput}},
+volume = {32},
+year = {2004}
+}
 @book{Groth2013,
 author = {Groth, Paul and Moreau, Luc},
 doi = {10.2200/S00528ED1V01Y201308WEB007},
@@ -55,6 +77,21 @@ pages = {131},
 publisher = {Morgan {\&} Claypool},
 title = {{An Introduction to PROV}},
 year = {2013}
+}
+@article{Hyatt2010,
+abstract = {BACKGROUND: The quality of automated gene prediction in microbial organisms has improved steadily over the past decade, but there is still room for improvement. Increasing the number of correct identifications, both of genes and of the translation initiation sites for each gene, and reducing the overall number of false positives, are all desirable goals.$\backslash$n$\backslash$nRESULTS: With our years of experience in manually curating genomes for the Joint Genome Institute, we developed a new gene prediction algorithm called Prodigal (PROkaryotic DYnamic programming Gene-finding ALgorithm). With Prodigal, we focused specifically on the three goals of improved gene structure prediction, improved translation initiation site recognition, and reduced false positives. We compared the results of Prodigal to existing gene-finding methods to demonstrate that it met each of these objectives.$\backslash$n$\backslash$nCONCLUSION: We built a fast, lightweight, open source gene prediction program called Prodigal http://compbio.ornl.gov/prodigal/. Prodigal achieved good results compared to existing methods, and we believe it will be a valuable asset to automated microbial annotation pipelines.},
+author = {Hyatt, Doug and Chen, Gwo-Liang and Locascio, Philip F and Land, Miriam L and Larimer, Frank W and Hauser, Loren J},
+doi = {10.1186/1471-2105-11-119},
+isbn = {1471-2105 (Electronic)$\backslash$r1471-2105 (Linking)},
+issn = {1471-2105},
+journal = {BMC bioinformatics},
+keywords = {Algorithms,Bacterial,Databases,Genetic,Genome,Peptide Chain Initiation,Prokaryotic Cells,Software,Translational,Translational: genetics},
+pages = {119},
+pmid = {20211023},
+title = {{Prodigal: prokaryotic gene recognition and translation initiation site identification.}},
+url = {http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=2848648{\&}tool=pmcentrez{\&}rendertype=abstract},
+volume = {11},
+year = {2010}
 }
 @article{Lakin2017,
 abstract = {{\textcopyright} The Author(s) 2016. Antimicrobial resistance has become an imminent concern for public health. As methods for detection and characterization of antimicrobial resistance move from targeted culture and polymerase chain reaction to high throughput metagenomics, appropriate resources for the analysis of large-scale data are required. Currently, antimicrobial resistance databases are tailored to smaller-scale, functional profiling of genes using highly descriptive annotations. Such characteristics do not facilitate the analysis of large-scale, ecological sequence datasets such as those produced with the use of metagenomics for surveillance. In order to overcome these limitations, we present MEGARes (https://megares.meglab.org), a hand-curated antimicrobial resistance database and annotation structure that provides a foundation for the development of high throughput acyclical classifiers and hierarchical statistical analysis of big data. MEGARes can be browsed as a stand-alone resource through the website or can be easily integrated into sequence analysis pipelines through download. Also via the website, we provide documentation for AmrPlusPlus, a user-friendly Galaxy pipeline for the analysis of high throughput sequencing data that is pre-packaged for use with the MEGARes database.},
@@ -117,6 +154,19 @@ url = {http://bmcbioinformatics.biomedcentral.com/articles/10.1186/s12859-017-17
 volume = {18},
 year = {2017}
 }
+@article{Katoh2005,
+abstract = {The accuracy of multiple sequence alignment proram MAFFT has been improved. The new version (5.3) of MAFFT offers new iterative refinement options, H-INS-i, F-INS-i and G-INS-i, in which pairwise alignment information are incorporated into objective function. These new options of MAFFT showed higher accuracy than currently available methods including TCoffee version 2 and CLUSTAL W in benchmark tests consisting of alignments of {\textgreater}50 sequences. Like the previously available options, the new options of MAFFT can handle hundreds of sequences on a standard desktop computer. We also examined the effect of the number of homologues included in an alignment. For a multiple alignment consisting of ∼8 sequences with low similarity, the accuracy was improved (2-10 percentage points) when the sequences were aligned together with dozens of their close homologues (E-value {\textless} 10-5-10-20) collected from a database. Such improvement was generally observed for most methods, but remarkably large for the new options of MAFFT proposed here. Thus, we made a Ruby script, mafftE.rb, which aligns the input sequences together with their close homologues collected from SwissProt using NCBI-BLAST. {\textcopyright} Oxford University Press 2005; all rights reserved.},
+author = {Katoh, Kazutaka and Kuma, Kei Ichi and Toh, Hiroyuki and Miyata, Takashi},
+doi = {10.1093/nar/gki198},
+issn = {03051048},
+journal = {Nucleic Acids Research},
+number = {2},
+pages = {511--518},
+pmid = {15661851},
+title = {{MAFFT version 5: Improvement in accuracy of multiple sequence alignment}},
+volume = {33},
+year = {2005}
+}
 @article{Khan2019,
 abstract = {Background: The automation of data analysis in the form of scientific workflows has become a widely adopted practice in many fields of research. Computationally driven data-intensive experiments using workflows enable automation, scaling, adaptation, and provenance support. However, there are still several challenges associated with the effective sharing, publication, and reproducibility of such workflows due to the incomplete capture of provenance and lack of interoperability between different technical (software) platforms. Results: Based on best-practice recommendations identified from the literature on workflow design, sharing, and publishing, we define a hierarchical provenance framework to achieve uniformity in provenance and support comprehensive and fully re-executable workflows equipped with domain-specific information. To realize this framework, we present CWLProv, a standard-based format to represent any workflow-based computational analysis to produce workflow output artefacts that satisfy the various levels of provenance. We use open source community-driven standards, interoperable workflow definitions in Common Workflow Language (CWL), structured provenance representation using the W3C PROV model, and resource aggregation and sharing as workflow-centric research objects generated along with the final outputs of a given workflow enactment. We demonstrate the utility of this approach through a practical implementation of CWLProv and evaluation using real-life genomic workflows developed by independent groups. Conclusions: The underlying principles of the standards utilized by CWLProv enable semantically rich and executable research objects that capture computational workflows with retrospective provenance such that any platform supporting CWL will be able to understand the analysis, reuse the methods for partial reruns, or reproduce the analysis to validate the published findings.},
 author = {Khan, Farah Zaib and Soiland-Reyes, Stian and Sinnott, Richard O. and Lonie, Andrew and Goble, Carole and Crusoe, Michael R.},
@@ -129,14 +179,6 @@ pmid = {31675414},
 title = {{Sharing interoperable workflow provenance: A review of best practices and their practical application in CWLProv}},
 volume = {8},
 year = {2019}
-}
-@inproceedings{de2010scicumulus,
-author = {de Oliveira, Daniel and Ogasawara, Eduardo and Bai{\~{a}}o, Fernanda and Mattoso, Marta},
-booktitle = {2010 IEEE 3rd International Conference on Cloud Computing},
-organization = {IEEE},
-pages = {378--385},
-title = {{Scicumulus: A lightweight cloud middleware to explore many task computing paradigm in scientific workflows}},
-year = {2010}
 }
 
 @article{Pasquier2017,
@@ -190,4 +232,3 @@ title = {{Good enough practices in scientific computing}},
 volume = {13},
 year = {2017}
 }
-
