@@ -84,7 +84,9 @@ be used to test the installation and illustrate some of the core features of Bio
 
 ## Classes
 
-BioProv implements several classes in order to model BWFs (hereafter highlighted in bold text), but the four main ones are:
+BioProv implements several classes in order to model BWFs (hereafter highlighted in bold text). Its object-oriented design allows
+users to enjoy the flexibility of working with extendable Python objects, which are familiar to many frameworks.
+The four main classes are:
 
 * **Project:** The higher-level structure that contains core project information. Contains associated samples, files, and programs.
 * **Sample:** Describes biological samples. Has attributes and contains associated files and programs.
@@ -279,14 +281,14 @@ or agents (for the user bundles). Computing environments are also agents, which 
 (which correspond to BioProv's **Programs**). By leveraging the PROV library, the resulting document can be exported in a number of ways, such as 
 graphical format and [PROV-N](https://www.w3.org/TR/prov-n/) (a human-readable provenance format).
 
-The following code will generate the \autoref{fig:project} and a PROV-N record.
+The following code will generate the \autoref{fig:project} and a PROV-N record:
 
 ```
 In [4]: prov = bp.BioProvDocument(project, add_users=False)
 
-In [5]: prov.dot.write_pdf("myProject.pdf")
+In [5]: prov.write_provn()
 
-In [6]: prov.write_provn()
+In [6]: prov.dot.write_pdf("myProject.pdf")
 ```
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
