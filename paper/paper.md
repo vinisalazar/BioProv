@@ -184,6 +184,18 @@ In [7]: project["sample_1"].files["assembly"].GC
 Out[7]: 0.36442
 ```
 
+To run a program using BioProv, it must be added to the project or to a sample. We can use the preset `prodigal` program
+to illustrate this. Prodigal runs a gene prediction algorithm for prokaryotic genomes and creates three output files:
+
+```
+In [8]: from bioprov.programs import prodigal                                                                                                                                                                                              
+
+In [9]: with project["sample_1"] as sample: 
+            sample.add_programs(prodigal(sample))                                                                                                                                                                                                                                 
+
+In [10]: project["sample_1"].) 
+```
+
 Now that their project is loaded, the user can add new files, samples and programs. Programs can be run and execution provenance
 will be captured (such as **stdout** and **stderr**, start and end time, associated files). To export the project, there are
 a few options. The user can either:
@@ -194,11 +206,11 @@ the `Project.to_json()` method;
 * store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
 
 ```
-In [8]: project.to_csv()  # exports in tabular format
+In [11]: project.to_csv()  # exports in tabular format
 
-In [9]: project.to_json()  # exports as JSON
+In [12]: project.to_json()  # exports as JSON
 
-In [10]: project.update_db()  # stores in the BioProv database
+In [13]: project.update_db()  # stores in the BioProv database
 Inserting new project 'myProject' in /path/to/bioprov/db.json                                                                                                                                                   
 ```
 
@@ -251,8 +263,8 @@ database and list all projects in it. The `workflows` are preset pipelines that 
 They are implemented with BioProv's **Workflow** class and handle the creation of the BioProv project while
 running the desired pipeline. A user can write their own **Workflow** and the command-line parser will be automatically generated
 based on the parameters set by the user. For more information, please refer to BioProv's 
-[`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored or type
-run the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. <!-- Presently, BioProv workflows are still 
+[`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored or run 
+the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. <!-- Presently, BioProv workflows are still 
 simplistic, serving only as a reference for the user to write their own workflow. However, one of the main future goals of the library is to
 develop a range of common BWFs. We actively encourage users to contribute their workflows by following the 
 [contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or by opening an issue in the repository.-->
@@ -262,7 +274,8 @@ develop a range of common BWFs. We actively encourage users to contribute their 
 Lorem ipsum. This is a reference to \autoref{fig:project}.
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
-sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins` file.\label{fig:project}](figures/project.png)
+sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
+file.\label{fig:project}](figures/project.png)
 
 # Acknowledgements
 
