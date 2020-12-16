@@ -60,7 +60,7 @@ Presently, there are excellent, freely available tools for both orchestrating sc
 capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019].
 However, to the best of our knowledge, there is not yet any library that specializes in capturing the provenance of BWFs.
 Some of these workflow management systems provide reports such as execution trace or graph, but these reports are not W3C-PROV compatible and/or
-are not serializable, and the collection of domain-specific information usually must be collected by the user in an *ad hoc* manner.
+are not serializable, and the collection of domain-specific information usually must be collected by the user with an *ad hoc* approach.
 This can be very costly to both users and developers of BWFs looking to collect provenance data, as much effort can be spent
 in modelling these workflows in a satisfactory data structure that can be easily updated during runtime [@DePaula2013]. BioProv attempts
 to fill this gap, by providing features that allow capturing W3C-PROV compatible provenance data and support the specificities of
@@ -84,7 +84,7 @@ be used to test the installation and illustrate some of the core features of Bio
 
 ## Classes
 
-BioProv implements several classes in order to model BWFs (hereafter highlighted in bold text). Its object-oriented design allows
+BioProv implements several classes (hereafter highlighted in bold text) in order to model BWFs. Its object-oriented design allows
 users to enjoy the flexibility of working with extendable Python objects, which are familiar to many frameworks.
 The four main classes are:
 
@@ -202,11 +202,11 @@ In [9]: with project["sample_1"] as sample:
 
 To export the project, there are a few options. The user can either:
 
-* export the project in a tabular format such as the one presented in `myTable.csv`. This will omit project information (about programs, for example),
-but will preserve information of samples and files. Done with the `Project.to_csv()` method;
-* export the project as JSON, the preferred option, as BioProv can deserialize this format back into a `Project` object with all related information; Done with
-the `Project.to_json()` method;
-* store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
+   * export the project in a tabular format such as the one presented in `myTable.csv`. This will omit project information (about programs, for example),
+   but will preserve information of samples and files. Done with the `Project.to_csv()` method;
+   * export the project as JSON, the preferred option, as BioProv can deserialize this format back into a `Project` object with all related information; Done with
+   the `Project.to_json()` method;
+   * store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
 
 ```
 In [10]: project.to_csv()  # exports in tabular format
@@ -268,9 +268,9 @@ running the desired pipeline. A user can write their own **Workflow** and the co
 based on the parameters set by the user. For more information, please refer to BioProv's 
 [`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored or run 
 the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. Presently, BioProv workflows are still 
-simplistic, serving only as a reference for the user to write their own workflow. However, one of the main future goals of the library is to
-develop a range of common BWFs. We actively encourage users to contribute their workflows by following the 
-[contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or by opening an issue in the repository.
+limited, serving mainly as a reference for users to write their own workflows. However, one of the main future goals of the library is to
+support a range of common BWFs. We actively encourage users to contribute their workflows by following the 
+[contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or request one by opening an issue in the repository.
 
 # Provenance documents
 
@@ -293,6 +293,10 @@ In [5]: prov.write_provn()
 In [6]: prov.dot.write_pdf("myProject.pdf")
 ```
 
+![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
+sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
+file.\label{fig:project}](figures/figure_2.png)
+
 Lastly, **BioProvDocuments** can be uploaded to [ProvStore](https://openprovenance.org/store/), a web service for storage and visualization
 of W3C-PROV documents. The credentials to the ProvStore API are set with the `bioprov --create_provstore` command, and a document can be
 uploaded with the `upload_to_provstore()` method:
@@ -302,13 +306,18 @@ In [7]: prov.upload_to_provstore()
 ```
 
 This feature enables the immediate publication of provenance documents that have a uniform resource identifier (URI)
-through their ProvStore address.
-
-![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
-sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
-file.\label{fig:project}](figures/figure_2.png)
+through their ProvStore address. Future developments for further supporting the W3C-PROV standard in the field of bioinformatics
+should focus on integrating more web services, such as [NCBI Entrez](https://www.ncbi.nlm.nih.gov/Web/Search/entrezfs.html) and
+[Wikidata](https://www.wikidata.org/wiki/Wikidata:Main_Page), for continuous improvement of the reproducibility of BWFs.
 
 # Conclusion
+
+We present a software library that allows users to create and run bioinformatics workflows while capturing provenance data
+during runtime, which can then be exported as a W3C-PROV compliant document. Provenance data can be easily imported and exported in
+widely-used and web-compatible formats, and users can collect domain-specific data in a fast and effortless manner. BioProv is written
+entirely in Python and its objects can be extended and customized to suit users' needs. This results in a complete library that
+can quickly make any computational project more provenance-aware, setting BioProv as a valuable addition to the ecosystem of
+bioinformatics workflow tools.
 
 # Acknowledgements
 
