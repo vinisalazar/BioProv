@@ -27,7 +27,7 @@ authors:
 affiliations:
  - name: Department of Systems and Computer Engineering, COPPE, Federal University of Rio de Janeiro
    index: 1
- - name: Bioinformatics Multidisciplinary Environment—BioME, IMD, Federal University of Rio Grande do Norte
+ - name: Bioinformatics Multidisciplinary Environment-BioME, IMD, Federal University of Rio Grande do Norte
    index: 2
  - name: Institute of Computing, Fluminense Federal University
    index: 3
