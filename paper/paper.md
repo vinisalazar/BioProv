@@ -277,7 +277,7 @@ support a range of common BWFs. We actively encourage users to contribute their 
 
 To create W3C-PROV documents, BioProv utilizes the PROV library [@Dong2020], and models its native objects onto
 the three PROV elements: **entities**, **agents**, and **activities** (@Groth2013 provide a detailed description of the PROV ontology).
-To do this, a **Project** is imported by an instance of a **BioProvDocument**. A W3C-PROV compatible document will be created, with
+To do this, a **Project** is imported with the **BioProvDocument** class. A W3C-PROV compatible document will be created, with
 associated relationships between PROV elements for each object of the project. BioProv defines one "bundle" for the project, and one 
 for each sample and user. Bundles are documents nested within the top-level **BioProvDocument**, used to describe individual entities (for the Sample bundles)
 or agents (for the user bundles). Computing environments are also agents, which **act on behalf of** users through **activities**
