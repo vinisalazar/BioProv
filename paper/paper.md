@@ -267,7 +267,7 @@ database and list all projects it contains. The `workflows` are preset pipelines
 They are implemented with BioProv's **Workflow** class and handle the creation of the BioProv project while
 running the desired pipeline. A user can write their own **Workflow** and the command-line parser will be automatically generated
 based on the parameters set by the user. For more information, please refer to BioProv's 
-[`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored or run 
+[`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored, or run 
 the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. Presently, BioProv workflows are still 
 limited, serving mainly as a reference for users to write their own workflows. However, one of the main future goals of the library is to
 support a range of common BWFs. We actively encourage users to contribute their workflows by following the 
