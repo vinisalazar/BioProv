@@ -295,7 +295,7 @@ In [6]: prov.dot.write_pdf("myProject.pdf")
 ```
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
-sample associated with a cyanobacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
+sample associated with a bacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
 file.\label{fig:project}](figures/figure_2.png)
 
 Lastly, **BioProvDocuments** can be uploaded to [ProvStore](https://openprovenance.org/store/), a web service for storage and visualization
