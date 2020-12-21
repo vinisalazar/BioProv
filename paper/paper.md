@@ -153,7 +153,7 @@ In [1]: import bioprov as bp
 
 In [2]: project = bp.read_csv("myTable.csv",
                               file_cols="report",
-                              sequencefile_cols="assembly"
+                              sequencefile_cols="assembly",
                               tag="myProject",
                               import_data=True)
 ```
