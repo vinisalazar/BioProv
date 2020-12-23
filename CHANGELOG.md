@@ -8,6 +8,10 @@
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
+### v0.1.21
+* Package workflows in single module []
+* Improve a few docstrings []
+
 ### v0.1.20
 * Debug graphical DOT output [x]
 * Add Muscle PresetProgram [x]
