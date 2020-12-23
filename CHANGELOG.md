@@ -10,6 +10,7 @@
 
 ### v0.1.21
 * Improve a few docstrings []
+* Refactor sha1 as sha256 [x]  
 * Add add and radd dunder methods for Directory and File [x]  
 * Package workflows in single module [*]
 * Add FastTree PresetProgram [x]
