@@ -179,6 +179,26 @@ def mafft(sample, input_tag="input", extra_flags=None):
     return _mafft
 
 
+def fasttree(sample, input_tag="input", extra_flags=None):
+    """
+    :param Sample sample: Instance of BioProv.Sample.
+    :param str input_tag:  A tag for the input multifasta file.
+    :param list extra_flags: A list of extra parameters to pass to FastTree.
+    :return: Instance of PresetProgram containing FastTree.
+    :rtype: BioProv.PresetProgram.
+    """
+    _fasttree = PresetProgram(
+        name="fasttree",
+        sample=sample,
+        input_files={"": input_tag},
+        output_files={">": ("tree", ".tree")},
+        preffix_tag=input_tag,
+        extra_flags=extra_flags,
+    )
+
+    return _fasttree
+
+
 def kallisto_quant(sample, index, output_dir="./", extra_flags=None):
     """
     Run kallisto's alignment and quantification

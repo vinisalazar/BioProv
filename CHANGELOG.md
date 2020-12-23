@@ -11,6 +11,7 @@
 ### v0.1.21
 * Package workflows in single module []
 * Improve a few docstrings []
+* Add FastTree PresetProgram [x]
 
 ### v0.1.20
 * Debug graphical DOT output [x]

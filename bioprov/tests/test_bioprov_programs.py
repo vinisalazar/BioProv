@@ -16,6 +16,7 @@ from bioprov.programs import (
     blastp,
     muscle,
     mafft,
+    fasttree,
     diamond,
     kallisto_quant,
     kaiju,
@@ -102,6 +103,18 @@ def test_mafft():
     expected = ["", ">"]
 
     assert list(mafft_params.keys()) == expected
+
+
+def test_fasttree():
+
+    s = Sample("Synechococcus", files={"input": synechococcus_genome})
+
+    fasttree_prog = fasttree(s)
+    fasttree_params = fasttree_prog.serializer()["params"]
+
+    expected = ["", ">"]
+
+    assert list(fasttree_params.keys()) == expected
 
 
 def test_kallisto():

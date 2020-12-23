@@ -12,6 +12,7 @@ from .programs import (
     blastp,
     muscle,
     mafft,
+    fasttree,
     prokka,
     kallisto_quant,
     kaiju,
