@@ -9,8 +9,9 @@
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.21
-* Package workflows in single module []
 * Improve a few docstrings []
+* Add add and radd dunder methods for Directory and File [x]  
+* Package workflows in single module [*]
 * Add FastTree PresetProgram [x]
 
 ### v0.1.20

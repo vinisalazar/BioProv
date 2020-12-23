@@ -65,6 +65,12 @@ class File:
     def __str__(self):
         return self.__repr__()
 
+    def __add__(self, other):
+        return str(self) + other
+
+    def __radd__(self, other):
+        return other + str(self)
+
     @property
     def sha1(self):
         self._sha1 = file_to_sha1(self.path)
@@ -171,6 +177,12 @@ class Directory:
 
     def __str__(self):
         return self.__repr__()
+
+    def __add__(self, other):
+        return str(self) + other
+
+    def __radd__(self, other):
+        return other + str(self)
 
     @property
     def exists(self):
