@@ -49,7 +49,7 @@ from bioprov.src.main import (
     dict_to_sample,
     json_to_dict,
 )
-from bioprov.utils import dict_to_sha1, Warnings
+from bioprov.utils import dict_to_sha256, Warnings
 
 
 def test_Program():
@@ -336,28 +336,28 @@ def test_project_json_and_prov():
             if key != "assembly":  # we are keeping those
                 remove(file.path)
 
-    # Test DB, project.__delitem__, project.sha1
+    # Test DB, project.__delitem__, project.sha256
     project.db = BioProvDB(json_out_2)  # Let's not waste this variable
     project.update_db()
 
     # Maybe put this function in config
     def get_db_hash():
         result, query = project.query_db()
-        _db_hash = dict_to_sha1(result)
+        _db_hash = dict_to_sha256(result)
         return _db_hash
 
-    old_db_sha1 = get_db_hash()
+    old_db_sha256 = get_db_hash()
 
     project.auto_update = True
-    old_project_sha1 = project.sha1
+    old_project_sha256 = project.sha256
     del project["GCF_000010065.1"]
-    new_project_sha1 = project.sha1
-    new_db_sha1 = get_db_hash()
+    new_project_sha256 = project.sha256
+    new_db_sha256 = get_db_hash()
     assert (
-        new_project_sha1 != old_project_sha1
+        new_project_sha256 != old_project_sha256
     ), "Project hashes aren't different, but Project has changed!"
     assert (
-        old_db_sha1 != new_db_sha1
+        old_db_sha256 != new_db_sha256
     ), "Database hashes aren't different, but Project.auto_update() is on and Project has changed!"
 
     # Clean up again

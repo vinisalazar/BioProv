@@ -20,7 +20,7 @@ from tinydb import TinyDB
 
 from bioprov import __file__ as bp_file
 from bioprov.data import data_dir, genomes_dir
-from bioprov.utils import serializer, dict_to_sha1, serializer_filter, create_logger
+from bioprov.utils import serializer, dict_to_sha256, serializer_filter, create_logger
 
 
 class Config:
@@ -274,7 +274,7 @@ class Environment:
         :return: Sets attributes to self.
         """
         env_dict = dict(os.environ.items())
-        env_hash = dict_to_sha1(env_dict)
+        env_hash = dict_to_sha256(env_dict)
         if env_hash != self.env_hash:
             self.env_dict = env_dict
             self.env_hash = env_hash

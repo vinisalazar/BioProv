@@ -46,7 +46,7 @@ from bioprov.utils import (
     Warnings,
     serializer,
     serializer_filter,
-    dict_to_sha1,
+    dict_to_sha256,
     create_logger,
 )
 
@@ -1017,7 +1017,7 @@ class Project:
         self.files_namespace_preffix = None
 
         # Hash and db attributes
-        self._sha1 = dict_to_sha1(self.serializer())
+        self._sha256 = dict_to_sha256(self.serializer())
         self.auto_update = auto_update
         if db is None:
             db = config.db
@@ -1072,17 +1072,17 @@ class Project:
         return self._name
 
     @property
-    def sha1(self):
-        keys = ("_sha1",)
-        new_hash = dict_to_sha1(serializer_filter(self, keys))
-        if new_hash != self._sha1:
-            self._sha1 = new_hash
+    def sha256(self):
+        keys = ("_sha256",)
+        new_hash = dict_to_sha256(serializer_filter(self, keys))
+        if new_hash != self._sha256:
+            self._sha256 = new_hash
             self.auto_update_db()
-        return self._sha1
+        return self._sha256
 
-    @sha1.setter
-    def sha1(self, value):
-        self._sha1 = value
+    @sha256.setter
+    def sha256(self, value):
+        self._sha256 = value
 
     @property
     def entity(self):
