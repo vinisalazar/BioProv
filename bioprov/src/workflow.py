@@ -461,6 +461,12 @@ class Step(PresetProgram):
         description="",
         kind="Sample",
     ):
+        """
+        :param preset_program: Instance of bioprov.PresetProgram.
+        :param default: Whether the Step runs by default.
+        :param description: Description of the step program.
+        :param kind: Whether the Step is associated with a s Sample or Project.
+        """
         super().__init__(
             preset_program.name,
             preset_program.params,

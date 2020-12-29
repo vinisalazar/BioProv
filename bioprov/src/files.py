@@ -119,7 +119,6 @@ class File:
         """
         old_hash, old_exists = self._sha256, self._exists
         self.path = Path(pattern_replacer(str(self.path), old_terms, new))
-        # TODO: replace these print statements for logger warning/debug level
         if warnings:
             if not self.exists and old_exists:
                 logging.warning(
