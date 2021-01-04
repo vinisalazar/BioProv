@@ -9,10 +9,12 @@
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.21
-* Improve a few docstrings []
+* Add _config argument to `bp.load_project()` (this is a temporary fix) [x]
+* Add db property to Config class (prevents bug when setting DB path) [x]
+* Improve a few docstrings [x]
 * Refactor sha1 as sha256 [x]  
 * Add add and radd dunder methods for Directory and File [x]  
-* Package workflows in single module [*]
+* Package workflows in single module [x]
 * Add FastTree PresetProgram [x]
 
 ### v0.1.20
