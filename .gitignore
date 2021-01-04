@@ -2,6 +2,7 @@
 bioprov/db.json
 bioprov/provstore_api.txt
 **/*.log
+prov*  # Example files. TODO: remove this later
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
