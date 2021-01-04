@@ -40,16 +40,14 @@ class Config:
             self.user = self.env.user
         if not threads:
             threads = int(os.cpu_count() / 2)
-        self.db = None
-        self.db_path = None
         self.threads = threads
         self.bioprov_dir = Path(bp_file).parent
         self.data = data_dir
         self.genomes = genomes_dir
         if db_path is None:
             db_path = self.bioprov_dir.joinpath("db.json")
-        self.db_path = db_path
-        self.db = BioProvDB(self.db_path)
+        self._db_path = db_path
+        self._db = BioProvDB(self.db_path)
         self._provstore_file = None
         self._provstore_user = None
         self._provstore_token = None
@@ -59,6 +57,18 @@ class Config:
 
     def __repr__(self):
         return f"BioProv Config class set in {__file__}"
+
+    @property
+    def db(self):
+        return self._db
+
+    @property
+    def db_path(self):
+        return self._db_path
+
+    @db_path.setter
+    def db_path(self, value):
+        self._db_path = value
 
     def db_all(self):
         """
