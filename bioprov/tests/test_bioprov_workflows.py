@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 
 
 """
@@ -12,9 +12,7 @@ from os import remove
 from pathlib import Path
 from bioprov.data import genome_annotation_dataset
 from bioprov.utils import Warnings
-from bioprov.workflows.blastn import blastn_alignment
-from bioprov.workflows.genome_annotation import genome_annotation
-from bioprov.workflows.kaiju import KaijuWorkflow
+from bioprov.workflows import blastn_alignment, genome_annotation, KaijuWorkflow
 
 
 def test_blastn_workflow():

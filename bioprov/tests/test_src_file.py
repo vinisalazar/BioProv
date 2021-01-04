@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 
 
 """
@@ -62,7 +62,7 @@ def test_File_and_Directory():
     # test hashes
     nf.exists = True
     nf.replace_path("", "", warnings=True)  # no cover
-    nf.sha1 = generate_slug(2)
+    nf.sha256 = generate_slug(2)
     # nf.replace_path(non_existing, bp.__file__)  # no cover
     _ = f.entity
     f.entity = ProvEntity(None, generate_slug(2))

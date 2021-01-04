@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 
 """
 
@@ -40,13 +40,13 @@ from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
 
 from bioprov import config
-from bioprov.src.config import Environment
+from bioprov.src.config import Environment, Config
 from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
 from bioprov.utils import (
     Warnings,
     serializer,
     serializer_filter,
-    dict_to_sha1,
+    dict_to_sha256,
     create_logger,
 )
 
@@ -1017,7 +1017,7 @@ class Project:
         self.files_namespace_preffix = None
 
         # Hash and db attributes
-        self._sha1 = dict_to_sha1(self.serializer())
+        self._sha256 = dict_to_sha256(self.serializer())
         self.auto_update = auto_update
         if db is None:
             db = config.db
@@ -1072,17 +1072,17 @@ class Project:
         return self._name
 
     @property
-    def sha1(self):
-        keys = ("_sha1",)
-        new_hash = dict_to_sha1(serializer_filter(self, keys))
-        if new_hash != self._sha1:
-            self._sha1 = new_hash
+    def sha256(self):
+        keys = ("_sha256",)
+        new_hash = dict_to_sha256(serializer_filter(self, keys))
+        if new_hash != self._sha256:
+            self._sha256 = new_hash
             self.auto_update_db()
-        return self._sha1
+        return self._sha256
 
-    @sha1.setter
-    def sha1(self, value):
-        self._sha1 = value
+    @sha256.setter
+    def sha256(self, value):
+        self._sha256 = value
 
     @property
     def entity(self):
@@ -1646,22 +1646,31 @@ def write_json(dict_, _path):
         config.logger.info(f"Could not create JSON file for {_path}.")
 
 
-def load_project(tag):
+def load_project(tag, _config=None):
     """
     Loads Project from the BioProvDatabase set in the config.
 
     :param tag: Tag of the Project to be loaded.
+    :param _config: Instance of bioprov.src.config.Config class
     :return: Instance of Project.
     """
+    if _config is None:
+        _config = config
+
+    else:
+        assert isinstance(_config, Config), Warnings()["incorrect_type"](
+            _config, Config
+        )
+
     assert (
-        len(config.db) > 0
-    ), f"Project not found. Database at '{config.db_path}' is empty"
+        len(_config.db) > 0
+    ), f"Project not found. Database at '{_config.db_path}' is empty"
 
     query = Query()
     try:
-        result = config.db.search(query.tag == tag)[0]
+        result = _config.db.search(query.tag == tag)[0]
     except (IndexError, KeyError):
-        config.logger.error(f"Project not found in database at {config.db_path}")
+        config.logger.error(f"Project not found in database at {_config.db_path}")
         return
 
     with tempfile.NamedTemporaryFile() as f:

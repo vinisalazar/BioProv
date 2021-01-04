@@ -1,20 +1,17 @@
-#!/usr/bin/env python
 __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
-
+__version__ = "0.1.21"
 
 """
-Kaiju workflow module
-
-'Run Kaiju on metagenomic data and create reports for taxonomic ranks.'
-
-This can be run by itself as a script or called
-with the BioProv CLI application (recommended).
+Module containing preset workflows created with the Workflow class.
 """
 
+from bioprov.programs import blastn, prodigal
+from bioprov.src.workflow import Workflow, Step
+
+# Kaiju WF imports. These will be removed later
 import argparse
 import logging
 from os import path, getcwd, mkdir
@@ -25,6 +22,64 @@ from tqdm import tqdm
 from bioprov import config, from_df, Sample
 from bioprov.programs import kaiju, kaiju2table
 from bioprov.utils import Warnings, tax_ranks
+
+
+def blastn_alignment(**kwargs):
+
+    _blastn_alignment = Workflow(
+        name="blastn",
+        description="Align nucleotide data to a reference database with BLASTN.",
+        input_type="dataframe",
+        index_col="sample-id",
+        file_columns="query",
+        **kwargs,
+    )
+
+    try:
+        _blastn_alignment.db = kwargs["db"]
+    except KeyError:
+        _blastn_alignment.db = None
+
+    blastn_preset = blastn(db=_blastn_alignment.db)
+
+    _blastn_alignment.add_step(Step(blastn_preset, default=True))
+
+    # Workflow specific arguments must be added AFTER the steps.
+    # That is because adding a Step updates the parser with the default arguments
+    # of the Workflow class.
+
+    _blastn_alignment.parser.add_argument(
+        "-db",
+        "--database",
+        help="BLASTn reference database. Must be a valid BLAST database created with the `makeblastdb` command.",
+        required=True,
+    )
+
+    return _blastn_alignment
+
+
+def genome_annotation(**kwargs):
+    _genome_annotation = Workflow(
+        name="genome_annotation",
+        description="Genome annotation with Prodigal, Prokka and the COG database.",
+        input_type="dataframe",
+        index_col="sample-id",
+        file_columns="assembly",
+        **kwargs,
+    )
+
+    # Create steps from preset programs.
+    prodigal_preset, prokka_preset = (prodigal(), None)  # prokka()
+    steps = [
+        Step(prodigal_preset, default=True),
+        # Step(prokka_preset, default=False),
+    ]
+
+    # Add steps to parser
+    for _step in steps:
+        _genome_annotation.add_step(_step)
+
+    return _genome_annotation
 
 
 class KaijuWorkflow:
@@ -222,24 +277,57 @@ class KaijuWorkflow:
         return _parser
 
 
-if __name__ == "__main__":
-    parser = KaijuWorkflow.parser()
-    args = parser.parse_args()
-    if args.output_directory is None:
-        args.output_directory = getcwd()
+class WorkflowOptionsParser:
+    """
+    Class for parsing command-line options.
+    """
 
-    if not path.isdir(args.output_directory):
-        mkdir(args.output_directory)
+    def __init__(self):
+        pass
 
-    KaijuWorkflow.main(
-        input_file=args.input,
-        output_path=args.output_directory,
-        kaijudb=args.kaiju_db,
-        nodes=args.nodes,
-        names=args.names,
-        threads=args.threads,
-        _tag=args.tag,
-        verbose=args.verbose,
-        kaiju_params=args.kaiju_params,
-        kaiju2table_params=args.kaiju2table_params,
-    )
+    @staticmethod
+    def _blastn_alignment(kwargs, steps):
+        """
+        Runs blastn alignment workflow
+        :return:
+        """
+        main = blastn_alignment(**kwargs)
+        main.run_steps(steps)
+
+    @staticmethod
+    def _genome_annotation(kwargs, steps):
+        """
+        Runs genome annotation workflow
+        :return:
+        """
+        main = genome_annotation(**kwargs)
+        main.run_steps(steps)
+
+    @staticmethod
+    def _kaiju_workflow(kwargs, steps):
+        """
+        Runs Kaiju workflow
+        :return:
+        """
+        _ = steps
+        KaijuWorkflow.main(**kwargs)
+
+    def parse_options(self, options):
+        """
+        Parses options and returns correct workflow.
+        :type options: argparse.Namespace
+        :param options: arguments passed by the parser.
+        :return: Runs the specified subparser in options.subparser_name.
+        """
+        subparsers = {
+            "genome_annotation": lambda _options, _steps: self._genome_annotation(
+                _options, _steps
+            ),
+            "blastn": lambda _options, _steps: self._blastn_alignment(_options, _steps),
+            "kaiju": lambda _options, _steps: self._kaiju_workflow(_options, _steps),
+        }
+
+        # Run desired subparser
+        kwargs = dict(options._get_kwargs())
+        steps = kwargs.pop("steps")
+        subparsers[options.subparser_name](kwargs, steps)

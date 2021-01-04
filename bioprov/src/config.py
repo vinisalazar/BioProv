@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 
 
 """
@@ -20,7 +20,7 @@ from tinydb import TinyDB
 
 from bioprov import __file__ as bp_file
 from bioprov.data import data_dir, genomes_dir
-from bioprov.utils import serializer, dict_to_sha1, serializer_filter, create_logger
+from bioprov.utils import serializer, dict_to_sha256, serializer_filter, create_logger
 
 
 class Config:
@@ -36,19 +36,18 @@ class Config:
         # This duplication is to order the keys in the __dict__ attribute.
         self.user = None
         self.env = Environment()
-        self.user = self.env.user
+        if self.user is None:
+            self.user = self.env.user
         if not threads:
             threads = int(os.cpu_count() / 2)
-        self.db = None
-        self.db_path = None
         self.threads = threads
         self.bioprov_dir = Path(bp_file).parent
         self.data = data_dir
         self.genomes = genomes_dir
         if db_path is None:
             db_path = self.bioprov_dir.joinpath("db.json")
-        self.db_path = db_path
-        self.db = BioProvDB(self.db_path)
+        self._db_path = db_path
+        self._db = BioProvDB(self.db_path)
         self._provstore_file = None
         self._provstore_user = None
         self._provstore_token = None
@@ -58,6 +57,18 @@ class Config:
 
     def __repr__(self):
         return f"BioProv Config class set in {__file__}"
+
+    @property
+    def db(self):
+        return self._db
+
+    @property
+    def db_path(self):
+        return self._db_path
+
+    @db_path.setter
+    def db_path(self, value):
+        self._db_path = value
 
     def db_all(self):
         """
@@ -273,7 +284,7 @@ class Environment:
         :return: Sets attributes to self.
         """
         env_dict = dict(os.environ.items())
-        env_hash = dict_to_sha1(env_dict)
+        env_hash = dict_to_sha256(env_dict)
         if env_hash != self.env_hash:
             self.env_dict = env_dict
             self.env_hash = env_hash

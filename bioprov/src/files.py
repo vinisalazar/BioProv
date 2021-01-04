@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 
 
 """
@@ -21,7 +21,7 @@ from bioprov.utils import (
     Warnings,
     serializer_filter,
     serializer,
-    file_to_sha1,
+    file_to_sha256,
     pattern_replacer,
 )
 
@@ -54,7 +54,7 @@ class File:
         self._exists = self.path.exists()
         self.size = get_size(self.path)
         self.raw_size = get_size(self.path, convert=False)
-        self._sha1 = file_to_sha1(self.path)
+        self._sha256 = file_to_sha256(self.path)
 
         # Provenance attributes
         self._entity = None
@@ -65,14 +65,20 @@ class File:
     def __str__(self):
         return self.__repr__()
 
-    @property
-    def sha1(self):
-        self._sha1 = file_to_sha1(self.path)
-        return self._sha1
+    def __add__(self, other):
+        return str(self) + other
 
-    @sha1.setter
-    def sha1(self, value):
-        self._sha1 = value  # no cover
+    def __radd__(self, other):
+        return other + str(self)
+
+    @property
+    def sha256(self):
+        self._sha256 = file_to_sha256(self.path)
+        return self._sha256
+
+    @sha256.setter
+    def sha256(self, value):
+        self._sha256 = value  # no cover
 
     @property
     def exists(self):
@@ -107,21 +113,20 @@ class File:
 
         :param old_terms: Terms to be replaced in the path.
         :param new: New term.
-        :param warnings: Whether to warn if sha1 checksum differs or file does not exist.
+        :param warnings: Whether to warn if sha256 checksum differs or file does not exist.
 
         :return: Updates self.
         """
-        old_hash, old_exists = self._sha1, self._exists
+        old_hash, old_exists = self._sha256, self._exists
         self.path = Path(pattern_replacer(str(self.path), old_terms, new))
-        # TODO: replace these print statements for logger warning/debug level
         if warnings:
             if not self.exists and old_exists:
                 logging.warning(
                     f"File {self.path} was marked as existing but was not found."
                 )
-            if old_hash and self.sha1 != old_hash and self.exists:  # no cover
+            if old_hash and self.sha256 != old_hash and self.exists:  # no cover
                 logging.warning(
-                    f"File {self.path} previous sha1 checksum differs from the current."
+                    f"File {self.path} previous sha256 checksum differs from the current."
                 )
 
     def serializer(self):
@@ -153,7 +158,7 @@ class Directory:
 
         :param old_terms: Terms to be replaced in the path.
         :param new: New term.
-        :param warnings: Whether to warn if sha1 checksum differs or file does not exist.
+        :param warnings: Whether to warn if sha256 checksum differs or file does not exist.
 
         :return: Updates self.
         """
@@ -171,6 +176,12 @@ class Directory:
 
     def __str__(self):
         return self.__repr__()
+
+    def __add__(self, other):
+        return str(self) + other
+
+    def __radd__(self, other):
+        return other + str(self)
 
     @property
     def exists(self):
@@ -433,7 +444,7 @@ def seqrecordgenerator(path, format, parser="seq", warnings=False):
     :param path: Path to file.
     :param format: format to pass to SeqIO.parse().
     :param parser: Whether to import records with SeqIO (default) or AlignIO
-    :param warnings: Whether to warn if sha1 checksum differs or file does not exist.
+    :param warnings: Whether to warn if sha256 checksum differs or file does not exist.
 
     :return: A generator of SeqRecords.
     """

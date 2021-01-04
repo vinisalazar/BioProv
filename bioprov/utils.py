@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 
 """
 Helper functions.
@@ -48,15 +48,15 @@ def get_size(path, convert=True):
         return 0
 
 
-def file_to_sha1(path):
+def file_to_sha256(path):
     """
-    Get the sha1 of file. Returns None if it does not exist.
+    Get the sha256 of file. Returns None if it does not exist.
     :param path: A valid file path.
-    :return: sha1 digest or None.
+    :return: sha256 digest or None.
     """
     path = Path(path)
     if path.exists():
-        sha1 = hashlib.sha1()
+        sha256 = hashlib.sha256()
         # https://stackoverflow.com/questions/22058048/hashing-a-file-in-python
         BUF_SIZE = io.DEFAULT_BUFFER_SIZE
         with open(path, "rb") as f:
@@ -64,8 +64,8 @@ def file_to_sha1(path):
                 data = f.read(BUF_SIZE)
                 if not data:
                     break
-                sha1.update(data)
-        return sha1.hexdigest()
+                sha256.update(data)
+        return sha256.hexdigest()
     else:
         return None
 
@@ -213,13 +213,13 @@ def serializer_filter(_object, keys):
     return serializer(serial_out)
 
 
-def dict_to_sha1(dictionary):
+def dict_to_sha256(dictionary):
     """
     Get sha256 hexdigest from a dictionary
     :param dictionary: dict
     :return: hexdigest
     """
-    sh = hashlib.sha1(json.dumps(dictionary).encode("utf-8"))
+    sh = hashlib.sha256(json.dumps(dictionary).encode("utf-8"))
     digest = sh.hexdigest()
     return digest
 

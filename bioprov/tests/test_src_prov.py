@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 
 
 """
@@ -18,7 +18,7 @@ from bioprov import read_csv
 from bioprov.data import picocyano_dataset
 from bioprov.src.config import Environment
 from bioprov.src.prov import BioProvDocument
-from bioprov.utils import dict_to_sha1
+from bioprov.utils import dict_to_sha256
 
 project = read_csv(
     picocyano_dataset, sequencefile_cols="assembly", tag="picocyanobacteria"
@@ -33,7 +33,7 @@ def test_EnvProv():
     env = Environment()
     for statement in (
         env.env_dict == dict(environ.items()),
-        env.env_hash == dict_to_sha1(env.env_dict),
+        env.env_hash == dict_to_sha256(env.env_dict),
     ):
         assert statement
 
