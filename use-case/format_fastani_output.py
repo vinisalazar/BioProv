@@ -32,7 +32,7 @@ if __name__ == "__main__":
         description="Formats a fastANI output file into a symmetric table."
     )
     parser.add_argument("-i", "--input", help="File created by fastANI.", required=True)
-    parser.add_argument("-o", "--output", help="Output symmetric table.", required=True)
+    parser.add_argument("-o", "--output", help="Output symmetric table.", default=None)
     parser.add_argument(
         "--invert",
         help="Invert ANI values (returns |ANI - 100|), useful for hierarchical clustering.",
