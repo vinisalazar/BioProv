@@ -208,8 +208,8 @@ class Program:
     def run(
         self,
         sample=None,
-        suppress_stdout=False,
-        suppress_stderr=False,
+        suppress_stdout=True,
+        suppress_stderr=True,
         force_print=False,
     ):
         """
@@ -228,8 +228,8 @@ class Program:
         self.add_runs(_run)
 
         if _run.auto_suppress_stdout and not force_print:
-            suppress_stdout = False
-            suppress_stderr = False
+            suppress_stdout = True
+            suppress_stderr = True
 
         if not suppress_stdout:
             print("\n")
