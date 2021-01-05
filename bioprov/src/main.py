@@ -40,7 +40,7 @@ from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
 
 from bioprov import config
-from bioprov.src.config import Environment, Config
+from bioprov.src.config import Environment, BioProvDB
 from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
 from bioprov.utils import (
     Warnings,
@@ -1652,31 +1652,28 @@ def write_json(dict_, _path):
         config.logger.info(f"Could not create JSON file for {_path}.")
 
 
-def load_project(tag, _config=None):
+def load_project(tag, db=None):
     """
     Loads Project from the BioProvDatabase set in the config.
 
     :param tag: Tag of the Project to be loaded.
-    :param _config: Instance of bioprov.src.config.Config class
+    :param db: Path to BioProvDB file. Default is set in the config module. (use the `bioprov --show_db` command).
     :return: Instance of Project.
     """
-    if _config is None:
-        _config = config
+    if db is None:
+        db = config.db
 
     else:
-        assert isinstance(_config, Config), Warnings()["incorrect_type"](
-            _config, Config
-        )
+        assert Path(db).exists(), Warnings()["not_exist"](db)
+        db = BioProvDB(path=db)
 
-    assert (
-        len(_config.db) > 0
-    ), f"Project not found. Database at '{_config.db_path}' is empty"
+    assert len(db) > 0, f"Project not found. Database at '{db.db_path}' is empty"
 
     query = Query()
     try:
-        result = _config.db.search(query.tag == tag)[0]
+        result = db.search(query.tag == tag)[0]
     except (IndexError, KeyError):
-        config.logger.error(f"Project not found in database at {_config.db_path}")
+        config.logger.error(f"Project not found in database at {db.db_path}")
         return
 
     with tempfile.NamedTemporaryFile() as f:
