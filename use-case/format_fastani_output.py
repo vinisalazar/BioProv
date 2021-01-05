@@ -9,6 +9,13 @@ from pathlib import Path
 
 def main(input_file, output_file=None, invert=False):
     df = pd.read_csv(input_file, sep="\t")
+    df.columns = "genome-a genome-b mean-aai nfrags total-frags".split()
+    df["genome-a"] = df["genome-a"].str.split("/", expand=True).iloc[:, -1]
+    df["genome-b"] = df["genome-b"].str.split("/", expand=True).iloc[:, -1]
+
+    df = pd.pivot_table(
+        data=df, index="genome-a", columns="genome-b", values="mean-aai"
+    )
 
     if invert:
         df = abs(df - 100)
@@ -25,14 +32,20 @@ def main(input_file, output_file=None, invert=False):
         output_file = input_file.replace(Path(input_file.stem), "_format.txt")
 
     df.to_csv(output_file)
+    if Path(output_file).exists():
+        print(f"Created symmetrical table at {output_file}.")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Formats a fastANI output file into a symmetric table."
     )
-    parser.add_argument("-i", "--input", help="File created by fastANI.", required=True)
-    parser.add_argument("-o", "--output", help="Output symmetric table.", default=None)
+    parser.add_argument(
+        "-i", "--input_file", help="File created by fastANI.", required=True
+    )
+    parser.add_argument(
+        "-o", "--output_file", help="Output symmetric table.", default=None
+    )
     parser.add_argument(
         "--invert",
         help="Invert ANI values (returns |ANI - 100|), useful for hierarchical clustering.",
