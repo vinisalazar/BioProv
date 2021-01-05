@@ -20,13 +20,17 @@ def main(input_file, output_file=None, invert=False):
     if invert:
         df = abs(df - 100)
 
-    for i in df.index:
-        for j in df.columns:
+    for i, ix in enumerate(df.index):
+        for j, col in enumerate(df.columns):
             if i == j:
                 if invert:
-                    df.loc[i, j] = 0
+                    df.iloc[i, j] = 0
                 else:
-                    df.loc[i, j] = 100
+                    df.iloc[i, j] = 100
+            else:
+                mean = round((df.iloc[i, j] + df.iloc[j, i]) / 2, 3)
+                df.iloc[i, j] = mean
+                df.iloc[j, i] = mean
 
     if output_file is None:
         output_file = input_file.replace(Path(input_file.stem), "_format.txt")
