@@ -9,10 +9,11 @@
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.22
-* Simplify `load_project()` function [x]
+* Simplify `bp.load_project()` function [x]
 * Fix user and env PROV relationships [x]
-* Add Run attributes to Program class []
+* Add Run attributes as Program class properties (will consume from the last run) [x]
 * Add sequence dunder methods for Project class [x]
+* Improve run methods [x]
 
 ### v0.1.21
 * Add _config argument to `bp.load_project()` (this is a temporary fix) [x]
