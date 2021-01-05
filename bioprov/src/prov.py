@@ -293,9 +293,11 @@ class BioProvDocument:
                                 self._agents[_env_hash] = _user_bundle.agent(
                                     f"envs:{_env}"
                                 )
-                            _user_bundle.actedOnBehalfOf(
-                                self._agents[_env_hash], self._agents[_user]
-                            )
+                            if not _env.actedOnBehalfOf:
+                                _user_bundle.actedOnBehalfOf(
+                                    self._agents[_env_hash], self._agents[_user]
+                                )
+                                _env.actedOnBehalfOf = True
                 sample.ProvBundle.wasAssociatedWith(
                     self._activities[program.name], self._agents[last_run.env]
                 )

@@ -10,7 +10,7 @@
 
 ### v0.1.22
 * Simplify `load_project()` function [x]
-* Fix user and env PROV relationships []
+* Fix user and env PROV relationships [x]
 * Add Run attributes to Program class []
 * Add sequence dunder methods for Project class [x]
 
