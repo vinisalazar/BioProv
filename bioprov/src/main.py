@@ -1037,14 +1037,20 @@ class Project:
         return f"Project '{self.tag}' with {len(self)} samples"
 
     def __getitem__(self, item):
-        try:
-            value = self._samples[item]
-            return value
-        except KeyError:
-            config.logger.error(
-                f"Sample {item} not in Project.\n" f"Check the following keys:" " ",
-                "\n  ".join(self.keys),
-            )
+        if isinstance(item, str):
+            try:
+                value = self._samples[item]
+                return value
+            except KeyError:
+                config.logger.error(
+                    f"Sample {item} not in Project.\n" f"Check the following keys:" " ",
+                    "\n  ".join(self.keys),
+                )
+        elif isinstance(item, int):
+            return self[list(self._samples.keys())[item]]
+
+    def __iter__(self):
+        return iter(self._samples.values())
 
     def __setitem__(self, key, value):
         self._samples[key] = value
