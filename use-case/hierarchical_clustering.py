@@ -12,10 +12,10 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from PIL import Image
 
 
-def main(table, labels, output_file, color_thresold, rotate):
+def main(table, labels, output_file, color_threshold, rotate):
     Z, columns = hclust(table, labels)
     plot_hclust(
-        Z, columns, save=output_file, color_thresold=color_thresold, rotate=rotate
+        Z, columns, save=output_file, color_threshold=color_threshold, rotate=rotate
     )
     if path.isfile(output_file):
         print(f"Created dendrogram as {output_file}.")
@@ -26,15 +26,14 @@ def hclust(table, labels=None):
     table: comma-separated dataframe containing a symmetrical table.
     labels: comma-separated dataframe with the first column as the old name and second as the new name.
     """
-    table = pd.read_csv(table)
+    table = pd.read_csv(table, index_col="genome-a")
     if labels:
-        labels = pd.read_csv(labels)
+        labels = pd.read_csv(labels, header=None)
         labels.columns = "old", "new"
         renaming_dict = pd.Series(labels["new"].values, index=labels["old"]).to_dict()
         table.rename(columns=renaming_dict, index=renaming_dict, inplace=True)
 
-    X = abs(table - 99.99)
-    X = squareform(X)
+    X = squareform(table)
     Z = linkage(X, method="complete", metric="cityblock", optimal_ordering=True)
 
     return (Z, table.columns)
@@ -75,7 +74,9 @@ def plot_hclust(Z, columns, figsize=False, save=False, rotate=True, color_thresh
     )
 
     if save:
-        plt.savefig(save, dpi=1200, bbox_inches="tight")
+        if rotate:
+            save = save.replace(".pdf", ".png")
+        plt.savefig(save, dpi=600, bbox_inches="tight")
     else:
         rotate = False
 
@@ -105,9 +106,9 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-c",
-        "--color_thresold",
+        "--color_threshold",
         help="Color threshold of the dendrogram. Default is 30.",
-        type=int,
+        type=float,
         default=30,
     )
     parser.add_argument(
