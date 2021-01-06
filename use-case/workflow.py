@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
+import argparse
 import bioprov as bp
 from bioprov.programs import prodigal
 
@@ -21,7 +19,7 @@ def download_data(input_file):
         bp.Parameter("-A", input_file),
         bp.Parameter("-o", "data/"),
         bp.Parameter("-m", metadata),
-        bp.Parameter("bacteria")
+        bp.Parameter("bacteria"),
     ]
 
     for param in params:
@@ -41,7 +39,7 @@ def sort(metadata):
         bp.Parameter("-k", "1,1"),
         bp.Parameter("-u", metadata),
         bp.Parameter("-r"),
-        bp.Parameter("-o", metadata)
+        bp.Parameter("-o", metadata),
     ]
 
     for param in params:
@@ -92,11 +90,13 @@ def sed_column(metadata):
 
 
 def load_project(tag, metadata, *args):
-    proj = bp.read_csv(metadata,
-                       sep="\t",
-                       sequencefile_cols="genome_assembly",
-                       import_data=True,
-                       tag=tag)
+    proj = bp.read_csv(
+        metadata,
+        sep="\t",
+        sequencefile_cols="genome_assembly",
+        import_data=True,
+        tag=tag,
+    )
 
     proj.add_programs(*args)
 
@@ -114,10 +114,13 @@ def prodigal(proj):
         sample.add_programs(p)
         sample.run_programs()
 
+
 # pairwise gene comparison
 def fastani(proj):
     fastani_input = bp.File(f"data/fastani_input_{proj.tag}.txt", tag="fastani_input")
-    fastani_output = bp.File(f"data/fastani_output_{proj.tag}.txt", tag="fastani_output")
+    fastani_output = bp.File(
+        f"data/fastani_output_{proj.tag}.txt", tag="fastani_output"
+    )
     proj.add_files([fastani_input, fastani_output])
     with open(proj.files["fastani_input"].path, "w") as f:
         for file in (sample.files["genome_assembly"] for k, sample in proj.items()):
@@ -131,7 +134,7 @@ def fastani(proj):
         bp.Parameter("--threads", bp.config.threads),
         bp.Parameter("--fragLen", 200),
         bp.Parameter("--minFraction", 0.01),
-        bp.Parameter("--output", proj.files["fastani_output"], kind="output")
+        bp.Parameter("--output", proj.files["fastani_output"], kind="output"),
     ]
 
     for param in params:
@@ -153,7 +156,7 @@ def format_fastani_output(proj):
         bp.Parameter("python", "format_fastani_output.py"),
         bp.Parameter("-i", proj.files["fastani_output"], kind="input"),
         bp.Parameter("-o", proj.files["fastani_output_fmt"], kind="output"),
-        bp.Parameter("--invert")
+        bp.Parameter("--invert"),
     ]
 
     for param in params:
@@ -173,6 +176,7 @@ def labels(proj):
             label = sample.attributes["organism_name"]
             f.write(f"{filename},{label}\n")
 
+
 # cluster and plot
 def cluster(proj):
     dendrogram = bp.File(f"data/dendrogram_{proj.tag}.pdf")
@@ -186,7 +190,7 @@ def cluster(proj):
         bp.Parameter("-t", proj.files["fastani_output_fmt"], kind="input"),
         bp.Parameter("-l", proj.files["labels"], kind="misc"),
         bp.Parameter("-o", proj.files["dendrogram"], kind="output"),
-        bp.Parameter("-c", 22.5, kind="misc")
+        bp.Parameter("-c", 22.5, kind="misc"),
     ]
 
     for param in params:
@@ -200,9 +204,6 @@ def export_provenance(proj):
     prov = bp.BioProvDocument(proj)
     prov.dot.write_pdf(f"graphs_{proj.tag}")
     prov.write_provn()
-
-
-# In[6]:
 
 
 def preprocessing(input_file, tag):
@@ -225,9 +226,12 @@ def processing(tag):
     export_prov(proj)
 
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        "-i", "--input-file", help="Input file with one accession number per line."
+    )
+    parser = argparse.ArgumentParser("-t", "--tag", help="Project tag.")
+    args = parser.parse_args()
 
-# In[ ]:
-
-
-
-
+    preprocessing(args.input_file, args.tag)
+    processing(args.tag)
