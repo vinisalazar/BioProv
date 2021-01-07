@@ -58,8 +58,10 @@ def gunzip():
 
 
 def sed_gz(metadata):
-    _sed_gz = bp.Program("sed_gz", path_to_bin="/usr/bin/sed")
+    _sed_gz = bp.Program("sed_gz")
+    _sed_gz.found = True
     params = [
+        bp.Parameter("sed"),
         bp.Parameter("-i", ".bkp"),
         bp.Parameter("'s/.gz//g'"),
         bp.Parameter(metadata),
@@ -73,9 +75,10 @@ def sed_gz(metadata):
 
 
 def sed_column(metadata):
-    _sed_column = bp.Program("sed_column", path_to_bin="/usr/bin/sed")
-
+    _sed_column = bp.Program("sed_column")
+    _sed_column.found = True
     params = [
+        bp.Parameter("sed"),
         bp.Parameter("-i", "bkp"),
         bp.Parameter("'s/local_filename/genome_assembly/g'"),
         bp.Parameter(str(metadata)),
@@ -110,7 +113,7 @@ def load_project(tag, metadata, programs):
 
 # gene calling
 def prodigal_(proj):
-    for k, sample in proj.items():
+    for sample in proj:
         p = prodigal(input_tag="genome_assembly")
         del p.output_files["-s"]
         p.create_func(sample)
@@ -127,7 +130,7 @@ def fastani(proj):
     proj.add_files(fastani_input)
     proj.add_files(fastani_output)
     with open(proj.files["fastani_input"].path, "w") as f:
-        for file in (sample.files["genome_assembly"] for k, sample in proj.items()):
+        for file in (sample.files["genome_assembly"] for sample in proj):
             f.write(str(file) + "\n")
 
     _fastani = bp.Program("fastani")
