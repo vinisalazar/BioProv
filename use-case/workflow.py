@@ -198,6 +198,7 @@ def cluster(proj):
         bp.Parameter("-l", proj.files["labels"], kind="misc"),
         bp.Parameter("-o", proj.files["dendrogram"], kind="output"),
         bp.Parameter("-c", 22.5, kind="misc"),
+        bp.Parameter("-s", "10,6", kind="misc"),
     ]
 
     for param in params:
@@ -241,7 +242,10 @@ if __name__ == "__main__":
         "-i", "--input-file", help="Input file with one accession number per line."
     )
     parser.add_argument("-t", "--tag", help="Project tag.")
+    parser.add_argument("-s", "--skip-preprocessing", help="Whether to skip the preprocessing step.", action="store_true")
     _args = parser.parse_args()
 
-    preprocessing(_args.input_file, _args.tag)
+    if not _args.skip_processing:
+        preprocessing(_args.input_file, _args.tag)
+
     processing(_args.tag)
