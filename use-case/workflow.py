@@ -101,7 +101,7 @@ def load_project(tag, metadata, programs):
     proj.add_programs(programs)
     proj.update_db()
     proj.auto_update = True
-    proj.start_logging()
+    proj.start_logging(f"data/{proj.tag}.log")
 
     return proj
 
@@ -124,7 +124,8 @@ def fastani(proj):
     fastani_output = bp.File(
         f"data/fastani_output_{proj.tag}.txt", tag="fastani_output"
     )
-    proj.add_files([fastani_input, fastani_output])
+    proj.add_files(fastani_input)
+    proj.add_files(fastani_output)
     with open(proj.files["fastani_input"].path, "w") as f:
         for file in (sample.files["genome_assembly"] for k, sample in proj.items()):
             f.write(str(file) + "\n")
@@ -171,7 +172,7 @@ def format_fastani_output(proj):
 
 # create labels
 def labels(proj):
-    _labels = bp.File(f"data/labels_{proj.tag}.txt")
+    _labels = bp.File(f"data/labels_{proj.tag}.txt", tag="labels")
     proj.add_files(_labels)
     with open(_labels.path, "w") as f:
         for sample in proj:
@@ -182,7 +183,7 @@ def labels(proj):
 
 # cluster and plot
 def cluster(proj):
-    dendrogram = bp.File(f"data/dendrogram_{proj.tag}.pdf")
+    dendrogram = bp.File(f"data/dendrogram_{proj.tag}.pdf", tag="dendrogram")
     proj.add_files(dendrogram)
 
     clust = bp.Program("cluster_and_plot")
@@ -205,8 +206,8 @@ def cluster(proj):
 
 def export_provenance(proj):
     prov = bp.BioProvDocument(proj)
-    prov.dot.write_pdf(f"graphs_{proj.tag}")
-    prov.write_provn()
+    prov.dot.write_pdf(f"graphs/{proj.tag}.pdf")
+    prov.write_provn(f"data/{proj.tag}_provn.txt")
 
 
 def preprocessing(input_file, tag):
@@ -220,6 +221,7 @@ def preprocessing(input_file, tag):
 
 def processing(tag):
     proj = bp.load_project(tag)
+    proj.auto_update = True
     _prodigal(proj)
     fastani(proj)
     format_fastani_output(proj)
