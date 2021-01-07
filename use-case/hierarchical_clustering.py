@@ -12,10 +12,10 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from PIL import Image
 
 
-def main(table, labels, output_file, color_threshold, rotate):
+def main(table, labels, output_file, color_threshold, size, rotate):
     Z, columns = hclust(table, labels)
     plot_hclust(
-        Z, columns, save=output_file, color_threshold=color_threshold, rotate=rotate
+        Z, columns, save=output_file, color_threshold=color_threshold, rotate=rotate, figsize=size,
     )
     if path.isfile(output_file):
         print(f"Created dendrogram as {output_file}.")
@@ -36,7 +36,7 @@ def hclust(table, labels=None):
     X = squareform(table)
     Z = linkage(X, method="complete", metric="cityblock", optimal_ordering=True)
 
-    return (Z, table.columns)
+    return Z, table.columns
 
 
 def augmented_dendrogram(*args, **kwargs):
@@ -114,10 +114,19 @@ if __name__ == "__main__":
     parser.add_argument(
         "-r", "--rotate", help="Whether to rotate the dendrogram.", action="store_true"
     )
+    parser.add_argument(
+        "-s", "--size", help="Size of the figure in inches. Must be two comma-separated ints",
+        type=str
+    )
 
     args = parser.parse_args()
 
     if args.output_file is None:
         args.output_file = "dendrogram.pdf"
 
-    main(args.table, args.labels, args.output_file, args.color_threshold, args.rotate)
+    if args.size is None:
+        args.size = (15, 8)
+    else:
+        args.size = tuple(round(float(i), 2) for i in args.size.split(","))
+
+    main(args.table, args.labels, args.output_file, args.color_threshold, args.size, args.rotate)
