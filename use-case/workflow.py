@@ -7,11 +7,11 @@ from bioprov.programs import prodigal
 
 
 # preprocessing
-def download_data(input_file):
+def download(input_file):
 
     metadata = input_file.replace(".txt", "_metadata.txt")
 
-    ncbi_dl = bp.Program("ncbi-genome-download")
+    _download = bp.Program("ncbi-genome-download")
 
     params = [
         bp.Parameter("-F", "fasta,assembly-report"),
@@ -23,16 +23,16 @@ def download_data(input_file):
     ]
 
     for param in params:
-        ncbi_dl.add_parameter(param)
+        _download.add_parameter(param)
 
-    ncbi_dl.run()
+    _download.run(suppress_stderr=False)
 
-    return ncbi_dl, metadata
+    return _download, metadata
 
 
 def sort(metadata):
 
-    sort = bp.Program("sort")
+    _sort = bp.Program("sort")
 
     params = [
         bp.Parameter("-t", "' '"),
@@ -43,22 +43,22 @@ def sort(metadata):
     ]
 
     for param in params:
-        sort.add_parameter(param)
+        _sort.add_parameter(param)
 
-    sort.run()
+    _sort.run(suppress_stderr=False)
 
-    return sort
+    return _sort
 
 
 def gunzip():
-    gunzip = bp.Program("gunzip")
-    gunzip.add_parameter(bp.Parameter("data/genbank/bacteria/*/*"))
-    gunzip.run(suppress_stdout=True)
-    return gunzip
+    _gunzip = bp.Program("gunzip")
+    _gunzip.add_parameter(bp.Parameter("-f", "data/genbank/bacteria/*/*"))
+    _gunzip.run(suppress_stderr=False)
+    return _gunzip
 
 
 def sed_gz(metadata):
-    sed_gz = bp.Program("sed")
+    _sed_gz = bp.Program("sed")
     params = [
         bp.Parameter("-i", ".bkp"),
         bp.Parameter("'s/.gz//g'"),
@@ -66,14 +66,14 @@ def sed_gz(metadata):
     ]
 
     for param in params:
-        sed_gz.add_parameter(param)
-    sed_gz.run()
+        _sed_gz.add_parameter(param)
+    _sed_gz.run(suppress_stderr=False)
 
-    return sed_gz
+    return _sed_gz
 
 
 def sed_column(metadata):
-    sed_column = bp.Program("sed")
+    _sed_column = bp.Program("sed")
 
     params = [
         bp.Parameter("-i", "bkp"),
@@ -82,14 +82,14 @@ def sed_column(metadata):
     ]
 
     for param in params:
-        sed_column.add_parameter(param)
+        _sed_column.add_parameter(param)
 
-    sed_column.run()
+    _sed_column.run(suppress_stderr=False)
 
-    return sed_column
+    return _sed_column
 
 
-def load_project(tag, metadata, *args):
+def load_project(tag, metadata, programs):
     proj = bp.read_csv(
         metadata,
         sep="\t",
@@ -98,7 +98,10 @@ def load_project(tag, metadata, *args):
         tag=tag,
     )
 
-    proj.add_programs(*args)
+    proj.add_programs(programs)
+    proj.update_db()
+    proj.auto_update = True
+    proj.start_logging()
 
     return proj
 
@@ -106,8 +109,8 @@ def load_project(tag, metadata, *args):
 # processing
 
 # gene calling
-def prodigal(proj):
-    for sample in proj:
+def _prodigal(proj):
+    for k, sample in proj.items():
         p = prodigal(input_tag="genome_assembly")
         del p.output_files["-s"]
         p.create_func(sample)
@@ -126,7 +129,7 @@ def fastani(proj):
         for file in (sample.files["genome_assembly"] for k, sample in proj.items()):
             f.write(str(file) + "\n")
 
-    fastani = bp.Program("fastani")
+    _fastani = bp.Program("fastani")
 
     params = [
         bp.Parameter("--refList", proj.files["fastani_input"], kind="input"),
@@ -138,10 +141,10 @@ def fastani(proj):
     ]
 
     for param in params:
-        fastani.add_parameter(param)
+        _fastani.add_parameter(param)
 
-    proj.add_programs(fastani)
-    fastani.run()
+    proj.add_programs(_fastani)
+    _fastani.run(suppress_stderr=False)
 
 
 # format output
@@ -163,14 +166,14 @@ def format_fastani_output(proj):
         ffo_p.add_parameter(param)
 
     proj.add_programs(ffo_p)
-    ffo_p.run()
+    ffo_p.run(suppress_stderr=False)
 
 
 # create labels
 def labels(proj):
-    labels = bp.File(f"data/labels_{proj.tag}.txt")
-    proj.add_files(labels)
-    with open(labels.path, "w") as f:
+    _labels = bp.File(f"data/labels_{proj.tag}.txt")
+    proj.add_files(_labels)
+    with open(_labels.path, "w") as f:
         for sample in proj:
             filename = str(sample.files["genome_assembly"].basename)
             label = sample.attributes["organism_name"]
@@ -197,7 +200,7 @@ def cluster(proj):
         clust.add_parameter(param)
 
     proj.add_programs(clust)
-    clust.run()
+    clust.run(suppress_stderr=False)
 
 
 def export_provenance(proj):
@@ -207,31 +210,33 @@ def export_provenance(proj):
 
 
 def preprocessing(input_file, tag):
-    ncbi_dl, metadata = download_data(input_file)
-    sort = sort(metadata)
-    gunzip = gunzip()
-    sed_gz = sed_gz(metadata)
-    sed_column = sed_column(metadata)
-    proj = load_project(tag, metadata, ncbi_dl, sort, gunzip, sed_gz, sed_column)
-    proj.auto_update = True
+    _download, metadata = download(input_file)
+    _sort = sort(metadata)
+    _gunzip = gunzip()
+    _sed_gz = sed_gz(metadata)
+    _sed_column = sed_column(metadata)
+    load_project(tag, metadata, [_download, _sort, _gunzip, _sed_gz, _sed_column])
 
 
 def processing(tag):
     proj = bp.load_project(tag)
-    prodigal(proj)
+    _prodigal(proj)
     fastani(proj)
     format_fastani_output(proj)
     labels(proj)
     cluster(proj)
-    export_prov(proj)
+    export_provenance(proj)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
+        description="BioProv use case with a genomic taxonomy workflow."
+    )
+    parser.add_argument(
         "-i", "--input-file", help="Input file with one accession number per line."
     )
-    parser = argparse.ArgumentParser("-t", "--tag", help="Project tag.")
-    args = parser.parse_args()
+    parser.add_argument("-t", "--tag", help="Project tag.")
+    _args = parser.parse_args()
 
-    preprocessing(args.input_file, args.tag)
-    processing(args.tag)
+    preprocessing(_args.input_file, _args.tag)
+    processing(_args.tag)
