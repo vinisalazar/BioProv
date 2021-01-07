@@ -109,7 +109,7 @@ def load_project(tag, metadata, programs):
 # processing
 
 # gene calling
-def _prodigal(proj):
+def prodigal_(proj):
     for k, sample in proj.items():
         p = prodigal(input_tag="genome_assembly")
         del p.output_files["-s"]
@@ -222,7 +222,7 @@ def preprocessing(input_file, tag):
 def processing(tag):
     proj = bp.load_project(tag)
     proj.auto_update = True
-    _prodigal(proj)
+    prodigal_(proj)
     fastani(proj)
     format_fastani_output(proj)
     labels(proj)
