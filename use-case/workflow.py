@@ -242,7 +242,12 @@ if __name__ == "__main__":
         "-i", "--input-file", help="Input file with one accession number per line."
     )
     parser.add_argument("-t", "--tag", help="Project tag.")
-    parser.add_argument("-s", "--skip-preprocessing", help="Whether to skip the preprocessing step.", action="store_true")
+    parser.add_argument(
+        "-s",
+        "--skip-preprocessing",
+        help="Whether to skip the preprocessing step.",
+        action="store_true",
+    )
     _args = parser.parse_args()
 
     if not _args.skip_processing:
