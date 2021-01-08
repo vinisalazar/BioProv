@@ -620,12 +620,19 @@ class PresetProgram(Program):
                     f"'{self.sample.files}'"
                 )
         try:
-            for key, (tag, suffix) in self.output_files.items():
-                self.sample.add_files(
-                    {
-                        tag: preffix + suffix,
-                    }
-                )
+            # TODO: refactor the `input_files` and `output_files` parameter as NamedTuples
+            # This will also allow us to specify directories
+            for key, value in self.output_files.items():
+                # Usually just specify tag and suffix
+                if len(value) == 2:
+                    suffix, tag = value
+                    self.sample.add_files(File(preffix + suffix, tag=tag))
+                # But we can also specify a format
+                elif len(value) == 3:
+                    suffix, tag, format = value
+                    self.sample.add_files(
+                        SeqFile(preffix + suffix, tag=tag, format=format)
+                    )
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )

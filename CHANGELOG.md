@@ -14,6 +14,7 @@
 * Add Run attributes as Program class properties (will consume from the last run) [x]
 * Add sequence dunder methods for Project class [x]
 * Improve run methods [x]
+* Allow specifying sequence format to PresetProgram outputs [x]
 
 ### v0.1.21
 * Add _config argument to `bp.load_project()` (this is a temporary fix) [x]
