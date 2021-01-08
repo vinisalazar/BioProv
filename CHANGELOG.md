@@ -15,6 +15,7 @@
 * Add sequence dunder methods for Project class [x]
 * Improve run methods [x]
 * Allow specifying sequence format to PresetProgram outputs [x]
+* Update env file to Py 3.9 [x]
 
 ### v0.1.21
 * Add _config argument to `bp.load_project()` (this is a temporary fix) [x]
