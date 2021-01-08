@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.21"
+__version__ = "0.1.22"
 
 """
 Module containing base provenance attributes.
@@ -293,9 +293,11 @@ class BioProvDocument:
                                 self._agents[_env_hash] = _user_bundle.agent(
                                     f"envs:{_env}"
                                 )
-                            _user_bundle.actedOnBehalfOf(
-                                self._agents[_env_hash], self._agents[_user]
-                            )
+                            if not _env.actedOnBehalfOf:
+                                _user_bundle.actedOnBehalfOf(
+                                    self._agents[_env_hash], self._agents[_user]
+                                )
+                                _env.actedOnBehalfOf = True
                 sample.ProvBundle.wasAssociatedWith(
                     self._activities[program.name], self._agents[last_run.env]
                 )

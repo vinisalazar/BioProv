@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.21"
+__version__ = "0.1.22"
 
 
 """
@@ -60,8 +60,8 @@ def prodigal(sample=None, input_tag="assembly", extra_flags=None):
         sample=sample,
         input_files={"-i": input_tag},
         output_files={
-            "-a": ("proteins", "_proteins.faa"),
-            "-d": ("genes", "_genes.fna"),
+            "-a": ("proteins", "_proteins.faa", "fasta"),
+            "-d": ("genes", "_genes.fna", "fasta"),
             "-s": ("scores", "_scores.cds"),
         },
         preffix_tag=input_tag,

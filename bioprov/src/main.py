@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.21"
+__version__ = "0.1.22"
 
 """
 
@@ -40,7 +40,7 @@ from prov.model import ProvEntity, ProvBundle, Namespace
 from tinydb import Query
 
 from bioprov import config
-from bioprov.src.config import Environment, Config
+from bioprov.src.config import Environment, BioProvDB
 from bioprov.src.files import File, SeqFile, Directory, deserialize_files_dict
 from bioprov.utils import (
     Warnings,
@@ -64,6 +64,7 @@ class Program:
         path_to_bin=None,
         version=None,
         cmd=None,
+        sample=None,
     ):
         """
         :param name: Name of the program being called.
@@ -72,6 +73,7 @@ class Program:
         :param path_to_bin: A full _path to the program's binary. Default: get from self.name.
         :param cmd: A command string to call the program. Default: build from self._path and self.params.
         :param version: Version of the program.
+        :param sample: Instance of bioprov.Sample
         """
         self.name = name
         self.cmd = cmd
@@ -81,6 +83,7 @@ class Program:
         self.path = path_to_bin
         self.version = version
         self._getoutput = getoutput(f"which {self.name}")
+        self.sample = sample
         self.found = (
             "command not found" not in self._getoutput
             and self._getoutput != ""
@@ -106,6 +109,62 @@ class Program:
     @runs.setter
     def runs(self, value):
         self._runs = value
+
+    @property
+    def stdin(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].stdin
+        except KeyError:
+            return None
+
+    @property
+    def stdout(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].stdout
+        except KeyError:
+            return None
+
+    @property
+    def stderr(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].stderr
+        except KeyError:
+            return None
+
+    @property
+    def start_time(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].start_time
+        except KeyError:
+            return None
+
+    @property
+    def end_time(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].end_time
+        except KeyError:
+            return None
+
+    @property
+    def duration(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].duration
+        except KeyError:
+            return None
+
+    @property
+    def finished(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].finished
+        except KeyError:
+            return None
+
+    @property
+    def status(self):
+        try:
+            return self.runs[list(self.runs.keys())[-1]].status
+        except KeyError:
+            return None
 
     def add_runs(self, runs):
         """
@@ -146,17 +205,42 @@ class Program:
         if _generate_cmd:
             self.generate_cmd()
 
-    def run(self, sample=None):
+    def run(
+        self,
+        sample=None,
+        suppress_stdout=True,
+        suppress_stderr=True,
+        force_print=False,
+    ):
         """
         Runs the process.
-        :param sample: An instance of the Sample class
-        :return: An instance of Run class.
+        :param sample: An instance of bioprov.Sample.
+        :param suppress_stdout: Whether to print stdout of the program.
+        :param suppress_stderr: Whether to print stderr of the program.
+        :param force_print: Whether to force printing the output of the program.
+        :return: An instance of the Run class.
         """
         # Creates Run instance with self
-        run_ = Run(self, sample=sample)
-        run_.run(_sample=sample)
-        self.add_runs(run_)
-        return run_
+        if sample is None:
+            sample = self.sample
+        _run = Run(self, sample=sample)
+        _run.run()
+        self.add_runs(_run)
+
+        if _run.auto_suppress_stdout and not force_print:
+            suppress_stdout = True
+            suppress_stderr = True
+
+        if not suppress_stdout:
+            print("\n")
+            print("stdout:\n")
+            print(_run.stdout)
+        if not suppress_stderr:
+            print("\n")
+            print("stderr:\n")
+            print(_run.stderr)
+
+        return _run
 
     def serializer(self):
         keys = [
@@ -289,7 +373,7 @@ class Run:
         self.stderr = None
 
         # This parameter will suppress from writing stdout if it is too long.
-        self._auto_suppress_stdout = True
+        self.auto_suppress_stdout = True
 
         # Time status
         self.start_time = None
@@ -332,15 +416,12 @@ class Run:
         dict_ = {True: "Finished", False: "Pending"}
         return dict_[finished_status]
 
-    def run(self, _sample=None):
+    def run(self):
         """
         Runs process for the Run instance.
         Will update attributes accordingly.
-        :param _sample: self.sample
         :return: self
         """
-        if _sample is None:
-            _sample = self.sample
 
         # Declare process and start time
         assert (
@@ -349,8 +430,8 @@ class Run:
 
         # Print block
         str_ = f"Running program '{self.program.name}'"
-        if _sample is not None:
-            str_ += f" for sample {_sample.name}."
+        if self.sample is not None:
+            str_ += f" for sample {self.sample.name}."
         else:
             str_ += "."
 
@@ -397,7 +478,7 @@ class Run:
         self.finished = True
         self._status = self._finished_to_status(self.finished)
 
-        if not self._auto_suppress_stdout:
+        if not self.auto_suppress_stdout:
             config.logger.debug(self.stdout)  # no cover
         config.logger.debug(self.stderr)  # no cover
 
@@ -412,7 +493,7 @@ class Run:
                     if (
                         serial_out[key] is not None
                         and len(serial_out[key]) > 5000
-                        and self._auto_suppress_stdout
+                        and self.auto_suppress_stdout
                     ):
                         serial_out[key] = None
                 else:
@@ -539,12 +620,19 @@ class PresetProgram(Program):
                     f"'{self.sample.files}'"
                 )
         try:
-            for key, (tag, suffix) in self.output_files.items():
-                self.sample.add_files(
-                    {
-                        tag: preffix + suffix,
-                    }
-                )
+            # TODO: refactor the `input_files` and `output_files` parameter as NamedTuples
+            # This will also allow us to specify directories
+            for key, value in self.output_files.items():
+                # Usually just specify tag and suffix
+                if len(value) == 2:
+                    suffix, tag = value
+                    self.sample.add_files(File(preffix + suffix, tag=tag))
+                # But we can also specify a format
+                elif len(value) == 3:
+                    suffix, tag, format = value
+                    self.sample.add_files(
+                        SeqFile(preffix + suffix, tag=tag, format=format)
+                    )
                 param = Parameter(
                     key=key, value=str(self.sample.files[tag]), kind="output", tag=tag
                 )
@@ -627,11 +715,12 @@ class PresetProgram(Program):
         self.cmd = generic_cmd
         return generic_cmd
 
-    def run(self, sample=None, preffix_tag=None):
+    def run(self, sample=None, preffix_tag=None, **kwargs):
         """
         Runs PresetProgram for sample.
         :param sample: Instance of bioprov.Sample.
         :param preffix_tag: Preffix tag to self.create_func()
+        :param kwargs: See help of Program.run()
         :return:
         """
         if sample is None:
@@ -640,10 +729,7 @@ class PresetProgram(Program):
             preffix_tag = self.preffix_tag
 
         self.create_func(sample, preffix_tag)
-        run_ = Run(self, sample=sample)
-        run_.run(_sample=sample)
-        self.add_runs(run_)
-        return run_
+        return super().run(**kwargs)
 
 
 def parse_params(params):
@@ -1037,14 +1123,20 @@ class Project:
         return f"Project '{self.tag}' with {len(self)} samples"
 
     def __getitem__(self, item):
-        try:
-            value = self._samples[item]
-            return value
-        except KeyError:
-            config.logger.error(
-                f"Sample {item} not in Project.\n" f"Check the following keys:" " ",
-                "\n  ".join(self.keys),
-            )
+        if isinstance(item, str):
+            try:
+                value = self._samples[item]
+                return value
+            except KeyError:
+                config.logger.error(
+                    f"Sample {item} not in Project.\n" f"Check the following keys:" " ",
+                    "\n  ".join(list(self.keys)),
+                )
+        elif isinstance(item, int):
+            return self[list(self._samples.keys())[item]]
+
+    def __iter__(self):
+        return iter(self._samples.values())
 
     def __setitem__(self, key, value):
         self._samples[key] = value
@@ -1646,31 +1738,28 @@ def write_json(dict_, _path):
         config.logger.info(f"Could not create JSON file for {_path}.")
 
 
-def load_project(tag, _config=None):
+def load_project(tag, db=None):
     """
     Loads Project from the BioProvDatabase set in the config.
 
     :param tag: Tag of the Project to be loaded.
-    :param _config: Instance of bioprov.src.config.Config class
+    :param db: Path to BioProvDB file. Default is set in the config module. (use the `bioprov --show_db` command).
     :return: Instance of Project.
     """
-    if _config is None:
-        _config = config
+    if db is None:
+        db = config.db
 
     else:
-        assert isinstance(_config, Config), Warnings()["incorrect_type"](
-            _config, Config
-        )
+        assert Path(db).exists(), Warnings()["not_exist"](db)
+        db = BioProvDB(path=db)
 
-    assert (
-        len(_config.db) > 0
-    ), f"Project not found. Database at '{_config.db_path}' is empty"
+    assert len(db) > 0, f"Project not found. Database at '{db.db_path}' is empty"
 
     query = Query()
     try:
-        result = _config.db.search(query.tag == tag)[0]
+        result = db.search(query.tag == tag)[0]
     except (IndexError, KeyError):
-        config.logger.error(f"Project not found in database at {_config.db_path}")
+        config.logger.error(f"Project not found in database at {db.db_path}")
         return
 
     with tempfile.NamedTemporaryFile() as f:

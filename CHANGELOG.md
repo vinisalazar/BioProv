@@ -8,11 +8,20 @@
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
+### v0.1.22
+* Simplify `bp.load_project()` function [x]
+* Fix user and env PROV relationships [x]
+* Add Run attributes as Program class properties (will consume from the last run) [x]
+* Add sequence dunder methods for Project class [x]
+* Improve run methods [x]
+* Allow specifying sequence format to PresetProgram outputs [x]
+* Update env file to Py 3.9 [x]
+
 ### v0.1.21
 * Add _config argument to `bp.load_project()` (this is a temporary fix) [x]
 * Add db property to Config class (prevents bug when setting DB path) [x]
 * Improve a few docstrings [x]
-* Refactor sha1 as sha256 [x]  
+* Refactor sha1 as sha256 [x]   
 * Add add and radd dunder methods for Directory and File [x]  
 * Package workflows in single module [x]
 * Add FastTree PresetProgram [x]

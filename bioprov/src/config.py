@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.21"
+__version__ = "0.1.22"
 
 
 """
@@ -274,9 +274,18 @@ class Environment:
         self.user = None
         self.env_namespace = None
         self.update()
+        self._actedOnBehalfOf = False
 
     def __repr__(self):
         return self.env_hash
+
+    @property
+    def actedOnBehalfOf(self):
+        return self._actedOnBehalfOf
+
+    @actedOnBehalfOf.setter
+    def actedOnBehalfOf(self, value):
+        self._actedOnBehalfOf = value
 
     def update(self):
         """
