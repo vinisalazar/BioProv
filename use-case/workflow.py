@@ -250,7 +250,7 @@ if __name__ == "__main__":
     )
     _args = parser.parse_args()
 
-    if not _args.skip_processing:
+    if not _args.skip_preprocessing:
         preprocessing(_args.input_file, _args.tag)
 
     processing(_args.tag)
