@@ -62,7 +62,7 @@ def sed_gz(metadata):
     _sed_gz.found = True
     params = [
         bp.Parameter("sed"),
-        bp.Parameter("-i", ".bkp"),
+        bp.Parameter("-i"),
         bp.Parameter("'s/.gz//g'"),
         bp.Parameter(metadata),
     ]
@@ -79,7 +79,7 @@ def sed_column(metadata):
     _sed_column.found = True
     params = [
         bp.Parameter("sed"),
-        bp.Parameter("-i", "bkp"),
+        bp.Parameter("-i"),
         bp.Parameter("'s/local_filename/genome_assembly/g'"),
         bp.Parameter(str(metadata)),
     ]
