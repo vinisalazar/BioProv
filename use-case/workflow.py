@@ -133,7 +133,7 @@ def fastani(proj):
         for file in (sample.files["genome_assembly"] for sample in proj):
             f.write(str(file) + "\n")
 
-    _fastani = bp.Program("fastani")
+    _fastani = bp.Program("fastANI")
 
     params = [
         bp.Parameter("--refList", proj.files["fastani_input"], kind="input"),
