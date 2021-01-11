@@ -58,7 +58,7 @@ def gunzip():
 
 
 def sed_gz(metadata):
-    _sed_gz = bp.Program("sed_gz")
+    _sed_gz = bp.Program("sed_gz", path_to_bin="/usr/bin/sed")
     _sed_gz.found = True
     params = [
         bp.Parameter("sed"),
@@ -75,7 +75,7 @@ def sed_gz(metadata):
 
 
 def sed_column(metadata):
-    _sed_column = bp.Program("sed_column")
+    _sed_column = bp.Program("sed_column", path_to_bin="/usr/bin/sed")
     _sed_column.found = True
     params = [
         bp.Parameter("sed"),
