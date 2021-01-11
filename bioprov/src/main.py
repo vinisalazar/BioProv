@@ -625,11 +625,11 @@ class PresetProgram(Program):
             for key, value in self.output_files.items():
                 # Usually just specify tag and suffix
                 if len(value) == 2:
-                    suffix, tag = value
+                    tag, suffix = value
                     self.sample.add_files(File(preffix + suffix, tag=tag))
                 # But we can also specify a format
                 elif len(value) == 3:
-                    suffix, tag, format = value
+                    tag, suffix, format = value
                     self.sample.add_files(
                         SeqFile(preffix + suffix, tag=tag, format=format)
                     )
