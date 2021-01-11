@@ -91,6 +91,7 @@ def sed_column(metadata):
 
 
 def load_project(tag, metadata, programs):
+    breakpoint()
     proj = bp.read_csv(
         metadata,
         sep="\t",
