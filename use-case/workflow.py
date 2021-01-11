@@ -6,7 +6,17 @@ import bioprov as bp
 from bioprov.programs import prodigal
 
 
-# preprocessing
+"""
+Preprocessing steps:
+    - download data
+    - deduplicate resulting table
+    - decompress files
+    - rename files in metadata table 
+    - rename column in metadata table
+    - create project
+"""
+
+# download data
 def download(input_file):
 
     metadata = input_file.replace(".txt", "_metadata.txt")
@@ -30,6 +40,7 @@ def download(input_file):
     return _download, metadata
 
 
+# deduplicate metadata table
 def sort(metadata):
 
     _sort = bp.Program("sort")
@@ -50,6 +61,7 @@ def sort(metadata):
     return _sort
 
 
+# decompress files
 def gunzip():
     _gunzip = bp.Program("gunzip")
     _gunzip.add_parameter(bp.Parameter("-f", "data/genbank/bacteria/*/*"))
@@ -57,6 +69,7 @@ def gunzip():
     return _gunzip
 
 
+# rename files in metadata table
 def sed_gz(metadata):
     _sed_gz = bp.Program("sed_gz")
     _sed_gz.found = True
@@ -74,6 +87,7 @@ def sed_gz(metadata):
     return _sed_gz
 
 
+# rename column in metadata table
 def sed_column(metadata):
     _sed_column = bp.Program("sed_column")
     _sed_column.found = True
@@ -92,6 +106,7 @@ def sed_column(metadata):
     return _sed_column
 
 
+# create project and insert it in the database
 def load_project(tag, metadata, programs):
     proj = bp.read_csv(
         metadata,
@@ -109,7 +124,14 @@ def load_project(tag, metadata, programs):
     return proj
 
 
-# processing
+"""
+Processing steps:
+    - predict genes for each sample
+    - run pairwise comparison between gene files
+    - create symmetrical distance matrix
+    - perform hierarchical clustering and plot dendrogram
+"""
+
 
 # gene calling
 def prodigal_(proj):
