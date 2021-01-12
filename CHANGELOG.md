@@ -9,7 +9,7 @@
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.23
-* Patch PresetProgram SeqFile addition feature []
+* Patch PresetProgram SeqFile addition feature [x]
 
 
 ### v0.1.22
