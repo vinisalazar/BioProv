@@ -1,0 +1,1 @@
+python workflow.py -i data/genomes_10.txt -t genomes_10 -s  510.36s user 30.00s system 394% cpu 2:16.90 total

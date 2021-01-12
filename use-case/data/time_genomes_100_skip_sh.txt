@@ -1,0 +1,1 @@
+bash data/sh_genomes_100.sh  21500.47s user 283.46s system 1347% cpu 26:56.63 total
