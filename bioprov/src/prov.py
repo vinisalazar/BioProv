@@ -334,8 +334,8 @@ class BioProvDocument:
                     file_obj, *_ = file_obj
                     if io_type == "input":
                         sample.ProvBundle.used(
-                            self._entities[file_obj.name],
                             self._activities[program.name],
+                            self._entities[file_obj.name],
                         )
                     elif io_type == "output":
                         sample.ProvBundle.wasGeneratedBy(
