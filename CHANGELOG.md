@@ -14,6 +14,7 @@
 * Fix SeqFile deserializer [x]
 * Add import_records arg to `bp.load_project()` [x]
 * Improve reserved aminoacid characters [x]
+* Add `SeqFile.max_seq` and `.min_seq` properties [x]
 
 ### v0.1.22
 * Simplify `bp.load_project()` function [x]

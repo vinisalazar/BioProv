@@ -289,6 +289,10 @@ class SeqFile(File):
         self.N50: int
         self.GC: float
 
+        # Sequence properties
+        self._max_seq = None
+        self._min_seq = None
+
         if self.exists:
             self._seqrecordgenerator()
         else:
@@ -411,6 +415,51 @@ class SeqFile(File):
             setattr(self, k, value)
 
         return self._seqstats
+
+    @property
+    def max_seq(self):
+        self.max_seq = self._find_max_seq()
+        return self._max_seq
+
+    @max_seq.setter
+    def max_seq(self, value):
+        self._max_seq = value
+
+    def _find_max_seq(self):
+        try:
+            if len(self.records) < 1:
+                self.import_records()
+
+            max_seq, len_max_seq = None, 0
+            for id_, seq in self.records.items():
+                if len(seq) > len_max_seq:
+                    len_max_seq = len(seq)
+                    max_seq = seq
+            return max_seq
+        except:
+            print("Couldn't import data to determine max_seq.")
+            return None
+
+    @property
+    def min_seq(self):
+        self.min_seq = self._find_min_seq()
+        return self._min_seq
+
+    @min_seq.setter
+    def min_seq(self, value):
+        self._min_seq = value
+
+    def _find_min_seq(self):
+        if len(self.records) < 1:
+            self.import_records()
+
+        min_seq, len_min_seq = None, 10**9
+        for id_, seq in self.records.items():
+            if len(seq) < len_min_seq:
+                len_min_seq = len(seq)
+                min_seq = seq
+
+        return min_seq
 
 
 @dataclass
