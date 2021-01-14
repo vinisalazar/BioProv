@@ -279,6 +279,8 @@ class SeqFile(File):
         self._generator = None
         self._seqstats = None
         self._parser = parser
+
+        # TODO: add these attributes as properties. Calculate lazily (only if retrieving).
         self.number_seqs: int
         self.total_bps: int
         self.mean_bp: float
@@ -330,6 +332,7 @@ class SeqFile(File):
 
     def import_records(self):
         assert self.exists, "Cannot import, file does not exist."
+        self._seqrecordgenerator()
         self.records = SeqIO.to_dict(self._generator)
 
     def serializer(self):
@@ -353,6 +356,9 @@ class SeqFile(File):
         assert isinstance(self.records, dict), Warnings()["incorrect_type"](
             self.records, dict
         )
+        if len(self.records) < 1:
+            self.import_records()
+        assert len(self.records) > 0, "Attribute 'records' is empty. Try importing records manually."
 
         bp_array, GC = [], 0
         aminoacids = "LMFWKQESPVIYHRND"
