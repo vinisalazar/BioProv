@@ -254,6 +254,7 @@ def processing(tag):
     labels(proj)
     cluster(proj)
     export_provenance(proj)
+    proj.update_db()
 
 
 if __name__ == "__main__":
