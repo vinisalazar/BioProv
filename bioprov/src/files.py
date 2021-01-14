@@ -330,10 +330,15 @@ class SeqFile(File):
     def seqstats(self, value):
         self._seqstats = value
 
-    def import_records(self):
+    def import_records(self, **kwargs):
+        """
+        :param kwargs: Parameters to pass to the SeqFile._calculate_seqstats() function.
+        :return: Import records into self.
+        """
         assert self.exists, "Cannot import, file does not exist."
         self._seqrecordgenerator()
         self.records = SeqIO.to_dict(self._generator)
+        self._calculate_seqstats(**kwargs)
 
     def serializer(self):
         keys = ("records",)
