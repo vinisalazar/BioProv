@@ -366,7 +366,7 @@ class SeqFile(File):
         assert len(self.records) > 0, "Attribute 'records' is empty. Try importing records manually."
 
         bp_array, GC = [], 0
-        aminoacids = "LMFWKQESPVIYHRND"
+        aminoacids = "LMFWKQESPVIYHRD"
 
         # We use enumerate to check the first item for amino acids.
         for ix, (key, SeqRecord) in enumerate(self.records.items()):

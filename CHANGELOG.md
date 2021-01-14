@@ -6,13 +6,14 @@
 * Create methods for Sample and Project
     * .describe [ ]
     * .write_paths_to_file, .copy_files_to_dir(), .link_files_to_dir() [ ]
+    * .total_duration [ ]
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.23
 * Patch PresetProgram SeqFile addition feature [x]
 * Fix SeqFile deserializer [x]
 * Add import_records arg to `bp.load_project()` [x]
-
+* Improve reserved aminoacid characters [x]
 
 ### v0.1.22
 * Simplify `bp.load_project()` function [x]
