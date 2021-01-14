@@ -1738,12 +1738,13 @@ def write_json(dict_, _path):
         config.logger.info(f"Could not create JSON file for {_path}.")
 
 
-def load_project(tag, db=None):
+def load_project(tag, db=None, import_records=False):
     """
     Loads Project from the BioProvDatabase set in the config.
 
     :param tag: Tag of the Project to be loaded.
     :param db: Path to BioProvDB file. Default is set in the config module. (use the `bioprov --show_db` command).
+    :param import_records: Whether to import the sequence records. Unnecessary if this data is already recorded in the Project.
     :return: Instance of Project.
     """
     if db is None:
@@ -1765,5 +1766,15 @@ def load_project(tag, db=None):
     with tempfile.NamedTemporaryFile() as f:
         f.write(bytes(json.dumps(result), "utf-8"))
         project = from_json(f.name)
+
+    if import_records:
+        for k, file in project.files.items():
+            if isinstance(file, SeqFile):
+                file.import_records()
+
+        for sample in project:
+            for k, file in sample.files.items():
+                if isinstance(file, SeqFile):
+                    file.import_records()
 
     return project

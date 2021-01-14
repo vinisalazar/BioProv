@@ -11,6 +11,7 @@
 ### v0.1.23
 * Patch PresetProgram SeqFile addition feature [x]
 * Fix SeqFile deserializer [x]
+* Add import_records arg to `bp.load_project()` [x]
 
 
 ### v0.1.22
