@@ -304,7 +304,7 @@ class SeqFile(File):
         """
         Runs _seqrecordgenerator with the format.
         """
-        self._generator = seqrecordgenerator(
+        self.generator = seqrecordgenerator(
             self.path, format=self.format, parser=self._parser
         )
 
@@ -484,8 +484,8 @@ def deserialize_files_dict(files_dict):
                     files_dict[tag] = SeqFile(
                         path=file["path"],
                         tag=file["tag"],
+                        format=file["format"]
                     )
-                    _ = files_dict[tag].generator
                     for seqstats_attr_ in SeqStats.__dataclass_fields__.keys():
                         if seqstats_attr_ in file.keys():
                             setattr(
@@ -502,6 +502,8 @@ def deserialize_files_dict(files_dict):
                 if attr_ not in ("path",):
                     try:
                         setattr(files_dict[tag], attr_, value_)
+                        if attr_ == "_generator":
+                            files_dict[tag]._seqrecordgenerator()
                     except AttributeError:
                         pass
     return files_dict

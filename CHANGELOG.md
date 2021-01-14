@@ -10,6 +10,7 @@
 
 ### v0.1.23
 * Patch PresetProgram SeqFile addition feature [x]
+* Fix SeqFile deserializer [x]
 
 
 ### v0.1.22
