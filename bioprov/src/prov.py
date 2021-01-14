@@ -281,7 +281,7 @@ class BioProvDocument:
                 for _user, _env_dict in self.project.users.items():
                     _user_bundle = self._user_bundles[_user]
                     for _env_hash, _env in _env_dict.items():
-                        if _env_hash == last_run.env:
+                        if _env_hash == last_run.env and _env_hash not in self._agents.keys():
                             if self.add_attributes:
                                 self._agents[_env_hash] = _user_bundle.agent(
                                     f"envs:{_env}",
