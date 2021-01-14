@@ -8,6 +8,7 @@ before_install:
 # command to install dependencies
 install:
   - pip install .
+  - pip install pandas --force-reinstall
 # command to run tests
 script:
   - pytest --cov=bioprov/

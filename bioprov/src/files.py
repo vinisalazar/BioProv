@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 
 """
@@ -279,6 +279,8 @@ class SeqFile(File):
         self._generator = None
         self._seqstats = None
         self._parser = parser
+
+        # TODO: add these attributes as properties. Calculate lazily (only if retrieving).
         self.number_seqs: int
         self.total_bps: int
         self.mean_bp: float
@@ -304,7 +306,7 @@ class SeqFile(File):
         """
         Runs _seqrecordgenerator with the format.
         """
-        self._generator = seqrecordgenerator(
+        self.generator = seqrecordgenerator(
             self.path, format=self.format, parser=self._parser
         )
 
@@ -328,9 +330,15 @@ class SeqFile(File):
     def seqstats(self, value):
         self._seqstats = value
 
-    def import_records(self):
+    def import_records(self, **kwargs):
+        """
+        :param kwargs: Parameters to pass to the SeqFile._calculate_seqstats() function.
+        :return: Import records into self.
+        """
         assert self.exists, "Cannot import, file does not exist."
+        self._seqrecordgenerator()
         self.records = SeqIO.to_dict(self._generator)
+        self._calculate_seqstats(**kwargs)
 
     def serializer(self):
         keys = ("records",)
@@ -353,6 +361,9 @@ class SeqFile(File):
         assert isinstance(self.records, dict), Warnings()["incorrect_type"](
             self.records, dict
         )
+        if len(self.records) < 1:
+            self.import_records()
+        assert len(self.records) > 0, "Attribute 'records' is empty. Try importing records manually."
 
         bp_array, GC = [], 0
         aminoacids = "LMFWKQESPVIYHRND"
@@ -484,8 +495,8 @@ def deserialize_files_dict(files_dict):
                     files_dict[tag] = SeqFile(
                         path=file["path"],
                         tag=file["tag"],
+                        format=file["format"]
                     )
-                    _ = files_dict[tag].generator
                     for seqstats_attr_ in SeqStats.__dataclass_fields__.keys():
                         if seqstats_attr_ in file.keys():
                             setattr(
@@ -502,6 +513,8 @@ def deserialize_files_dict(files_dict):
                 if attr_ not in ("path",):
                     try:
                         setattr(files_dict[tag], attr_, value_)
+                        if attr_ == "_generator":
+                            files_dict[tag]._seqrecordgenerator()
                     except AttributeError:
                         pass
     return files_dict
