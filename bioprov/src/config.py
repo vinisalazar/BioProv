@@ -306,7 +306,8 @@ class Environment:
             self.env_namespace = Namespace("envs", str(self))
 
     def serializer(self):
-        return serializer(self)
+        keys = ("_actedOnBehalfOf",)
+        return serializer_filter(self, keys)
 
 
 config = Config()
