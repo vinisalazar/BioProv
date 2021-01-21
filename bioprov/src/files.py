@@ -367,7 +367,9 @@ class SeqFile(File):
         )
         if len(self.records) < 1:
             self.import_records()
-        assert len(self.records) > 0, "Attribute 'records' is empty. Try importing records manually."
+        assert (
+            len(self.records) > 0
+        ), "Attribute 'records' is empty. Try importing records manually."
 
         bp_array, GC = [], 0
         aminoacids = "LMFQESPI"
@@ -453,7 +455,7 @@ class SeqFile(File):
         if len(self.records) < 1:
             self.import_records()
 
-        min_seq, len_min_seq = None, 10**9
+        min_seq, len_min_seq = None, 10 ** 9
         for id_, seq in self.records.items():
             if len(seq) < len_min_seq:
                 len_min_seq = len(seq)
@@ -543,9 +545,7 @@ def deserialize_files_dict(files_dict):
                     # TODO: don't import records again (slow)
                     # Get them straight from the JSON file.
                     files_dict[tag] = SeqFile(
-                        path=file["path"],
-                        tag=file["tag"],
-                        format=file["format"]
+                        path=file["path"], tag=file["tag"], format=file["format"]
                     )
                     for seqstats_attr_ in SeqStats.__dataclass_fields__.keys():
                         if seqstats_attr_ in file.keys():
