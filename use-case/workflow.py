@@ -143,17 +143,34 @@ def prodigal_(proj):
         sample.run_programs()
 
 
+# create fastani input
+def create_fastani_input(proj):
+    fastani_input = bp.File(f"data/fastani_input_{proj.tag}.txt", tag="fastani_input")
+    proj.add_files(fastani_input)
+    create_fastani_input_ = bp.Program("create_fastani_input")
+    create_fastani_input_.found = True
+
+    file_params = [bp.Parameter(str(sample.files['genes']), kind="input") for sample in proj]
+
+    params = [
+        bp.Parameter("python", "create_fastani_input.py"),
+        bp.Parameter(f"fastani_input_{proj.tag}.txt"),
+        *file_params,
+    ]
+
+    for param in params:
+        create_fastani_input_.add_parameter(param)
+
+    proj.add_programs(create_fastani_input_)
+    create_fastani_input_.run()
+
+
 # pairwise gene comparison
 def fastani(proj):
-    fastani_input = bp.File(f"data/fastani_input_{proj.tag}.txt", tag="fastani_input")
     fastani_output = bp.File(
         f"data/fastani_output_{proj.tag}.txt", tag="fastani_output"
     )
-    proj.add_files(fastani_input)
     proj.add_files(fastani_output)
-    with open(proj.files["fastani_input"].path, "w") as f:
-        for file in (sample.files["genome_assembly"] for sample in proj):
-            f.write(str(file) + "\n")
 
     _fastani = bp.Program("fastani")
 
@@ -249,6 +266,7 @@ def processing(tag):
     proj = bp.load_project(tag)
     proj.auto_update = True
     prodigal_(proj)
+    create_fastani_input(proj)
     fastani(proj)
     format_fastani_output(proj)
     labels(proj)
