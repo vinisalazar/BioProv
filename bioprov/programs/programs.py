@@ -10,7 +10,6 @@ Module for holding preset instances of the Program class.
 Module for holding preset instances of the Program class.
 """
 
-import logging
 from os import path
 from pathlib import Path
 
