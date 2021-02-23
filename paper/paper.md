@@ -46,7 +46,7 @@ data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically 
 and among diverse applications and systems. Modelling BWFs with the W3C-PROV standard, however, can be costly to both
 researchers writing and performing the analyses and developers responsible for storing information about these workflows.
 While some workflow systems offer provenance capture in a W3C-PROV compliant format,
-this usually must be done manually, i.e. the user must specify all the data to be captured. We introduce BioProv as a library that
+this usually must be done manually, *i.e.* the user must specify all the data to be captured. We introduce BioProv as a library that
 aims to facilitate the creation of W3C-PROV compliant documents) for BWFs,
 automatically capturing the provenance of workflow steps between different users and computing environments. 
 
@@ -77,46 +77,49 @@ nodes in a phylogenetic tree file.
 Implementing a system to capture these data can be very costly to both users and developers of BWFs, as most provenance capture software are generic
 and do not support, for example, parsing of biological data formats. This may imply the need to either manually develop specific parsing solutions
 for the files involved or to create database schemas that support domain-specific data. BioProv attempts
-to fill this gap, by providing features that allow capturing W3C-PROV compatible provenance data and support the specificities of
-bioinformatics applications.
+to fill this gap, by providing features that support the specificities of bioinformatics applications and allow
+the automatic capture of provenance data in a W3C-PROV compliant format.
 
 # Features and data model
 
 ## Overview
 
-BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF in an object
+BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF into an object 
 called a `Project`. Projects group related samples and files and any programs that process these files. They also carry information about agents, which are
-represented both as users and computing environments used to execute programs.
+represented both as users and computing environments used to execute programs. In the context of BioProv, a "Project" is distinct from a "Workflow"
+in the sense that a Project refers to a particular set of samples and files and associated programs, while a workflow refers to a set of programs which
+can be run on any set of adequate samples. A user can therefore use the same workflow in many projects.
 Because they are serializable in JSON and tabular formats, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
 allowing better integration with web systems. The library can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
 or from the application's command line interface (CLI). The CLI component of BioProv allows users to quickly launch custom workflows from the command line using
-the `bioprov <workflow_name>` command. BioProv uses the BioPython [@Cock2009] library as a wrapper to parse bioinformatics file formats, and it supports
+the `bioprov <workflow_name>` command. 
+
+![Architecture of a BioProv application.\label{fig:archi}](figures/architecture-en.png){ width=50% }
+
+BioProv uses the BioPython [@Cock2009] library as a wrapper to parse common bioinformatics file formats, and it supports
 several file formats for both [sequence](https://biopython.org/wiki/SeqIO) and [alignment](https://biopython.org/wiki/AlignIO) data, allowing the user
 to easily extract domain data without having to write any parsers. Here we present some of the core features of BioProv, but for a more complete introduction,
 we recommend the package's [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb) in Jupyter Notebook format, that
 can also be launched [via Binder](https://mybinder.org/v2/gh/vinisalazar/bioprov/master?filepath=docs%2Ftutorials%2F), and the [documentation page](https://bioprov.readthedocs.io/).
-For example data, we provide five small bacterial genomes and a BLAST database that is a subset of MEGARES [@Lakin2017]. These two datasets can 
+As example data, we provide five small bacterial genomes and a BLAST database that is a subset of MEGARES [@Lakin2017]. These two datasets can 
 be used to test the installation and illustrate some of the core features of BioProv.
 
 ## Classes
 
-BioProv implements several classes (hereafter highlighted in bold text) in order to model BWFs. Its object-oriented design allows
-users to enjoy the flexibility of working with extendable Python objects, which are familiar to many frameworks.
+BioProv implements several classes (hereafter highlighted in bold text) in order to represent provenance data extracted from BWfs.
+Its object-oriented design allows users to benefit from the flexibility of working with extendable Python objects, which are familiar to many frameworks (e.g.
+the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020], Matplotlib [@Hunter2007], and others.)
 The four main classes are:
 
 * **Project:** The higher-level structure that contains core project information. Contains associated samples, files, and programs.
 * **Sample:** Describes biological samples. Has attributes and contains associated files and programs.
-* **File:** Describes computer files that may be associated with a Sample or Project (i.e. if it is associated with zero, two, or more samples).
+* **File:** Describes computer files that may be associated with a Sample or Project.
 * **Program:** Describes programs that process and create files.
-<!-- * **Workflow:** Describes a sequence of programs that are run on project- or sample-level files. Used mostly with the CLI functionality. -->
 
-A **Project** will be the top-level object in a BioProv workflow. It will contain $n$ biological **Samples** that may have
+A **Project** is the top-level object in a typical execution of a BioProv workflow. It contains $N$ biological **Samples** that may have
 individually associated **Files** (for example, raw sequence data in FASTQ format) and **Programs**, which are processes that can be run
 to create and/or modify files. Files and Programs can also be associated directly with the Project, instead of being associated with a 
-particular Sample (\autoref{fig:json}).
-
-![The BioProv data model follows an hierarchical, JSON-serializable structure. This example is adapted for illustrative purposes.
-\label{fig:json}](figures/figure_1.png)
+particular Sample.
 
 BioProv detects the current user and environment variables and stores them alongside the Project;
 each Program, when run, is automatically associated with the current computing environment. This way, BioProv can represent which process
