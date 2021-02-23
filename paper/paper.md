@@ -1,5 +1,5 @@
 ---
-title: 'BioProv - provenance documents for bioinformatics workflows'
+title: 'BioProv - a library to capture provenance from bioinformatics workflows'
 tags:
  - Python
  - W3C-PROV
@@ -30,34 +30,53 @@ bibliography: paper.bib
 # Summary
 
 In an era where it can be argued that all biology is computational biology [@Markowetz2017],
-it is increasingly important to properly manage computational analyses and data to
+properly managing computational analyses and data is crucial to
 ensure the reproducibility of *in silico* experiments. A major aspect of best practices in 
-scientific computing [@wilson2017good] is managing the **provenance** of data. The World Wide Web
-Consortium (W3C) Provenance Working Group defines provenance as ["a record that describes the people,
+scientific computing is managing the **provenance** of data [@wilson2017good]. The World Wide Web
+Consortium (W3C) Provenance Working Group defines provenance as "a record that describes the people,
 institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
-data or a thing"](https://www.w3.org/TR/prov-overview/) [@Groth2013]. 
+data or a thing" [@Groth2013]. 
 
 Therefore, for bioinformatics workflows (BWFs), where there are usually numerous, and many times complex,
 steps in data processing, capturing and storing provenance rapidly becomes a challenge.
-This provenance data should not only be intelligible to humans, but structured and machine-readable; 
-this is fundamental to ensure reproducibility in present and future research in bioinformatics and
+This provenance data should not only be comprehensible to humans, but structured and queryable; 
+this is to ensure reproducibility in present and future research in bioinformatics and
 many other fields of scientific research [@Kanwal2017; @Pasquier2017]. A proposed standard for interoperability of provenance
-data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically designed to share provenance data
-across the web. However, modelling BWFs with the W3C-PROV standard can be costly to both 
-researchers writing and performing the analyses and developers responsible for storing information about these workflows
-in web systems. We introduce BioProv as a library that aims to facilitate the creation of W3C-PROV compliant documents
-for BWFs, capturing the provenance of the workflow steps between different users and computing environments.
+data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically designed to share provenance data across the web
+and among diverse applications and systems. Modelling BWFs with the W3C-PROV standard, however, can be costly to both
+researchers writing and performing the analyses and developers responsible for storing information about these workflows.
+While some workflow systems offer provenance capture in a W3C-PROV compliant format,
+this usually must be done manually, i.e. the user must specify all the data to be captured. We introduce BioProv as a library that
+aims to facilitate the creation of W3C-PROV compliant documents) for BWFs,
+automatically capturing the provenance of workflow steps between different users and computing environments. 
+
+# W3C-PROV
+The W3C-PROV standard is endorsed by the [World Wide Web Consortium (W3C)](https://www.w3.org/Consortium), the leading global community for web standards.
+It divides provenance data into three separate views (\autoref{fig:w3c-prov}): the data flow view, comprised of **entities**, that are any physical, digital
+or conceptual *thing*; the process flow view, that focuses on **activities**, that are *processes* that happen over time and act upon or with
+entities, either by consuming, processing, using, or generating them; and the responsibility view, that concerns the assignment of **agents**
+that are responsible for entities, activities, or other agents. These three elements of provenance have a set of seven relations between
+them, that can be further described by *relation patterns*. For a full introduction to the W3C-PROV standard, we recommend @Groth2013.
+
+![Schematic view of the W3C-PROV data model. Adapted from @Groth2013.
+\label{fig:w3c-prov}](figures/w3c-prov.png){ width=50% }
 
 # Statement of need
 
 BioProv is a Python library for **generating provenance documents of bioinformatics workflows.**
-Presently, there are excellent, freely available tools for both orchestrating scientific workflows [@Koster2012; @DiTommaso2017] and
-capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019].
-However, to the best of our knowledge, there is not yet any library that specializes in capturing the provenance of BWFs.
-Some of these workflow management systems provide reports such as execution trace or graph, but these reports are not W3C-PROV compatible and/or
-are not serializable, and the collection of domain-specific information usually must be collected by the user with an *ad hoc* approach.
-This can be very costly to both users and developers of BWFs looking to collect provenance data, as much effort can be spent
-in modelling these workflows in a satisfactory data structure that can be easily updated during runtime [@DePaula2013]. BioProv attempts
+Presently, there are many freely available tools for both managing scientific workflows [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017] and
+capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019]. 
+The challenge of provenance capture in the field of bioinformatics has been characterized and is standing for more than a decade [@Stevens2007].
+Several studies have been able to implement solutions that model BWFs and adequately capture and store provenance data [@Ocana2014; @Ocana2015; @DePaula2013]. 
+However, to the best of our knowledge, there is not yet any software library that *specializes* in capturing the provenance of BWFs.
+In the case of workflow management systems, they provide execution reports such as execution trace or graph, but these documents are not usually W3C-PROV compatible and/or
+are not serializable, or the collection of domain-specific information must be collected by the user with an *ad hoc* approach.
+Domain-specific data are particularly relevant in BWFs, as they can be used to help researchers make decisions and steer workflow parameters during runtime [@Costa2013].
+They refer to metadata that are characteristic of biological data formats, e.g. the distribution of the length of sequences in a nucleotide sequence file, or the number of
+nodes in a phylogenetic tree file.
+Implementing a system to capture these data can be very costly to both users and developers of BWFs, as most provenance capture software are generic
+and do not support, for example, parsing of biological data formats. This may imply the need to either manually develop specific parsing solutions
+for the files involved or to create database schemas that support domain-specific data. BioProv attempts
 to fill this gap, by providing features that allow capturing W3C-PROV compatible provenance data and support the specificities of
 bioinformatics applications.
 
@@ -65,11 +84,13 @@ bioinformatics applications.
 
 ## Overview
 
-BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF in a hierarchical, JSON-serializable data structure
-Thus, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
-allowing better integration with web systems. It can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
-or from the command line (CLI), as it can be used to quickly write provenance-aware workflows that can be launched using
-the `bioprov <workflow_name>` command. BioProv uses the BioPython [@Cock2009] library as a wrapper to parse bioinformatics file formats, as it supports
+BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF in an object
+called a `Project`. Projects group related samples and files and any programs that process these files. They also carry information about agents, which are
+represented both as users and computing environments used to execute programs.
+Because they are serializable in JSON and tabular formats, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
+allowing better integration with web systems. The library can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
+or from the application's command line interface (CLI). The CLI component of BioProv allows users to quickly launch custom workflows from the command line using
+the `bioprov <workflow_name>` command. BioProv uses the BioPython [@Cock2009] library as a wrapper to parse bioinformatics file formats, and it supports
 several file formats for both [sequence](https://biopython.org/wiki/SeqIO) and [alignment](https://biopython.org/wiki/AlignIO) data, allowing the user
 to easily extract domain data without having to write any parsers. Here we present some of the core features of BioProv, but for a more complete introduction,
 we recommend the package's [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb) in Jupyter Notebook format, that
@@ -143,7 +164,7 @@ in the table. The `assembly` column contains the path to the genome assembly of 
 The `report` column points to a plain text file contaning the assembly report (therefore, a "file").
 The other columns will be parsed as sample attributes. This can be easily done with the `read_csv()` function:
 
-```
+```python
 In [1]: import bioprov as bp
 
 In [2]: project = bp.read_csv("myTable.csv",
@@ -155,14 +176,14 @@ In [2]: project = bp.read_csv("myTable.csv",
 
 The table from which the data was sourced will automatically be added as a project file:
 
-```
+```python
 In [3]: project.files
 Out[3]: {'project_csv': /home/user/myProject/myTable.csv}
 ```
 
 And Samples will be created with associated files and attributes:
 
-```
+```python
 In [4]: project["sample_1"]
 Out[4]: Sample sample_1 with 2 file(s).
 
@@ -177,7 +198,7 @@ Out[6]: {'source': 'seawater'}
 
 Sequence metadata is extracted from sequence files, as set by the `import_data=True` parameter:
 
-```
+```python
 In [7]: project["sample_1"].files["assembly"].GC                                                                                                                                                                
 Out[7]: 0.36442
 ```
@@ -188,7 +209,7 @@ to illustrate this. Prodigal runs a gene prediction algorithm for prokaryotic ge
 Now that their project is loaded, the user can add new files, samples and programs. Programs can be run and execution provenance
 will be captured (such as **stdout** and **stderr**, start and end time, and files involved).
 
-```
+```python
 In [8]: from bioprov.programs import prodigal                                                                                                                                                                                              
 
 In [9]: with project["sample_1"] as sample: 
@@ -204,7 +225,7 @@ To export the project, there are a few options. The user can either:
    the `Project.to_json()` method;
    * store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
 
-```
+```python
 In [10]: project.to_csv()  # exports in tabular format
 
 In [11]: project.to_json()  # exports as JSON
@@ -219,7 +240,7 @@ Python database. Projects can be easily loaded by their ID (the `Project.tag` at
 setting the `Project.auto_update = True` option. Assuming the user has run the previous code example, this could be done in a 
 new session:
 
-```
+```python
 In [1]: import bioprov as bp
 
 In [2]: project = bp.load_project("myProject")  # call projects by their tag
@@ -234,7 +255,7 @@ The database can be managed from BioProv's CLI application.
 
 To use the CLI, after installing, simply type `bioprov`:
 
-```
+```shell
 ~/ $ bioprov
 usage: bioprov [-h]
                [--show_config | --show_provstore | --create_provstore |
@@ -281,7 +302,7 @@ graphical format and [PROV-N](https://www.w3.org/TR/prov-n/) (a human-readable p
 
 The following code will generate the \autoref{fig:project} and a PROV-N record:
 
-```
+```python
 In [4]: prov = bp.BioProvDocument(project, add_users=False)
 
 In [5]: prov.write_provn()
@@ -291,13 +312,13 @@ In [6]: prov.dot.write_pdf("myProject.pdf")
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
 sample associated with a bacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
-file.\label{fig:project}](figures/figure_2.png)
+file.\label{fig:project}](figures/bp_graph.png)
 
 Lastly, **BioProvDocuments** can be uploaded to [ProvStore](https://openprovenance.org/store/), a web service for storage and visualization
 of W3C-PROV documents. The credentials to the ProvStore API are set with the `bioprov --create_provstore` command, and a document can be
 uploaded with the `upload_to_provstore()` method:
 
-```
+```python
 In [7]: prov.upload_to_provstore()
 ```
 
