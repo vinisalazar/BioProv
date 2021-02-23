@@ -7,6 +7,52 @@ issn = {15487105},
 title = {{Fast and sensitive protein alignment using DIAMOND}},
 year = {2014}
 }
+@article{afgan2018galaxy,
+  title={The Galaxy platform for accessible, reproducible and collaborative biomedical analyses: 2018 update},
+  author={Afgan, Enis and Baker, Dannon and Batut, B{\'e}r{\'e}nice and Van Den Beek, Marius and Bouvier, Dave and {\v{C}}ech, Martin and Chilton, John and Clements, Dave and Coraor, Nate and Gr{\"u}ning, Bj{\"o}rn A and others},
+  journal={Nucleic acids research},
+  volume={46},
+  number={W1},
+  pages={W537--W544},
+  year={2018},
+  publisher={Oxford University Press}
+}
+@article{Costa2013,
+abstract = {Scientific workflows are commonly used to model and execute large-scale scientific experiments. They represent key resources for scientists and are enacted and managed by Scientific Workflow Management Systems (SWfMS). Each SWfMS has its particular approach to execute workflows and to capture and manage their provenance data. Due to the large scale of experiments, it may be unviable to analyze provenance data only after the end of the execution. A single experiment may demand weeks to run, even in high performance computing environments. Thus scientists need to monitor the experiment during its execution, and this can be done through provenance data. Runtime provenance analysis allows for scientists to monitor workflow execution and to take actions before the end of it (i.e. workflow steering). This provenance data can also be used to fine-tune the parallel execution of the workflow dynamically. We use the PROV data model as a basic framework for modeling and providing runtime provenance as a database that can be queried even during the execution. This database is agnostic of SWfMS and workflow engine. We show the benefits of representing and sharing runtime provenance data for improving the experiment management as well as the analysis of the scientific data. {\textcopyright} 2013 ACM.},
+author = {Costa, Flavio and Silva, V{\'{i}}tor and {De Oliveira}, Daniel and Oca{\~{n}}a, Kary and Ogasawara, Eduardo and Dias, Jonas and Mattoso, Marta},
+doi = {10.1145/2457317.2457365},
+isbn = {9781450315999},
+journal = {ACM International Conference Proceeding Series},
+keywords = {PROV model,import cartridge,scientific workflows},
+number = {April},
+pages = {282--289},
+title = {{Capturing and querying workflow runtime provenance with PROV: A practical approach}},
+year = {2013}
+}
+@article{Stevens2007,
+abstract = {This article offers a briefing in one of the knowledge management issues of in silico experimentation in bioinformatics. Recording of the provenance of an experiment-what was done; where, how and why, etc. is an important aspect of scientific best practice that should be extended to in silico experimentation. We will do this in the context of eScience which has been part of the move of bioinformatics towards an industrial setting. Despite the computational nature of bioinformatics, these analyses are scientific and thus necessitate their own versions of typical scientific rigour. Just as recording who, what, why, when, where and how of an experiment is central to the scientific process in laboratory science, so it should be in silico science. The generation and recording of these aspects, or provenance, of an experiment are necessary knowledge management goals if we are to introduce scientific rigour into routine bioinformatics. In Silico experimental protocols should themselves be a form of managing the knowledge of how to perform bioinformatics analyses. Several systems now exist that offer support for the generation and collection of provenance information about how a particular in silico experiment was run, what results were generated, how they were generated, etc. In reviewing provenance support, we will review one of the important knowledge management issues in bioinformatics.},
+author = {Stevens, Robert and Zhao, Jun and Goble, Carole},
+doi = {10.1093/bib/bbm015},
+issn = {14675463},
+journal = {Briefings in Bioinformatics},
+keywords = {Data derivation,In Silico experiments,Provenance,Validation and verification of results,Workflow},
+number = {3},
+pages = {183--194},
+title = {{Using provenance to manage knowledge of In Silico experiments}},
+volume = {8},
+year = {2007}
+}
+@article{hull2006taverna,
+  title={Taverna: a tool for building and running workflows of services},
+  author={Hull, Duncan and Wolstencroft, Katy and Stevens, Robert and Goble, Carole and Pocock, Mathew R and Li, Peter and Oinn, Tom},
+  journal={Nucleic acids research},
+  volume={34},
+  number={suppl\_2},
+  pages={W729--W732},
+  year={2006},
+  publisher={Oxford University Press}
+}
+
 @article{Buneman2001,
 author = {Buneman, Peter and Khanna, Sanjeev and Tan, Wang-Chiew and Chiew, Wang -},
 journal = {Lecture Notes in Computer Science},
@@ -34,6 +80,34 @@ issn = {13674803},
 journal = {Bioinformatics},
 title = {{Biopython: Freely available Python tools for computational molecular biology and bioinformatics}},
 year = {2009}
+}
+@article{Ocana2014,
+abstract = {Computer-aided drug design techniques are important assets in pharmaceutical industry because of their support for research and development of new drugs. Molecular docking (MD) predicts specific compound's binding modes within the active site of target proteins. Since MD is a time-consuming process, existing approaches reduce the number of receptors or ligands in docking by evaluating only small sets of compounds. This restriction in the search space reduces the chances to uniformly cover the diverse space of compounds and misses opportunities to recognize whether new drugs can be identified. Another difficulty with large-scale is analyzing the results, e.g. browsing all directories manually to find which pairs were docked successfully. To address these issues we explored the potential of data provenance analysis and parallel processing of SciCumulus, a cloud Scientific Workflow Management System. We present SciDock, a molecular docking-based virtual screening workflow and evaluate its execution using 10,000 receptor-ligand pairs related to proteases enzymes of protozoan genomes. The overall performance of SciDock using 32 cores, in cloud virtual machines, reaches improvements up to 95.4{\%} when running SciDock with AutoDock and 96.1{\%} when running SciDock with Vina. We show how data provenance improved the result analysis and how it may indicate potential proteases drug targets for protozoan treatments.},
+author = {Oca{\~{n}}a, Kary and Benza, Silvia and {De Oliveira}, Daniel and Dias, Jonas and Mattoso, Marta},
+doi = {10.1109/IPDPSW.2014.65},
+isbn = {9780769552088},
+issn = {23321237},
+journal = {Proceedings of the International Parallel and Distributed Processing Symposium, IPDPS},
+keywords = {Cloud,Drug discovery,Workflow},
+mendeley-groups = {MestradoEngnr/Disserta{\c{c}}{\~{a}}o/Papers Marta,MestradoEngnr/Disserta{\c{c}}{\~{a}}o/Texto principal/Workflows e bioinform{\'{a}}tica},
+pages = {536--545},
+title = {{Exploring large scale receptor-Ligand pairs in molecular docking workflows in HPC clouds}},
+year = {2014}
+}
+@inproceedings{Ocana2015,
+abstract = {Homology modeling (HM) plays an important role in drug discovery. HM analysis aims at predicting a 3D model from a biological sequence in order to discover new drugs. There are several problems in executing an HM analysis in large-scale, such as multiple software to be evaluated, the management of the parallel execution, and results analysis, e.g. browsing manually all results to find which structure was derived from which program with good quality. Scientific Workflow Management System (SWfMS) with parallelism and provenance support can aid the large-scale HM executions by addressing the result analysis. However, before submitting the HM workflow for execution, it has to be specified along with its several alternatives (also called variants), as considered in this paper. Managing HM workflow variations is a complex task to be accomplished even with the help of a SWfMS. In this paper, we propose SciSamma (Structural Approach and Molecular Modeling Analyses), an abstract representation of HM workflows inspired in the concept of software product lines (SPL). SciSamma models HM workflow variants to execute with parallel processing in the cloud using SciCumulus SWfMS. We evaluated SciSamma with two common variants using 100 protease enzymes of protozoan genomes. Both variations presented scalability with performance improvements (dropping from 8 h to 27 min using 32 Amazon's large virtual machines). While evaluating the two workflow variants, through provenance queries, they present the same quality in biological results, but the difference in execution time between them was around 40 {\%}.},
+author = {Oca{\~{n}}a, Kary A.C.S. and de Oliveira, Daniel and Silva, V{\'{i}}tor and Benza, Silvia and Mattoso, Marta},
+booktitle = {Lecture Notes in Computer Science (including subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics)},
+doi = {10.1007/978-3-319-22885-3_29},
+isbn = {9783319228846},
+issn = {16113349},
+keywords = {Cloud,Homology modeling,Provenance data,Workflow},
+mendeley-groups = {MestradoEngnr/Disserta{\c{c}}{\~{a}}o/Papers Marta},
+pages = {336--350},
+title = {{Exploiting the parallel execution of homology workflow alternatives in HPC compute clouds}},
+url = {http://link.springer.com/10.1007/978-3-319-22885-3{\_}29},
+volume = {8954},
+year = {2015}
 }
 @article{DePaula2013,
 abstract = {In this work, we used the PROV-DM model to manage data provenance in workflows of genome projects. This provenance model allows the storage of details of one workflow execution, e.g., raw and produced data and computational tools, their versions and parameters. Using this model, biologists can access details of one particular execution of a workflow, compare results produced by different executions, and plan new experiments more efficiently. In addition to this, a provenance simulator was created, which facilitates the inclusion of provenance data of one genome project workflow execution. Finally, we discuss one case study, which aims to identify genes involved in specific metabolic pathways of Bacillus cereus, as well as to compare this isolate with other phylogenetic related bacteria from the Bacillus group. B. cereus is an extremophilic bacteria, collected in warm water in the Midwestern Region of Brazil, its DNA samples having been sequenced with an NGS machine.},
@@ -80,6 +154,18 @@ pmid = {15034147},
 title = {{MUSCLE: Multiple sequence alignment with high accuracy and high throughput}},
 volume = {32},
 year = {2004}
+}
+@misc{Vivian2017,
+author = {Vivian, John and Rao, Arjun Arkal and Nothaft, Frank Austin and Ketchum, Christopher and Armstrong, Joel and Novak, Adam and Pfeil, Jacob and Narkizian, Jake and Deran, Alden D. and Musselman-Brown, Audrey and Schmidt, Hannes and Amstutz, Peter and Craft, Brian and Goldman, Mary and Rosenbloom, Kate and Cline, Melissa and O'Connor, Brian and Hanna, Megan and Birger, Chet and Kent, W. James and Patterson, David A. and Joseph, Anthony D. and Zhu, Jingchun and Zaranek, Sasha and Getz, Gad and Haussler, David and Paten, Benedict},
+booktitle = {Nature Biotechnology},
+doi = {10.1038/nbt.3772},
+issn = {15461696},
+number = {4},
+pages = {314--316},
+pmid = {28398314},
+title = {{Toil enables reproducible, open source, big biomedical data analyses}},
+volume = {35},
+year = {2017}
 }
 @book{Groth2013,
 author = {Groth, Paul and Moreau, Luc},
