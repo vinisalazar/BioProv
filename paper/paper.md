@@ -55,7 +55,7 @@ this usually must be done manually, *i.e.* the user must specify all the data to
 aims to facilitate the creation of W3C-PROV compliant documents) for BWFs,
 automatically capturing the provenance of workflow steps between different users and computing environments. 
 
-# W3C-PROV
+## W3C-PROV
 The W3C-PROV standard is endorsed by the [World Wide Web Consortium (W3C)](https://www.w3.org/Consortium), the leading global community for web standards.
 It divides provenance data into three separate views (\autoref{fig:w3c-prov}): the data flow view, comprised of **entities**, that are any physical, digital
 or conceptual *thing*; the process flow view, that focuses on **activities**, that are *processes* that happen over time and act upon or with
@@ -335,8 +335,8 @@ In [5]: prov.write_provn()
 In [6]: prov.dot.write_pdf("myProject.pdf")
 ```
 
-![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing a single
-sample associated with a bacterial genome. The `prodigal` program uses the `assembly` file as input to create the `proteins`
+![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing two
+samples associated with bacterial genomes. The `prodigal` program uses the `assembly` file as input to create the `proteins`
 file.\label{fig:project}](figures/bp_graph.png)
 
 Lastly, **BioProvDocuments** can be uploaded to [ProvStore](https://openprovenance.org/store/), a web service for storage and visualization
