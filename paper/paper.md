@@ -328,7 +328,7 @@ The `add_users=False` option makes our resulting graph simpler for demonstration
 but it can be omitted.
 
 ```python
-In [4]: prov = bp.BioProvDocument(project, add_users=False)
+In [4]: prov = bp.BioProvDocument(project)
 
 In [5]: prov.write_provn()
 
