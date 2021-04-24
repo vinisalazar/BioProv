@@ -270,6 +270,7 @@ class Environment:
         Class constructor. All attributes are empty and are initialized with self.update()
         """
         self.env_hash = None
+        self.env_hash_long = None
         self.env_dict = None
         self.user = None
         self.env_namespace = None
@@ -277,7 +278,7 @@ class Environment:
         self._actedOnBehalfOf = False
 
     def __repr__(self):
-        return self.env_hash
+        return f"BioProvEnvironment{self.env_hash}"
 
     @property
     def actedOnBehalfOf(self):
@@ -294,9 +295,10 @@ class Environment:
         """
         env_dict = dict(os.environ.items())
         env_hash = dict_to_sha256(env_dict)
-        if env_hash != self.env_hash:
+        if env_hash != self.env_hash_long:
             self.env_dict = env_dict
-            self.env_hash = env_hash
+            self.env_hash = env_hash[:7]
+            self.env_hash_long = env_hash
 
             # this is only to prevent build errors
             try:

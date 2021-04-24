@@ -287,14 +287,14 @@ class BioProvDocument:
                         ):
                             if self.add_attributes:
                                 self._agents[_env_hash] = _user_bundle.agent(
-                                    f"envs:{_env}",
+                                    f"envs:{_env_hash}",
                                     other_attributes=build_prov_attributes(
                                         _env.env_dict, _env.env_namespace
                                     ),
                                 )
                             else:
                                 self._agents[_env_hash] = _user_bundle.agent(
-                                    f"envs:{_env}"
+                                    f"envs:{_env_hash}"
                                 )
                             if not _env.actedOnBehalfOf:
                                 _user_bundle.actedOnBehalfOf(

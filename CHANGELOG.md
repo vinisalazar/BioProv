@@ -16,6 +16,7 @@
 * Improve reserved aminoacid characters [x]
 * Add `SeqFile.max_seq` and `.min_seq` properties [x]
 * Patch `Project` deserializer to improve BioProvDocument creation [x]
+* Make shorter Environment hashes [x]
 
 ### v0.1.22
 * Simplify `bp.load_project()` function [x]
