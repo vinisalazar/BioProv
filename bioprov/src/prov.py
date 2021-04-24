@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 """
 Module containing base provenance attributes.
@@ -281,17 +281,20 @@ class BioProvDocument:
                 for _user, _env_dict in self.project.users.items():
                     _user_bundle = self._user_bundles[_user]
                     for _env_hash, _env in _env_dict.items():
-                        if _env_hash == last_run.env:
+                        if (
+                            _env_hash == last_run.env
+                            and _env_hash not in self._agents.keys()
+                        ):
                             if self.add_attributes:
                                 self._agents[_env_hash] = _user_bundle.agent(
-                                    f"envs:{_env}",
+                                    f"envs:{_env_hash}",
                                     other_attributes=build_prov_attributes(
                                         _env.env_dict, _env.env_namespace
                                     ),
                                 )
                             else:
                                 self._agents[_env_hash] = _user_bundle.agent(
-                                    f"envs:{_env}"
+                                    f"envs:{_env_hash}"
                                 )
                             if not _env.actedOnBehalfOf:
                                 _user_bundle.actedOnBehalfOf(
@@ -334,8 +337,8 @@ class BioProvDocument:
                     file_obj, *_ = file_obj
                     if io_type == "input":
                         sample.ProvBundle.used(
-                            self._entities[file_obj.name],
                             self._activities[program.name],
+                            self._entities[file_obj.name],
                         )
                     elif io_type == "output":
                         sample.ProvBundle.wasGeneratedBy(

@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 
 """
@@ -279,6 +279,8 @@ class SeqFile(File):
         self._generator = None
         self._seqstats = None
         self._parser = parser
+
+        # TODO: add these attributes as properties. Calculate lazily (only if retrieving).
         self.number_seqs: int
         self.total_bps: int
         self.mean_bp: float
@@ -286,6 +288,10 @@ class SeqFile(File):
         self.max_bp: int
         self.N50: int
         self.GC: float
+
+        # Sequence properties
+        self._max_seq = None
+        self._min_seq = None
 
         if self.exists:
             self._seqrecordgenerator()
@@ -304,7 +310,7 @@ class SeqFile(File):
         """
         Runs _seqrecordgenerator with the format.
         """
-        self._generator = seqrecordgenerator(
+        self.generator = seqrecordgenerator(
             self.path, format=self.format, parser=self._parser
         )
 
@@ -328,9 +334,15 @@ class SeqFile(File):
     def seqstats(self, value):
         self._seqstats = value
 
-    def import_records(self):
+    def import_records(self, **kwargs):
+        """
+        :param kwargs: Parameters to pass to the SeqFile._calculate_seqstats() function.
+        :return: Import records into self.
+        """
         assert self.exists, "Cannot import, file does not exist."
+        self._seqrecordgenerator()
         self.records = SeqIO.to_dict(self._generator)
+        self._calculate_seqstats(**kwargs)
 
     def serializer(self):
         keys = ("records",)
@@ -353,9 +365,14 @@ class SeqFile(File):
         assert isinstance(self.records, dict), Warnings()["incorrect_type"](
             self.records, dict
         )
+        if len(self.records) < 1:
+            self.import_records()
+        assert (
+            len(self.records) > 0
+        ), "Attribute 'records' is empty. Try importing records manually."
 
         bp_array, GC = [], 0
-        aminoacids = "LMFWKQESPVIYHRND"
+        aminoacids = "LMFQESPI"
 
         # We use enumerate to check the first item for amino acids.
         for ix, (key, SeqRecord) in enumerate(self.records.items()):
@@ -371,6 +388,7 @@ class SeqFile(File):
             if calculate_gc:
                 GC += SeqRecord.seq.upper().count("G")
                 GC += SeqRecord.seq.upper().count("C")
+                GC += SeqRecord.seq.upper().count("S")
 
         # Convert to array
         bp_array = np.array(bp_array)
@@ -399,6 +417,51 @@ class SeqFile(File):
             setattr(self, k, value)
 
         return self._seqstats
+
+    @property
+    def max_seq(self):
+        self.max_seq = self._find_max_seq()
+        return self._max_seq
+
+    @max_seq.setter
+    def max_seq(self, value):
+        self._max_seq = value
+
+    def _find_max_seq(self):
+        try:
+            if len(self.records) < 1:
+                self.import_records()
+
+            max_seq, len_max_seq = None, 0
+            for id_, seq in self.records.items():
+                if len(seq) > len_max_seq:
+                    len_max_seq = len(seq)
+                    max_seq = seq
+            return max_seq
+        except:
+            print("Couldn't import data to determine max_seq.")
+            return None
+
+    @property
+    def min_seq(self):
+        self.min_seq = self._find_min_seq()
+        return self._min_seq
+
+    @min_seq.setter
+    def min_seq(self, value):
+        self._min_seq = value
+
+    def _find_min_seq(self):
+        if len(self.records) < 1:
+            self.import_records()
+
+        min_seq, len_min_seq = None, 10 ** 9
+        for id_, seq in self.records.items():
+            if len(seq) < len_min_seq:
+                len_min_seq = len(seq)
+                min_seq = seq
+
+        return min_seq
 
 
 @dataclass
@@ -482,10 +545,8 @@ def deserialize_files_dict(files_dict):
                     # TODO: don't import records again (slow)
                     # Get them straight from the JSON file.
                     files_dict[tag] = SeqFile(
-                        path=file["path"],
-                        tag=file["tag"],
+                        path=file["path"], tag=file["tag"], format=file["format"]
                     )
-                    _ = files_dict[tag].generator
                     for seqstats_attr_ in SeqStats.__dataclass_fields__.keys():
                         if seqstats_attr_ in file.keys():
                             setattr(
@@ -502,6 +563,8 @@ def deserialize_files_dict(files_dict):
                 if attr_ not in ("path",):
                     try:
                         setattr(files_dict[tag], attr_, value_)
+                        if attr_ == "_generator":
+                            files_dict[tag]._seqrecordgenerator()
                     except AttributeError:
                         pass
     return files_dict

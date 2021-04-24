@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 
 """
@@ -10,7 +10,6 @@ Module for holding preset instances of the Program class.
 Module for holding preset instances of the Program class.
 """
 
-import logging
 from os import path
 from pathlib import Path
 

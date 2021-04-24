@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 """
 
@@ -625,11 +625,11 @@ class PresetProgram(Program):
             for key, value in self.output_files.items():
                 # Usually just specify tag and suffix
                 if len(value) == 2:
-                    suffix, tag = value
+                    tag, suffix = value
                     self.sample.add_files(File(preffix + suffix, tag=tag))
                 # But we can also specify a format
                 elif len(value) == 3:
-                    suffix, tag, format = value
+                    tag, suffix, format = value
                     self.sample.add_files(
                         SeqFile(preffix + suffix, tag=tag, format=format)
                     )
@@ -1120,7 +1120,7 @@ class Project:
         return len(self._samples)
 
     def __repr__(self):
-        return f"Project '{self.tag}' with {len(self)} samples"
+        return f"BioProvProject_'{self.tag}'"
 
     def __getitem__(self, item):
         if isinstance(item, str):
@@ -1738,12 +1738,13 @@ def write_json(dict_, _path):
         config.logger.info(f"Could not create JSON file for {_path}.")
 
 
-def load_project(tag, db=None):
+def load_project(tag, db=None, import_records=False):
     """
     Loads Project from the BioProvDatabase set in the config.
 
     :param tag: Tag of the Project to be loaded.
     :param db: Path to BioProvDB file. Default is set in the config module. (use the `bioprov --show_db` command).
+    :param import_records: Whether to import the sequence records. Unnecessary if this data is already recorded in the Project.
     :return: Instance of Project.
     """
     if db is None:
@@ -1765,5 +1766,15 @@ def load_project(tag, db=None):
     with tempfile.NamedTemporaryFile() as f:
         f.write(bytes(json.dumps(result), "utf-8"))
         project = from_json(f.name)
+
+    if import_records:
+        for k, file in project.files.items():
+            if isinstance(file, SeqFile):
+                file.import_records()
+
+        for sample in project:
+            for k, file in sample.files.items():
+                if isinstance(file, SeqFile):
+                    file.import_records()
 
     return project

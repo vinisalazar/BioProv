@@ -2,7 +2,7 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.22"
+__version__ = "0.1.23"
 
 
 """
@@ -31,9 +31,11 @@ def test_EnvProv():
     :return:
     """
     env = Environment()
+    sh = dict_to_sha256(env.env_dict)
     for statement in (
         env.env_dict == dict(environ.items()),
-        env.env_hash == dict_to_sha256(env.env_dict),
+        env.env_hash_long == sh,
+        env.env_hash == sh[:7],
     ):
         assert statement
 
