@@ -11,23 +11,28 @@ tags:
 authors:
  - name: Vinícius W. Salazar^[Corresponding author]
    orcid: 0000-0002-8362-3195
-   affiliation: 1
+   affiliation: 1,4
+ - name: João Vitor Ferreira Cavalcante
+   orcid: 0000-0001-7513-7376
+   affiliation: 2
  - name: Daniel de Oliveira
    orcid: 0000-0001-9346-7651
-   affiliation: 2
+   affiliation: 3
  - name: Fabiano Thompson
    orcid: 0000-0002-7562-1683
-   affiliation: 3
+   affiliation: 4
  - name: Marta Mattoso
    orcid: 0000-0002-0870-3371
    affiliation: 1
 affiliations:
  - name: Department of Systems and Computer Engineering, COPPE, Federal University of Rio de Janeiro
    index: 1
- - name: Institute of Computing, Fluminense Federal University
+ - name: Bioinformatics Multidisciplinary Environment—BioME, IMD, Federal University of Rio Grande do Norte
    index: 2
- - name: Institute of Biology, Federal University of Rio de Janeiro
+ - name: Institute of Computing, Fluminense Federal University
    index: 3
+ - name: Institute of Biology, Federal University of Rio de Janeiro
+   index: 4
 date: 24 February 2021
 bibliography: paper.bib
 ---
@@ -363,7 +368,6 @@ bioinformatics workflow tools.
 
 # Acknowledgements
 
-We thank CNPq for funding scholarships for all authors. We thank [João Vitor Ferreira Cavalcante](https://github.com/jvfe)
-for constructive feedback and for contributing features to the library.
+We thank CNPq for funding scholarships for all authors.
 
 # References
