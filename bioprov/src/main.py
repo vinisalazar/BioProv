@@ -1120,7 +1120,7 @@ class Project:
         return len(self._samples)
 
     def __repr__(self):
-        return f"Project '{self.tag}' with {len(self)} samples"
+        return f"BioProvProject_'{self.tag}'"
 
     def __getitem__(self, item):
         if isinstance(item, str):
