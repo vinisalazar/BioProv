@@ -1,5 +1,5 @@
 ---
-title: 'BioProv - A library to capture provenance from bioinformatics workflows'
+title: 'BioProv - A provenance library for bioinformatics workflows'
 tags:
  - Python
  - W3C-PROV
@@ -47,7 +47,7 @@ Consortium (W3C) Provenance Working Group defines provenance as "a record that d
 institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
 data or a thing" [@Groth2013]. 
 
-Therefore, for bioinformatics workflows (BWFs), where there are usually numerous, and many times complex,
+Therefore, for bioinformatics workflows (BWFs), where there are usually numerous
 steps in data processing, capturing and storing provenance rapidly becomes a challenge.
 This provenance data should not only be comprehensible to humans, but structured and queryable; 
 this is to ensure reproducibility in present and future research in bioinformatics and
@@ -57,7 +57,7 @@ and among diverse applications and systems. Modelling BWFs with the W3C-PROV sta
 researchers writing and performing the analyses and developers responsible for storing information about these workflows.
 While some workflow systems offer provenance capture in a W3C-PROV compliant format,
 this usually must be done manually, *i.e.* the user must specify all the data to be captured. We introduce BioProv as a library that
-aims to facilitate the creation of W3C-PROV compliant documents) for BWFs,
+aims to facilitate the creation of W3C-PROV compliant documents for BWFs,
 automatically capturing the provenance of workflow steps between different users and computing environments. 
 
 ## W3C-PROV
@@ -77,7 +77,8 @@ BioProv is a Python library for **generating provenance documents of bioinformat
 Presently, there are many freely available tools for both managing scientific workflows [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017] and
 capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019]. 
 The challenge of provenance capture in the field of bioinformatics has been characterized and is standing for more than a decade [@Stevens2007].
-Several studies have been able to implement solutions that model BWFs and adequately capture and store provenance data [@Ocana2014; @Ocana2015; @DePaula2013]. 
+
+Several studies have been able to implement solutions that model BWFs and adequately capture and store provenance data [@Ocana2014; @Ocana2015; @DePaula2013].
 However, to the best of our knowledge, there is not yet any software library that *specializes* in capturing the provenance of BWFs.
 In the case of workflow management systems, they provide execution reports such as execution trace or graph, but these documents are not usually W3C-PROV compatible and/or
 are not serializable, or the collection of domain-specific information must be collected by the user with an *ad hoc* approach.
@@ -95,8 +96,11 @@ the automatic capture of provenance data in a W3C-PROV compliant format.
 ## Overview
 
 BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF into an object 
-called a `Project`. Projects group related samples and files and any programs that process these files. They also carry information about agents, *i.e.*
-users and computing environments used to execute programs. In the context of BioProv, a "Project" is distinct from a "Workflow"
+called a `Project`. Projects group related samples, files and programs that are represented by corresponding objects from the
+BioProv library. These objects have specific methods that allow the user to specify the relationships between them, such
+as the association between a file and a sample or program.
+Projects also carry information about agents, *i.e.* users and computing environments used to execute programs.
+In the context of BioProv, a "Project" is distinct from a "Workflow"
 in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a set of programs that
 can be run on a set of adequate files. A user can therefore use the same workflow in many projects.
 Because they are serializable in JSON and tabular formats, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
@@ -313,7 +317,7 @@ running the desired pipeline. A user can write their own **Workflow** and the co
 based on the parameters set by the user. For more information, please refer to BioProv's 
 [`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored, or run 
 the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. Presently, BioProv workflows are still 
-limited, serving mainly as a reference for users to write their own workflows. However, one of the main future goals of the library is to
+limited, serving mainly as a reference for users to write their own workflows; one of the main future goals of the library is to
 support a range of common BWFs. We actively encourage users to contribute their workflows by following the 
 [contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or request one by opening an issue in the repository.
 
@@ -342,7 +346,7 @@ In [6]: prov.dot.write_pdf("myProject.pdf")
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing two
 samples associated with bacterial genomes. The `prodigal` program uses the `assembly` file as input to create the `proteins`,
-`genes`, and `scores` files.\label{fig:project}](figures/bp_graph.png)
+`genes`, and `scores` files. The square shapes grouping sets of icons correspond to each bundle in the project.\label{fig:project}](figures/bp_graph.png)
 
 Lastly, **BioProvDocuments** can be uploaded to [ProvStore](https://openprovenance.org/store/), a web service for storage and visualization
 of W3C-PROV documents. The credentials to the ProvStore API are set with the `bioprov --create_provstore` command, and a document can be
