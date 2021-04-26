@@ -74,10 +74,9 @@ them, that can be further described by *relation patterns*. For a full introduct
 # Statement of need
 
 BioProv is a Python library for **generating provenance documents of bioinformatics workflows.**
-Presently, there are many freely available tools for both managing scientific workflows [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017] and
-capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019]. 
 The challenge of provenance capture in the field of bioinformatics has been characterized and is standing for more than a decade [@Stevens2007].
-
+Presently, there are many freely available tools for both managing scientific workflows [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017] and
+capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019].
 Several studies have been able to implement solutions that model BWFs and adequately capture and store provenance data [@Ocana2014; @Ocana2015; @DePaula2013].
 However, to the best of our knowledge, there is not yet any software library that *specializes* in capturing the provenance of BWFs.
 In the case of workflow management systems, they provide execution reports such as execution trace or graph, but these documents are not usually W3C-PROV compatible and/or
@@ -131,7 +130,7 @@ The four main classes are:
 * **File:** Describes computer files that may be associated with a Sample or Project.
 * **Program:** Describes programs that process and create files.
 
-A **Project** is the top-level object in the BioProv library. It contains $N$ biological **Samples** that may have
+A **Project** is the top-level object in the BioProv library. It contains a number of biological **Samples** that may have
 individually associated **Files** (for example, raw sequence data in FASTQ format) and **Programs**, which are processes that can be run
 to create and/or modify files. Files and Programs can also be associated directly with the Project, instead of being associated with a 
 particular Sample.
