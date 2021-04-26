@@ -33,7 +33,7 @@ affiliations:
    index: 3
  - name: Institute of Biology, Federal University of Rio de Janeiro
    index: 4
-date: 24 February 2021
+date: 26 April 2021
 bibliography: paper.bib
 ---
 
@@ -95,10 +95,10 @@ the automatic capture of provenance data in a W3C-PROV compliant format.
 ## Overview
 
 BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF into an object 
-called a `Project`. Projects group related samples and files and any programs that process these files. They also carry information about agents, which are
-represented both as users and computing environments used to execute programs. In the context of BioProv, a "Project" is distinct from a "Workflow"
-in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a set of programs which
-can be run on any set of adequate samples. A user can therefore use the same workflow in many projects.
+called a `Project`. Projects group related samples and files and any programs that process these files. They also carry information about agents, *i.e.*
+users and computing environments used to execute programs. In the context of BioProv, a "Project" is distinct from a "Workflow"
+in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a set of programs that
+can be run on a set of adequate files. A user can therefore use the same workflow in many projects.
 Because they are serializable in JSON and tabular formats, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
 allowing better integration with web systems. The library can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
 or from the application's command line interface (CLI). The CLI component of BioProv allows users to quickly launch custom workflows from the command line using
@@ -117,7 +117,7 @@ be used to test the installation and illustrate some of the core features of Bio
 ## Classes
 
 BioProv implements several classes (hereafter highlighted in bold text) in order to represent provenance data extracted from BWfs.
-Its object-oriented design allows users to benefit from the flexibility of working with extendable Python objects, which are familiar to many frameworks (e.g.
+Its object-oriented design allows users to benefit from the flexibility of working with extendable Python objects, that are familiar to many frameworks (e.g.
 the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020], Matplotlib [@Hunter2007], and others.)
 The four main classes are:
 
@@ -156,11 +156,11 @@ Some of the included programs are:
 * **Muscle:** multiple sequence alignment [@Edgar2004]
 * **Prodigal:** prokaryotic gene prediction [@Hyatt2010]
 
-Users can create their own presets with either the Program class or the **PresetProgram** class, which inherits from Program
+Users can create their own presets with either the Program class or the **PresetProgram** class, that inherits from **Program**
 and possesses additional methods for batch execution. To manually create programs (that are not presets), the user should
 create the program as it is called from the command line, and add **Parameters** to it. A **Parameter** is another BioProv class
-which represents specific parameters associated with a program. Presets contain parameters specific to that program.
-Parameters can be added to the program's command string which will be evaluated on the system's shell, by means of Python's
+that represents specific parameters associated with a program. Presets contain parameters specific to that program.
+Parameters can be added to the command string that will be evaluated on the system's shell, by means of Python's
 [`subprocess` module](https://docs.python.org/3/library/subprocess.html). For a more complete walkthrough of how to build programs
 and add them to your workflow, please refer to the [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb).
 Additionally, workflow presets can be created. Workflow presets are a set of programs which are to be executed on a project's
@@ -321,11 +321,11 @@ support a range of common BWFs. We actively encourage users to contribute their 
 
 To create W3C-PROV documents, BioProv utilizes the PROV library [@Dong2020], and models its native objects onto
 the three PROV elements: **entities**, **agents**, and **activities** (@Groth2013 provide a detailed description of the PROV ontology).
-To do this, a **Project** is imported with the **BioProvDocument** class. A W3C-PROV compatible document will be created, with
+To do this, a **BioProvDocument** object is created from `project`. A W3C-PROV compatible document will be created, with
 associated relationships between PROV elements for each object of the project. BioProv defines one "bundle" for the project, and one 
 for each sample and user. Bundles are documents nested within the top-level **BioProvDocument**, used to describe individual entities (for the Sample bundles)
-or agents (for the user bundles). Computing environments are also agents, which **act on behalf of** users through **activities**
-(which correspond to BioProv's **Programs**). By leveraging the PROV library, the resulting document can be exported in a number of ways, such as 
+or agents (for the user bundles). Computing environments are also regarded as agents, that **act on behalf of** users through **activities**
+(that correspond to BioProv's **Programs**). By leveraging the PROV library, the resulting document can be exported in a number of ways, such as 
 graphical format and [PROV-N](https://www.w3.org/TR/prov-n/) (a human-readable provenance format).
 
 The following code will generate the \autoref{fig:project} and a PROV-N record. 
@@ -341,8 +341,8 @@ In [6]: prov.dot.write_pdf("myProject.pdf")
 ```
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing two
-samples associated with bacterial genomes. The `prodigal` program uses the `assembly` file as input to create the `proteins`
-file.\label{fig:project}](figures/bp_graph.png)
+samples associated with bacterial genomes. The `prodigal` program uses the `assembly` file as input to create the `proteins`,
+`genes`, and `scores` files.\label{fig:project}](figures/bp_graph.png)
 
 Lastly, **BioProvDocuments** can be uploaded to [ProvStore](https://openprovenance.org/store/), a web service for storage and visualization
 of W3C-PROV documents. The credentials to the ProvStore API are set with the `bioprov --create_provstore` command, and a document can be
@@ -360,7 +360,7 @@ should focus on integrating more web services, such as [NCBI Entrez](https://www
 # Conclusion
 
 We present a software library that allows users to create and run bioinformatics workflows while capturing provenance data
-during runtime, which can then be exported as a W3C-PROV compliant document. Provenance data can be easily imported and exported in
+during runtime, that can then be exported as a W3C-PROV compliant document. Provenance data can be easily imported and exported in
 widely-used and web-compatible formats, and users can collect domain-specific data in a fast and effortless manner. BioProv is written
 entirely in Python and its objects can be extended and customized to suit users' needs. This results in a complete library that
 can quickly make any computational project more provenance-aware, setting BioProv as a valuable addition to the ecosystem of
