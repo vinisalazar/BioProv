@@ -331,9 +331,7 @@ or agents (for the user bundles). Computing environments are also regarded as ag
 (that correspond to BioProv's **Programs**). By leveraging the PROV library, the resulting document can be exported in a number of ways, such as 
 graphical format and [PROV-N](https://www.w3.org/TR/prov-n/) (a human-readable provenance format).
 
-The following code will generate the \autoref{fig:project} and a PROV-N record. 
-The `add_users=False` option makes our resulting graph simpler for demonstration purposes,
-but it can be omitted.
+The following code will generate the \autoref{fig:project} and a PROV-N record.
 
 ```python
 In [4]: prov = bp.BioProvDocument(project)
