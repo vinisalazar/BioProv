@@ -2,6 +2,8 @@
 bioprov/db.json
 bioprov/provstore_api.txt
 **/*.log
+docs/tutorials/*txt
+docs/tutorials/*csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -136,3 +138,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# VSCode
+.vscode
