@@ -9,6 +9,11 @@
     * .total_duration [ ]
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
+### v0.1.24
+* Add more tutorials [ ]
+* Fix bug on JSON import when documents are in the Project [ ]
+* Fix 'Too many open files' bug, when reading TempFile when loading Project. 
+
 ### v0.1.23
 * Patch PresetProgram SeqFile addition feature [x]
 * Fix SeqFile deserializer [x]
