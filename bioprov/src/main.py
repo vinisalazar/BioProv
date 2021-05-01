@@ -1766,6 +1766,7 @@ def load_project(tag, db=None, import_records=False):
     with tempfile.NamedTemporaryFile() as f:
         f.write(bytes(json.dumps(result), "utf-8"))
         project = from_json(f.name)
+        f.close()
 
     if import_records:
         for k, file in project.files.items():
