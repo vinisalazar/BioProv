@@ -12,7 +12,8 @@
 ### v0.1.24
 * Add more tutorials [ ]
 * Fix bug on JSON import when documents are in the Project [ ]
-* Fix 'Too many open files' bug, when reading TempFile when loading Project. 
+* Fix 'Too many open files' bug, when reading TempFile when loading Project [ ]
+* Fix `File.size` property [x]
 
 ### v0.1.23
 * Patch PresetProgram SeqFile addition feature [x]

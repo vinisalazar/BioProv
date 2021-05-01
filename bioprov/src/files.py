@@ -91,6 +91,7 @@ class File:
 
     @property
     def size(self):
+        self._size = get_size(self.path)
         return self._size
 
     @size.setter
