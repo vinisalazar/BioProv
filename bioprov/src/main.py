@@ -1,9 +1,3 @@
-__author__ = "Vini Salazar"
-__license__ = "MIT"
-__maintainer__ = "Vini Salazar"
-__url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.24"
-
 """
 
 Main source module. Contains the main BioProv classes.
@@ -21,6 +15,12 @@ Entity classes:
 This class also contains functions to read and write objects in JSON and tab-delimited formats.
 
 """
+__author__ = "Vini Salazar"
+__license__ = "MIT"
+__maintainer__ = "Vini Salazar"
+__url__ = "https://github.com/vinisalazar/bioprov"
+__version__ = "0.1.24"
+
 
 import datetime
 import json

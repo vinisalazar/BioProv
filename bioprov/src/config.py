@@ -1,15 +1,15 @@
+"""
+Contains the Config class and other package-level settings.
+
+Define your configurations in the 'config' variable at the end of the module.
+"""
+
 __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
 
-
-"""
-Contains the Config class and other package-level settings.
-
-Define your configurations in the 'config' variable at the end of the module.
-"""
 
 import os
 from pathlib import Path
