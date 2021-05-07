@@ -1,11 +1,11 @@
-"""
-Module containing preset workflows created with the Workflow class.
-"""
 __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
+__doc__ = """
+Module containing preset workflows created with the Workflow class.
+"""
 
 
 from bioprov.programs import blastn, prodigal

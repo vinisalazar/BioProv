@@ -1,15 +1,15 @@
-"""
+__author__ = "Vini Salazar"
+__license__ = "MIT"
+__maintainer__ = "Vini Salazar"
+__url__ = "https://github.com/vinisalazar/bioprov"
+__version__ = "0.1.24"
+__doc__ = """
 Testing module for the package BioProv.
 
 Tests include:
     - Imports;
     - Class generation and methods.
 """
-__author__ = "Vini Salazar"
-__license__ = "MIT"
-__maintainer__ = "Vini Salazar"
-__url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.24"
 
 
 def test_import_bioprov():
