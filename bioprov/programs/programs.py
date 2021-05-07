@@ -265,7 +265,7 @@ def prokka(
     :param contigs: Output contigs.
     :param genes: Output genes.
     :param proteins: Output proteins.
-    :param feature_table Output feature table.
+    :param feature_table: Output feature table.
     :param submit_contigs: Output contigs formatted for NCBI submission.
     :param sequin: Output sequin file.
     :param genbank: Output genbank .gbk file
