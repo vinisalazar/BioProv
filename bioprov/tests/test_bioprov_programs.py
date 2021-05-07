@@ -1,13 +1,12 @@
+"""
+Testing for the programs package.
+"""
 __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
 
-
-"""
-Testing for the programs package.
-"""
 
 from bioprov import Sample
 from bioprov.data import synechococcus_genome

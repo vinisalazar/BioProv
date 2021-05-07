@@ -1,13 +1,12 @@
+"""
+Integration testing for drafting new ideas.
+"""
 __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
 
-
-"""
-Integration testing for drafting new ideas.
-"""
 
 from argparse import Namespace
 from os import remove
