@@ -114,56 +114,56 @@ class Program:
     def stdin(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].stdin
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def stdout(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].stdout
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def stderr(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].stderr
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def start_time(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].start_time
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def end_time(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].end_time
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def duration(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].duration
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def finished(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].finished
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def status(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].status
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     def add_runs(self, runs):

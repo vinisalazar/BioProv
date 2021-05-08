@@ -125,6 +125,27 @@ def test_Run():
     assert str(run_).startswith("Run")
 
 
+def test_empty_runs_attr():
+    """
+    Tests if, when runs is empty, dependent attributes return None
+    """
+
+    grep = Program("grep")
+
+    depends_on_runs = [
+        grep.stdout,
+        grep.stdin,
+        grep.stderr,
+        grep.start_time,
+        grep.end_time,
+        grep.duration,
+        grep.finished,
+        grep.status,
+    ]
+
+    assert all(attr is None for attr in depends_on_runs) == True
+
+
 def test_parse_params():
     """
     Testing for the parse_params() function.
