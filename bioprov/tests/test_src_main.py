@@ -3,9 +3,7 @@ __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
-
-
-"""
+__doc__ = """
 Testing for the bioprov.src.main module.
  Tests the following classes:
     - Program
@@ -16,6 +14,7 @@ Testing for the bioprov.src.main module.
     
  Also tests JSON and tab-delimited serializer methods.
 """
+
 
 # TODO: organize this
 import datetime

@@ -4,6 +4,14 @@ bioprov.workflows package
 Submodules
 ----------
 
+bioprov.workflows.blastn\_alignment module
+-------------------------------------------
+
+.. automodule:: bioprov.workflows.blastn_alignment
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bioprov.workflows.genome\_annotation module
 -------------------------------------------
 
@@ -12,18 +20,18 @@ bioprov.workflows.genome\_annotation module
    :undoc-members:
    :show-inheritance:
 
-bioprov.workflows.kaiju module
-------------------------------
+bioprov.workflows.KaijuWorkflow module
+--------------------------------------
 
-.. automodule:: bioprov.workflows.kaiju
+.. automodule:: bioprov.workflows.KaijuWorkflow
    :members:
    :undoc-members:
    :show-inheritance:
 
-bioprov.workflows.wf\_parser module
------------------------------------
+bioprov.workflows.WorkflowOptionsParser module
+----------------------------------------------
 
-.. automodule:: bioprov.workflows.wf_parser
+.. automodule:: bioprov.workflows.WorkflowOptionsParser
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +39,7 @@ bioprov.workflows.wf\_parser module
 Module contents
 ---------------
 
-.. automodule:: bioprov.workflows
+.. automodule:: bioprov.workflows.workflows
    :members:
    :undoc-members:
    :show-inheritance:
