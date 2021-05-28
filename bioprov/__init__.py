@@ -3,13 +3,12 @@ __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
-
-
-"""
+__doc__ = """
 Init module for package bioprov.
 
 Inherits objects from the src/ package.
 """
+
 
 from .src.config import config, Environment, BioProvDB, Config
 from .src.files import File, SeqFile, Directory

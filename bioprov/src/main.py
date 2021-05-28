@@ -3,8 +3,7 @@ __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
-
-"""
+__doc__ = """
 
 Main source module. Contains the main BioProv classes.
 
@@ -21,6 +20,7 @@ Entity classes:
 This class also contains functions to read and write objects in JSON and tab-delimited formats.
 
 """
+
 
 import datetime
 import json
@@ -114,56 +114,56 @@ class Program:
     def stdin(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].stdin
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def stdout(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].stdout
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def stderr(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].stderr
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def start_time(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].start_time
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def end_time(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].end_time
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def duration(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].duration
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def finished(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].finished
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     @property
     def status(self):
         try:
             return self.runs[list(self.runs.keys())[-1]].status
-        except KeyError:
+        except (KeyError, IndexError):
             return None
 
     def add_runs(self, runs):
@@ -797,9 +797,10 @@ def generate_param_str(params):
 def _add_programs(object_, programs):
     """
     Adds program(s) to object. Must be an instance or iterable of bioprov.Program.
+
     :param object_: A bioprov.Sample or Project instance.
     :param programs: bioprov.Program iterator or instance, value where key is the program name
-                     and value is a bp.Program instance.
+    and value is a bp.Program instance.
     :return: Updates self by adding the programs to object.
     """
 
@@ -950,8 +951,9 @@ class Sample:
     def add_programs(self, programs):
         """
         Adds program(s) to self. Must be an instance or iterable of bioprov.Program.
+
         :param programs: bioprov.Program iterator or instance, value where key is the program name
-                         and value is a bp.Program instance.
+            and value is a bp.Program instance.
         :return: Updates self by adding the programs to object.
         """
         _add_programs(self, programs)
@@ -1072,9 +1074,9 @@ class Project:
         :param tag: A tag to describe the Project.
         :param db: path to TinyDB to store project in JSON format.
         :param auto_update: Whether to auto_update the BioProvDB record.
-                            Disabled by default.
+        Disabled by default.
         :param log_to_file: Whether to log the Project to a File. You can define this later with
-                            the self.start_logging() method.
+        the self.start_logging() method.
         """
         if tag is None:
             slug = generate_slug(2)
@@ -1601,17 +1603,20 @@ def from_df(
     Pandas-like function to build a Project object.
 
     By default, assumes the sample names or ids are in the first column,
-        else they should be specified by 'index_col' arg.
+    else they should be specified by 'index_col' arg.
+
     '''
     samples = from_df(df_path, sep="\t")
 
     type(samples)  # bioprov.Sample.Project.
 
     You can select columns to be added as Files or SequenceFile instances.
+
     '''
+
     :param df: A pandas DataFrame
     :param index_col: A column to be used as index. Must be in df_path.columns.
-                        If int is passed, will get it from columns.
+        If int is passed, will get it from columns.
     :param file_cols: Columns containing Files.
     :param sequencefile_cols: Columns containing SequenceFiles.
     :param tag: A tag to describe the Project.

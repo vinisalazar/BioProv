@@ -3,9 +3,7 @@ __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
 __version__ = "0.1.24"
-
-
-"""
+__doc__ = """
 Testing for the bioprov.src.main module.
  Tests the following classes:
     - Program
@@ -16,6 +14,7 @@ Testing for the bioprov.src.main module.
     
  Also tests JSON and tab-delimited serializer methods.
 """
+
 
 # TODO: organize this
 import datetime
@@ -123,6 +122,27 @@ def test_Run():
     assert run_.finished is True
     assert run_.status is "Finished"
     assert str(run_).startswith("Run")
+
+
+def test_empty_runs_attr():
+    """
+    Tests if, when runs is empty, dependent attributes return None
+    """
+
+    grep = Program("grep")
+
+    depends_on_runs = [
+        grep.stdout,
+        grep.stdin,
+        grep.stderr,
+        grep.start_time,
+        grep.end_time,
+        grep.duration,
+        grep.finished,
+        grep.status,
+    ]
+
+    assert all(attr is None for attr in depends_on_runs) == True
 
 
 def test_parse_params():

@@ -13,6 +13,8 @@
 * Add more tutorials [ ]
 * Fix bug on JSON import when documents are in the Project [ ]
 * Fix 'Too many open files' bug, when reading TempFile when loading Project [ ]
+* Improve error handling when getting `Program` attributes [x]
+* Add `__doc__` variable to modules to build documentation [x]
 * Fix `File.size` property [x]
 * Add `File.raw_size` property [x]
 
