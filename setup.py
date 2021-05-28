@@ -14,7 +14,7 @@ setuptools.setup(
     name="bioprov",
     version="0.1.24",
     author="Vini Salazar",
-    author_email="viniws@gmail.com",
+    author_email="17276653+vinisalazar@users.noreply.github.com",
     description="BioProv - Provenance capture for bioinformatics workflows",
     long_description=readme,
     long_description_content_type="text/markdown",
