@@ -283,6 +283,31 @@ In [3]: project.auto_update = True
 Now all future modifications to `myProject` will auto-update its record in BioProv's database. 
 The database can be managed from BioProv's CLI application.
 
+To **query** an existing project, it must be loaded with the `load_project()` function, and it can then be queried
+with Python syntax. The Project's `.samples`, `.files` and `.programs` attributes are Python dictionaries, and can be
+manipulated as so. A `Sample` instance will also contain `.files` and `.programs`, and additionally a `.attributes`
+dictionary with additional information about the sample (*e.g.* the `source` column in our data table).
+
+```python
+In [4]: for k, sample in project.samples.items():
+   ...:     # loop over samples
+   ...:     source =  sample.attributes['source']
+   ...:     print(sample.name, 'is a', source, 'sample.')
+   ...:
+   ...:     # make conditional statements
+   ...:     if 'prodigal' in sample.program.keys():
+   ...:         print(sample.name,
+                      'contains an instance of the Prodigal program.')
+sample_1 is a seawater sample.
+sample_2 is a soil sample.
+sample_1 contains an instance of the Prodigal program.
+```
+
+Being able to query BioProv objects with Python syntax allows users familiar with the language to create custom queries
+and functions, and integrate BioProv into their existing Python applications. Additionally, it is possible to use a tool
+such as the [ObjectPath](http://objectpath.org/) library, that implements a query language for semi-structured data, and
+is compatible with BioProv's JSON outputs.
+
 ## Command line application and workflows
 
 To use the CLI, after installing, simply type `bioprov`:
@@ -335,11 +360,11 @@ graphical format and [PROV-N](https://www.w3.org/TR/prov-n/) (a human-readable p
 The following code generates the \autoref{fig:project} and a PROV-N record.
 
 ```python
-In [4]: prov = bp.BioProvDocument(project)
+In [5]: prov = bp.BioProvDocument(project)
 
-In [5]: prov.write_provn()
+In [6]: prov.write_provn()
 
-In [6]: prov.dot.write_pdf("myProject.pdf")
+In [7]: prov.dot.write_pdf("myProject.pdf")
 ```
 
 ![Provenance graph created by BioProv with the PROV and PyDot libraries. This graph represents a Project containing two
@@ -351,7 +376,7 @@ of W3C-PROV documents. The credentials to the ProvStore API are set with the `bi
 uploaded with the `upload_to_provstore()` method:
 
 ```python
-In [7]: prov.upload_to_provstore()
+In [8]: prov.upload_to_provstore()
 ```
 
 This feature enables the immediate publication of provenance documents that have a uniform resource identifier (URI)
