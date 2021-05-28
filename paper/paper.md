@@ -388,9 +388,10 @@ should focus on integrating more web services, such as [NCBI Entrez](https://www
 
 We present a software library that allows users to create and run bioinformatics workflows while capturing provenance data
 during runtime, that can then be exported as W3C-PROV compliant documents. Provenance data can be imported and exported in
-widely-used and web-compatible formats, and users can collect domain-specific data in a fast and effortless manner. BioProv is written
-entirely in Python and its objects can be extended and customized to suit users' needs. This results in a library that
-can make computational biology projects more provenance-aware, setting BioProv as a valuable addition to the ecosystem of
+widely-used and web-compatible formats, and this provenance is enriched with domain-specific data without much effort from the user.
+BioProv is written entirely in Python, benefitting from numerous existing libraries that complement it,
+and its objects can be extended and customized to suit users' needs. This results in a simple, lightweight yet powerful library that
+can make Python workflows provenance-aware, setting BioProv as a valuable addition to the ecosystem of
 bioinformatics workflow tools.
 
 # Acknowledgements
