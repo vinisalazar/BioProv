@@ -42,7 +42,7 @@ bibliography: paper.bib
 In an era where it can be argued that all biology is computational biology [@Markowetz2017],
 properly managing computational analyses and data is crucial to
 evaluate the findings of *in silico* experiments. A major aspect of best practices in 
-scientific computing is managing the **provenance** of workflows [@Pasquier2017]. The World Wide Web
+scientific computing is managing the **provenance** of workflows [@Pasquier2017, @wilson2017good]. The World Wide Web
 Consortium (W3C) Provenance Working Group defines provenance as "a record that describes the people,
 institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
 data or a thing" [@Groth2013]. 
@@ -310,7 +310,7 @@ is compatible with BioProv's JSON outputs.
 
 ## Command line application and workflows
 
-To use the CLI, after installing, simply type `bioprov`:
+To use the CLI, after installing, type `bioprov` in the system's Shell:
 
 ```shell
 ~/ $ bioprov
