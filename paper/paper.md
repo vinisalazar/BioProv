@@ -119,33 +119,34 @@ be used to test the installation and illustrate some of the core features of Bio
 
 ## Classes
 
-BioProv implements several classes (hereafter highlighted in bold text) in order to represent provenance data extracted from BWfs.
-Its object-oriented design allows users to benefit from the flexibility of working with extendable Python objects, that are familiar to many frameworks (e.g.
-the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020], Matplotlib [@Hunter2007], and others.)
+BioProv implements several classes in order to represent provenance data extracted from BWfs.
+Its object-oriented design allows users to benefit from the flexibility of working with extensible Python objects, that are familiar to many frameworks (e.g.
+the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020], Matplotlib [@Hunter2007], and others.
 The four main classes are:
 
-* **Project:** The higher-level structure that contains core project information. Contains associated samples, files, and programs.
-* **Sample:** Describes biological samples. Contains associated files and programs, and can group any sample attributes,
+* `Project`: The higher-level structure that contains core project information, like collections of samples, files, and programs.
+* `Sample`: Describes biological samples. Contains collections of files and programs, and can group any sample attributes,
   such as collection date, collection site, type of sample (soil, water, tissue, etc.).
-* **File:** Describes computer files that may be associated with a Sample or Project.
-* **Program:** Describes programs that process and create files.
+* `File`: Describes computer files that may be associated with a Sample or Project.
+* `Program`: Describes programs that process and create files.
 
-A **Project** is the top-level object in the BioProv library. It contains a number of biological **Samples** that may have
-individually associated **Files** (for example, raw sequence data in FASTQ format) and **Programs**, which are processes that can be run
+A **Project** instance is the top-level object in the BioProv library. It contains a number of biological **Samples** that may have
+individually associated **Files** (for example, raw sequence data in FASTQ format) and **Programs**, which are processes that can be used
 to create and/or modify files. Files and Programs can also be associated directly with the Project, instead of being associated with a 
-particular Sample.
+particular Sample. In the provenance data model, instances of the `Project`, `Sample`, and `File` classes are represented as entities,
+and instances of `Program` are represented as activities.
 
 BioProv detects the current user and environment variables and stores them alongside the Project;
 each Program, when executed, is automatically associated with the current computing environment. 
 This way, BioProv can represent which execution is associated with each user and environment, allowing for traceable collaborative work.
 
-These four classes constitute the basis of a BioProv project. The library stores relevant metadata of each object:
-for Samples, it stores associated attributes, files, and programs. For both Files and Programs, relevant information
-is automatically captured, such as the start and end time of each program execution and file size of each file. 
+These four classes constitute the basis of a BioProv project. The library captures provenance data through instances of these classes.
+For Samples, it stores the sample's attributes, a collection of files, and a collection of programs.
+For both Files and Programs, relevant information is automatically captured, such as the start and end time of each program execution and file size of each file. 
 Files containing biological sequences that are supported by BioPython can be parsed with the **SeqFile** class.
 This class inherits from File and can extract metadata about the file contents, such as number of sequences,
 number of base pairs, GC content (if it is a nucleotide file), and other metrics. This feature allows users to extract
-domain data for their provenance reports by using all parsers available in BioPython.
+domain data for their provenance documents by using parsers available in BioPython.
 
 Programs in BioProv can be created manually or loaded as a preset. We offer a few preset programs for common bioinformatics
 tasks, such as sequence alignment search, multiple sequence alignment, gene prediction and quantification of gene expression.
@@ -159,20 +160,20 @@ Some of the included programs are:
 * **Muscle:** multiple sequence alignment [@Edgar2004]
 * **Prodigal:** prokaryotic gene prediction [@Hyatt2010]
 
-Users can create their own presets with either the Program class or the **PresetProgram** class, that inherits from **Program**
+Users can create their own presets with either the Program class or the `PresetProgram` class, that inherits from `Program`
 and possesses additional methods for batch execution. To manually create programs (that are not presets), the user should
-create the program as it is called from the command line, and add **Parameters** to it. A **Parameter** is another BioProv class
+create the program as it is called from the command line, and add **Parameters** to it. A `Parameter` is another BioProv class
 that represents specific parameters associated with a program. Presets contain parameters specific to that program.
 Parameters can be added to the command string that will be evaluated on the system's shell, by means of Python's
 [`subprocess` module](https://docs.python.org/3/library/subprocess.html). For a more complete walkthrough of how to build programs
-and add them to your workflow, please refer to the [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb).
-Additionally, workflow presets can be created. Workflow presets are a set of programs which are to be executed on a project's
+and add them to the workflow, please refer to the [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb).
+Additionally, workflow presets can be created. Workflow presets are a sequence of programs which are to be executed on a project's
 files. These presets can then be run using the library's CLI, as their command-line arguments and parser are constructed
 automatically.
 
-## Workflow instrumentation with BioProv
+## Workflow execution with BioProv
 
-To set up an existing workflow with BioProv and capture provenance data, users must either write a Python
+To set up a workflow with BioProv to capture provenance data, users must either write a Python
 script and replace usual program calls with BioProv code, or launch custom or preexisting preset workflows from the
 CLI. Again, the [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb)
 and [documentation page](https://bioprov.readthedocs.io/) are the best resources on how to do this. Once this is done,
@@ -190,8 +191,8 @@ Columns that are not files will be processed as sample attributes. For example, 
 | sample_1  	| contigs_1.fasta 	| report_1.txt 	| seawater 	|
 | sample_2  	| contigs_2.fasta 	| report_2.txt 	| soil     	|
 
-The `sample-id` column will be our index, each sample will be identified by it. It is a good practice to make this the first column
-in the table. The `assembly` column contains the path to the genome assembly of each sample (therefore, a "sequence file").
+The `sample-id` column is our index, *i.e.* each sample is identified by it.
+The `assembly` column contains the path to the genome assembly of each sample (therefore, a "sequence file").
 The `report` column points to a plain text file contaning the assembly report (therefore, a "file").
 The other columns will be parsed as sample attributes. This can be easily done with the `read_csv()` function:
 
@@ -205,14 +206,14 @@ In [2]: project = bp.read_csv("myTable.csv",
                               import_data=True)
 ```
 
-The table from which the data was sourced will automatically be added as a project file:
+The table from which the data was sourced is automatically added as a Project file:
 
 ```python
 In [3]: project.files
 Out[3]: {'project_csv': /home/user/myProject/myTable.csv}
 ```
 
-And Samples will be created with associated files and attributes:
+And Samples are created with associated files and attributes:
 
 ```python
 In [4]: project["sample_1"]
@@ -237,8 +238,8 @@ Out[7]: 0.36442
 To run a program using BioProv, it must be added to the project or to a sample. We can use the preset `prodigal` program
 to illustrate this. Prodigal runs a gene prediction algorithm for prokaryotic genomes, and creates three output files:
 
-Now that their project is loaded, the user can add new files, samples and programs. Programs can be run and execution provenance
-will be captured (such as **stdout** and **stderr**, start and end time, and files involved).
+Now that the project is loaded, the user can add new files, samples and programs. Programs can run and execution provenance
+is captured (such as **stdout** and **stderr**, start and end time, and files involved).
 
 ```python
 In [8]: from bioprov.programs import prodigal                                                                                                                                                                                              
@@ -250,9 +251,9 @@ In [9]: with project["sample_1"] as sample:
 
 To export the project, there are a few options. The user can either:
 
-   * export the project in a tabular format such as the one presented in `myTable.csv`. This will omit project information (about programs, for example),
-   but will preserve information of samples and files. Done with the `Project.to_csv()` method;
-   * export the project as JSON, the preferred option, as BioProv can deserialize this format back into a `Project` object with all related information; Done with
+   * export the project in a tabular format such as the one presented in `myTable.csv`. This omits project information (about programs, for example),
+   but preserves information of samples and files. This action is done with the `Project.to_csv()` method;
+   * export the project as JSON, the preferred option, as BioProv can deserialize this format back into a `Project` object with all related information; This is done with
    the `Project.to_json()` method;
    * store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
 
@@ -266,8 +267,8 @@ Inserting new project 'myProject' in /path/to/bioprov/db.json
 ```
 
 ## Database system
-BioProv implements an internal database using [TinyDB](https://tinydb.readthedocs.io/en/latest/), a document-oriented, pure
-Python database. Projects can be easily loaded by their ID (the `Project.tag` attribute) and can be updated during runtime, by
+BioProv has an internal database based on [TinyDB](https://tinydb.readthedocs.io/en/latest/), a document-oriented, pure
+Python database. Projects can be loaded by their ID (the `Project.tag` attribute) and can be updated during runtime, by
 setting the `Project.auto_update = True` option. Assuming the user has run the previous code example, this could be done in a 
 new session:
 
@@ -311,11 +312,11 @@ workflows:
 
 The `bioprov --show_db` and `bioprov --list` commands, for example, can be used to show the location of BioProv's
 database and list all projects it contains. The `workflows` are preset pipelines that can be run directly from the CLI.
-They are implemented with BioProv's **Workflow** class and handle the creation of the BioProv project while
-running the desired pipeline. A user can write their own **Workflow** and the command-line parser will be automatically generated
+They are implemented with BioProv's `Workflow` class and handle the creation of the BioProv project while
+running the desired workflow. Users can write their own workflow and the command-line parser will be automatically generated
 based on the parameters set by the user. For more information, please refer to BioProv's 
 [`workflows` subpackage](https://github.com/vinisalazar/BioProv/tree/master/bioprov/workflows), where preset workflows are stored, or run 
-the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. Presently, BioProv workflows are still 
+the `bioprov <workflow_name>` command in the CLI for help about a particular workflow. Presently, BioProv workflows are 
 limited, serving mainly as a reference for users to write their own workflows; one of the main future goals of the library is to
 support a range of common BWFs. We actively encourage users to contribute their workflows by following the 
 [contributing guidelines](https://github.com/vinisalazar/BioProv/blob/master/CONTRIBUTING.md) or request one by opening an issue in the repository.
@@ -323,15 +324,15 @@ support a range of common BWFs. We actively encourage users to contribute their 
 # Provenance documents
 
 To create W3C-PROV documents, BioProv utilizes the PROV library [@Dong2020], and models its native objects onto
-the three PROV elements: **entities**, **agents**, and **activities** (@Groth2013 provide a detailed description of the PROV ontology).
-To do this, a **BioProvDocument** object is created from `project`. A W3C-PROV compatible document will be created, with
+the three PROV elements: **entities**, **agents**, and **activities** (@Groth2013 provide a detailed description of PROV concepts).
+To do this, a `BioProvDocument` object is created from `project`. A W3C-PROV compatible document is then created, with
 associated relationships between PROV elements for each object of the project. BioProv defines one "bundle" for the project, and one 
-for each sample and user. Bundles are documents nested within the top-level **BioProvDocument**, used to describe individual entities (for the Sample bundles)
+for each sample and user. Bundles are documents nested within the top-level `BioProvDocument`, used to describe individual entities (for the Sample bundles)
 or agents (for the user bundles). Computing environments are also regarded as agents, that **act on behalf of** users through **activities**
-(that correspond to BioProv's **Programs**). By leveraging the PROV library, the resulting document can be exported in a number of ways, such as 
+(that correspond to BioProv's `Program` instances). By leveraging the PROV library, the resulting document can be exported in a number of ways, such as 
 graphical format and [PROV-N](https://www.w3.org/TR/prov-n/) (a human-readable provenance format).
 
-The following code will generate the \autoref{fig:project} and a PROV-N record.
+The following code generates the \autoref{fig:project} and a PROV-N record.
 
 ```python
 In [4]: prov = bp.BioProvDocument(project)
@@ -361,14 +362,14 @@ should focus on integrating more web services, such as [NCBI Entrez](https://www
 # Conclusion
 
 We present a software library that allows users to create and run bioinformatics workflows while capturing provenance data
-during runtime, that can then be exported as a W3C-PROV compliant document. Provenance data can be easily imported and exported in
+during runtime, that can then be exported as W3C-PROV compliant documents. Provenance data can be imported and exported in
 widely-used and web-compatible formats, and users can collect domain-specific data in a fast and effortless manner. BioProv is written
-entirely in Python and its objects can be extended and customized to suit users' needs. This results in a complete library that
-can quickly make any computational project more provenance-aware, setting BioProv as a valuable addition to the ecosystem of
+entirely in Python and its objects can be extended and customized to suit users' needs. This results in a library that
+can make computational biology projects more provenance-aware, setting BioProv as a valuable addition to the ecosystem of
 bioinformatics workflow tools.
 
 # Acknowledgements
 
-We thank CNPq for funding scholarships for all authors.
+We would like to thank the funding agencies CNPq, FAPERJ, and CAPES.
 
 # References
