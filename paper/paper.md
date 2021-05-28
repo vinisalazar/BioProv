@@ -41,8 +41,8 @@ bibliography: paper.bib
 
 In an era where it can be argued that all biology is computational biology [@Markowetz2017],
 properly managing computational analyses and data is crucial to
-ensure the reproducibility of *in silico* experiments. A major aspect of best practices in 
-scientific computing is managing the **provenance** of data [@wilson2017good]. The World Wide Web
+evaluate the findings of *in silico* experiments. A major aspect of best practices in 
+scientific computing is managing the **provenance** of workflows [@Pasquier2017]. The World Wide Web
 Consortium (W3C) Provenance Working Group defines provenance as "a record that describes the people,
 institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
 data or a thing" [@Groth2013]. 
@@ -53,11 +53,11 @@ This provenance data should not only be comprehensible to humans, but structured
 this is to ensure reproducibility in present and future research in bioinformatics and
 many other fields of scientific research [@Kanwal2017; @Pasquier2017]. A proposed standard for interoperability of provenance
 data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically designed to share provenance data across the web
-and among diverse applications and systems. Modelling BWFs with the W3C-PROV standard, however, can be costly to both
-researchers writing and performing the analyses and developers responsible for storing information about these workflows.
-While some workflow systems offer provenance capture in a W3C-PROV compliant format,
-this usually must be done manually, *i.e.* the user must specify all the data to be captured. We introduce BioProv as a library that
-aims to facilitate the creation of W3C-PROV compliant documents for BWFs,
+and among diverse applications and systems. Adding provenance to BWFs can be costly to both developers, responsible for
+storing information about these workflows, and researchers designing and analyzing workflow results.
+While some workflow systems already provide provenance capture, modelling bioinformatics data in compliance with W3C-PROV
+is not automatic, requiring a lot of effort from workflow developers and researchers.
+We introduce BioProv as a library that aims to facilitate the creation of W3C-PROV compliant documents for BWFs,
 automatically capturing the provenance of workflow steps between different users and computing environments. 
 
 ## W3C-PROV
@@ -75,12 +75,12 @@ them, that can be further described by *relation patterns*. For a full introduct
 
 BioProv is a Python library for **generating provenance documents of bioinformatics workflows.**
 The challenge of provenance capture in the field of bioinformatics has been characterized and is standing for more than a decade [@Stevens2007].
-Presently, there are many freely available tools for both managing scientific workflows [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017] and
-capturing and storing provenance data during workflow runtime [@Silva2018; @Khan2019].
+Presently, there are many freely available tools for managing provenance through workflow systems [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017] and
+provenance systems for capturing and storing provenance data from workflow scripts [@Silva2018; @Khan2019].
 Several studies have been able to implement solutions that model BWFs and adequately capture and store provenance data [@Ocana2014; @Ocana2015; @DePaula2013].
 However, to the best of our knowledge, there is not yet any software library that *specializes* in capturing the provenance of BWFs.
-In the case of workflow management systems, they provide execution reports such as execution trace or graph, but these documents are not usually W3C-PROV compatible and/or
-are not serializable, or the collection of domain-specific information must be collected by the user with an *ad hoc* approach.
+In the case of workflow management systems, they provide execution reports such as execution trace or graph, but these documents are not W3C-PROV compliant and/or
+are not serializable, or the collection of domain-specific information must be manually designed by the user with an *ad hoc* approach.
 Domain-specific data are particularly relevant in BWFs, as they can be used to help researchers make decisions and steer workflow parameters during runtime [@Costa2013].
 They refer to metadata that are characteristic of biological data formats, e.g. the distribution of the length of sequences in a nucleotide sequence file, or the number of
 nodes in a phylogenetic tree file.
@@ -88,21 +88,21 @@ Implementing a system to capture these data can be very costly to both users and
 and do not support, for example, parsing of biological data formats. This may imply the need to either manually develop specific parsing solutions
 for the files involved or to create database schemas that support domain-specific data. BioProv attempts
 to fill this gap, by providing features that support the specificities of bioinformatics applications and allow
-the automatic capture of provenance data in a W3C-PROV compliant format.
+the automatic capture of provenance data and generation of documents in a W3C-PROV compliant format.
 
-# Features and data model
+# Features and data modelling
 
 ## Overview
 
-BioProv is **object-oriented** and **project-based**. It works by modelling the provenance elements of a BWF into an object 
-called a `Project`. Projects group related samples, files and programs that are represented by corresponding objects from the
-BioProv library. These objects have specific methods that allow the user to specify the relationships between them, such
+BioProv represents the provenance elements of a BWF into a class 
+called `Project`. `Project` groups related samples, files and programs that are represented by corresponding objects from the
+BioProv library. The class `Project` has specific methods that allow the user to specify the relationships between objects, such
 as the association between a file and a sample or program.
 Projects also carry information about agents, *i.e.* users and computing environments used to execute programs.
 In the context of BioProv, a "Project" is distinct from a "Workflow"
-in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a set of programs that
+in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a chain of programs that
 can be run on a set of adequate files. A user can therefore use the same workflow in many projects.
-Because they are serializable in JSON and tabular formats, BioProv objects can be easily stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
+Because they are serializable in JSON and tabular formats, BioProv objects can be stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
 allowing better integration with web systems. The library can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
 or from the application's command line interface (CLI). The CLI component of BioProv allows users to quickly launch custom workflows from the command line using
 the `bioprov <workflow_name>` command. 
