@@ -50,7 +50,7 @@ data or a thing" [@Groth2013].
 Therefore, for bioinformatics workflows (BWFs), where there are usually numerous
 steps in data processing, capturing and storing provenance rapidly becomes a challenge.
 This provenance data should not only be comprehensible to humans, but structured and queryable; 
-this is to ensure reproducibility in present and future research in bioinformatics and
+this is to support reproducibility in present and future research in bioinformatics and
 many other fields of scientific research [@Kanwal2017; @Pasquier2017]. A proposed standard for interoperability of provenance
 data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically designed to share provenance data across the web
 and among diverse applications and systems. Adding provenance to BWFs can be costly to both developers, responsible for
@@ -61,7 +61,7 @@ We introduce BioProv as a library that aims to facilitate the creation of W3C-PR
 automatically capturing the provenance of workflow steps between different users and computing environments. 
 
 ## W3C-PROV
-The W3C-PROV standard is endorsed by the [World Wide Web Consortium (W3C)](https://www.w3.org/Consortium), the leading global community for web standards.
+The W3C-PROV recommendation is endorsed by the [World Wide Web Consortium (W3C)](https://www.w3.org/Consortium), the leading global community for web standards.
 It divides provenance data into three separate views (\autoref{fig:w3c-prov}): the data flow view, comprised of **entities**, that are any physical, digital
 or conceptual *thing*; the process flow view, that focuses on **activities**, that are *processes* that happen over time and act upon or with
 entities, either by consuming, processing, using, or generating them; and the responsibility view, that concerns the assignment of **agents**
@@ -100,8 +100,8 @@ BioProv library. The class `Project` has specific methods that allow the user to
 as the association between a file and a sample or program.
 Projects also carry information about agents, *i.e.* users and computing environments used to execute programs.
 In the context of BioProv, a "Project" is distinct from a "Workflow"
-in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a chain of programs that
-can be run on a set of adequate files. A user can therefore use the same workflow in many projects.
+in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a sequence of programs that
+can be run on a set of adequate input files. A user can therefore use the same workflow in many projects.
 Because they are serializable in JSON and tabular formats, BioProv objects can be stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
 allowing better integration with web systems. The library can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
 or from the application's command line interface (CLI). The CLI component of BioProv allows users to quickly launch custom workflows from the command line using
@@ -115,14 +115,14 @@ to easily extract domain data without having to write any parsers. Here we prese
 we recommend the package's [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb) in Jupyter Notebook format, that
 can also be launched [via Binder](https://mybinder.org/v2/gh/vinisalazar/bioprov/master?filepath=docs%2Ftutorials%2F), and the [documentation page](https://bioprov.readthedocs.io/).
 As example data, we provide five small bacterial genomes and a BLAST database that is a subset of MEGARES [@Lakin2017]. These two datasets can 
-be used to test the installation and illustrate some of the core features of BioProv.
+be used to demonstrate the installation and to illustrate some of the core features of BioProv.
 
 ## Classes
 
 BioProv implements several classes in order to represent provenance data extracted from BWfs.
-Its object-oriented design allows users to benefit from the flexibility of working with extensible Python objects, that are familiar to many frameworks (e.g.
-the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020], Matplotlib [@Hunter2007], and others.
-The four main classes are:
+Its object-oriented design allows users to benefit from the flexibility of working with extensible Python objects, that
+are familiar to frameworks such as the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020],
+Matplotlib [@Hunter2007], and others. The four main classes are:
 
 * `Project`: The higher-level structure that contains core project information, like collections of samples, files, and programs.
 * `Sample`: Describes biological samples. Contains collections of files and programs, and can group any sample attributes,
@@ -148,7 +148,7 @@ This class inherits from File and can extract metadata about the file contents, 
 number of base pairs, GC content (if it is a nucleotide file), and other metrics. This feature allows users to extract
 domain data for their provenance documents by using parsers available in BioPython.
 
-Programs in BioProv can be created manually or loaded as a preset. We offer a few preset programs for common bioinformatics
+Programs in BioProv can be created manually or loaded as a preset. BioProv offers a few preset programs for common bioinformatics
 tasks, such as sequence alignment search, multiple sequence alignment, gene prediction and quantification of gene expression.
 Running a program with BioProv instead of directly from the command-line automatically captures provenance information
 for that execution.
@@ -336,7 +336,7 @@ workflows:
 ```
 
 The `bioprov --show_db` and `bioprov --list` commands, for example, can be used to show the location of BioProv's
-database and list all projects it contains. The `workflows` are preset pipelines that can be run directly from the CLI.
+database and list all projects it contains. The `workflows` are preset sequences of programs that can be run directly from the CLI.
 They are implemented with BioProv's `Workflow` class and handle the creation of the BioProv project while
 running the desired workflow. Users can write their own workflow and the command-line parser will be automatically generated
 based on the parameters set by the user. For more information, please refer to BioProv's 
