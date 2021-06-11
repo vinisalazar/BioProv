@@ -95,8 +95,9 @@ the automatic capture of provenance data and generation of documents in a W3C-PR
 ## Overview
 
 BioProv represents the provenance elements of a BWF into a class 
-called `Project`. `Project` groups related samples, files and programs that are represented by corresponding objects from the
-BioProv library. The class `Project` has specific methods that allow the user to specify the relationships between objects, such
+called `Project`, that represents the execution of a bioinformatics workflow (a sequence of programs) using a particular
+dataset. An instance of `Project` is composed by related samples, files and programs that are represented by
+corresponding classes from the BioProv library. The `Project` class has specific methods that allow the user to specify the relationships between objects, such
 as the association between a file and a sample or program.
 Projects also carry information about agents, *i.e.* users and computing environments used to execute programs.
 In the context of BioProv, a "Project" is distinct from a "Workflow"
