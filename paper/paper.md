@@ -42,8 +42,8 @@ bibliography: paper.bib
 In an era where it can be argued that all biology is computational biology [@Markowetz2017],
 properly managing computational analyses and data is crucial to
 evaluate the findings of *in silico* experiments. A major aspect of best practices in 
-scientific computing is managing the **provenance** of workflows [@Pasquier2017, @wilson2017good]. The World Wide Web
-Consortium (W3C) Provenance Working Group defines provenance as "a record that describes the people,
+scientific computing is managing the **provenance** of data analysis workflows [@Pasquier2017; @wilson2017good].
+The World Wide Web Consortium (W3C) Provenance Working Group defines provenance as "a record that describes the people,
 institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
 data or a thing" [@Groth2013]. 
 
@@ -124,16 +124,17 @@ Its object-oriented design allows users to benefit from the flexibility of worki
 are familiar to frameworks such as the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020],
 Matplotlib [@Hunter2007], and others. The four main classes are:
 
-* `Project`: The higher-level structure that contains core project information, like collections of samples, files, and programs.
+* `Project`: The higher-level structure that represents core project information, like samples, files, and programs.
 * `Sample`: Describes biological samples. Contains collections of files and programs, and can group any sample attributes,
   such as collection date, collection site, type of sample (soil, water, tissue, etc.).
 * `File`: Describes computer files that may be associated with a Sample or Project.
 * `Program`: Describes programs that process and create files.
 
-A **Project** instance is the top-level object in the BioProv library. It contains a number of biological **Samples** that may have
-individually associated **Files** (for example, raw sequence data in FASTQ format) and **Programs**, which are processes that can be used
-to create and/or modify files. Files and Programs can also be associated directly with the Project, instead of being associated with a 
-particular Sample. In the provenance data model, instances of the `Project`, `Sample`, and `File` classes are represented as entities,
+A `Project` instance is the top-level object in the BioProv library. It is composed by **Samples**,
+**Files**, and **Programs**. A `Sample` instance represents any biological sample, its attributes, and it's composed
+by **Files** and **Programs** that are associated with that particular sample. **Files** and **Programs** are associated with
+the **Project** when they contain or process information from multiple samples. In the provenance data model, instances
+of the `Project`, `Sample`, and `File` classes are represented as entities,
 and instances of `Program` are represented as activities.
 
 BioProv detects the current user and environment variables and stores them alongside the Project;
@@ -298,6 +299,8 @@ In [4]: for k, sample in project.samples.items():
    ...:     if 'prodigal' in sample.program.keys():
    ...:         print(sample.name,
                       'contains an instance of the Prodigal program.')
+```
+```
 sample_1 is a seawater sample.
 sample_2 is a soil sample.
 sample_1 contains an instance of the Prodigal program.
