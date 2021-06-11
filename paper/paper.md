@@ -122,26 +122,38 @@ be used to demonstrate the installation and to illustrate some of the core featu
 BioProv implements several classes in order to represent provenance data extracted from BWfs.
 Its object-oriented design allows users to benefit from the flexibility of working with extensible Python objects, that
 are familiar to frameworks such as the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020],
-Matplotlib [@Hunter2007], and others. The four main classes are:
+Matplotlib [@Hunter2007], and others. The five main classes are:
 
 * `Project`: The higher-level structure that represents core project information, like samples, files, and programs.
 * `Sample`: Describes biological samples. Contains collections of files and programs, and can group any sample attributes,
   such as collection date, collection site, type of sample (soil, water, tissue, etc.).
 * `File`: Describes computer files that may be associated with a Sample or Project.
-* `Program`: Describes programs that process and create files.
+* `Program`: Describes programs that process and create files. Instances of `Program` are composed by instances
+of the `Parameter` and `Run` classes (the latter representing a program execution).
+* `Environment`: Describes an environment that was used to run a program, including environment variables
+and library versions. Users do not need to worry about specifying this information, it is automatically collected by the
+library.
 
 A `Project` instance is the top-level object in the BioProv library. It is composed by **Samples**,
 **Files**, and **Programs**. A `Sample` instance represents any biological sample, its attributes, and it's composed
 by **Files** and **Programs** that are associated with that particular sample. **Files** and **Programs** are associated with
 the **Project** when they contain or process information from multiple samples. In the provenance data model, instances
 of the `Project`, `Sample`, and `File` classes are represented as entities,
-and instances of `Program` are represented as activities.
+and instances of `Program` are represented as activities. Instances of `Environment` are represented as agents that
+act on behalf of the current user.
+
+![Class diagram showing composition relationships between classes in the BioProv library. Instances of the Project, Sample and File
+classes (in yellow) are represented as entities in the provenance data model, while instances of the Program class (in blue)
+are represented as activities, and instances of the Environment class (in orange) are represented as agents. The Parameter
+and Run classes are auxiliary classes that compose the Program class. Diamond symbols represent composition relationships. The filled
+diamond symbol indicates that an instance of Run must be necessarily associated with an instance of Environment.
+\label{fig:classes}](figures/classes.png){ width=75% }
 
 BioProv detects the current user and environment variables and stores them alongside the Project;
-each Program, when executed, is automatically associated with the current computing environment. 
+each Program, when executed, is automatically associated with the current computing environment (Figure \autoref{fig:classes}). 
 This way, BioProv can represent which execution is associated with each user and environment, allowing for traceable collaborative work.
 
-These four classes constitute the basis of a BioProv project. The library captures provenance data through instances of these classes.
+These five classes constitute the basis of a BioProv project. The library captures provenance data through instances of these classes.
 For Samples, it stores the sample's attributes, a collection of files, and a collection of programs.
 For both Files and Programs, relevant information is automatically captured, such as the start and end time of each program execution and file size of each file. 
 Files containing biological sequences that are supported by BioPython can be parsed with the **SeqFile** class.
@@ -298,7 +310,7 @@ In [4]: for k, sample in project.samples.items():
    ...:     # make conditional statements
    ...:     if 'prodigal' in sample.program.keys():
    ...:         print(sample.name,
-                      'contains an instance of the Prodigal program.')
+   ...:               'contains an instance of the Prodigal program.')
 ```
 ```
 sample_1 is a seawater sample.
