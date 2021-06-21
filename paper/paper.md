@@ -146,8 +146,7 @@ act on behalf of the current user.
 ![Class diagram showing composition relationships between classes in the BioProv library. Instances of the Project, Sample and File
 classes (in yellow) are represented as entities in the provenance data model, while instances of the Program class (in blue)
 are represented as activities, and instances of the Environment class (in orange) are represented as agents. The Parameter
-and Run classes are auxiliary classes that compose the Program class. Diamond symbols represent composition relationships. The filled
-diamond symbol indicates that an instance of Run must be necessarily associated with an instance of Environment.
+and Run classes are auxiliary classes that compose the Program class.
 \label{fig:classes}](figures/classes.png){ width=75% }
 
 BioProv detects the current user and environment variables and stores them alongside the Project;
