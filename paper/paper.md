@@ -42,7 +42,7 @@ bibliography: paper.bib
 In an era where it can be argued that all biology is computational biology [@Markowetz2017],
 properly managing computational analyses and data is crucial to
 evaluate the findings of *in silico* experiments. A major aspect of best practices in 
-scientific computing is managing the **provenance** of data analysis workflows [@Pasquier2017; @wilson2017good].
+scientific computing is managing the provenance of data analysis workflows [@Pasquier2017; @wilson2017good; @rse-py].
 The World Wide Web Consortium (W3C) Provenance Working Group defines provenance as "a record that describes the people,
 institutions, entities, and activities involved in producing, influencing, or delivering a piece of 
 data or a thing" [@Groth2013]. 
@@ -55,8 +55,8 @@ many other fields of scientific research [@Kanwal2017; @Pasquier2017]. A propose
 data is the [W3C-PROV data model](https://www.w3.org/TR/prov-dm/), specifically designed to share provenance data across the web
 and among diverse applications and systems. Adding provenance to BWFs can be costly to both developers, responsible for
 storing information about these workflows, and researchers designing and analyzing workflow results.
-While some workflow systems already provide provenance capture, modelling bioinformatics data in compliance with W3C-PROV
-is not automatic, requiring a lot of effort from workflow developers and researchers.
+While some workflow systems already provide provenance capturing, modelling bioinformatics data in compliance with W3C-PROV
+is not automatic, requiring great effort from workflow developers and researchers.
 We introduce BioProv as a library that aims to facilitate the creation of W3C-PROV compliant documents for BWFs,
 automatically capturing the provenance of workflow steps between different users and computing environments. 
 
@@ -75,14 +75,14 @@ them, that can be further described by *relation patterns*. For a full introduct
 
 BioProv is a Python library for **generating provenance documents of bioinformatics workflows.**
 The challenge of provenance capture in the field of bioinformatics has been characterized and is standing for more than a decade [@Stevens2007].
-Presently, there are many freely available tools for managing provenance through workflow systems [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017] and
+Presently, there are many freely available tools for managing provenance through workflow systems [@afgan2018galaxy; @hull2006taverna; @Vivian2017; @Koster2012; @DiTommaso2017; @de2012provenance] and
 provenance systems for capturing and storing provenance data from workflow scripts [@Silva2018; @Khan2019].
 Several studies have been able to implement solutions that model BWFs and adequately capture and store provenance data [@Ocana2014; @Ocana2015; @DePaula2013].
 However, to the best of our knowledge, there is not yet any software library that *specializes* in capturing the provenance of BWFs.
 In the case of workflow management systems, they provide execution reports such as execution trace or graph, but these documents are not W3C-PROV compliant and/or
 are not serializable, or the collection of domain-specific information must be manually designed by the user with an *ad hoc* approach.
 Domain-specific data are particularly relevant in BWFs, as they can be used to help researchers make decisions and steer workflow parameters during runtime [@Costa2013].
-They refer to metadata that are characteristic of biological data formats, e.g. the distribution of the length of sequences in a nucleotide sequence file, or the number of
+They refer to metadata that are characteristic of biological data formats, *e.g.* the distribution of the length of sequences in a nucleotide sequence file, or the number of
 nodes in a phylogenetic tree file.
 Implementing a system to capture these data can be very costly to both users and developers of BWFs, as most provenance capture software are generic
 and do not support, for example, parsing of biological data formats. This may imply the need to either manually develop specific parsing solutions
@@ -97,20 +97,19 @@ the automatic capture of provenance data and generation of documents in a W3C-PR
 BioProv represents the provenance elements of a BWF into a class 
 called `Project`, that represents the execution of a bioinformatics workflow (a sequence of programs) using a particular
 dataset. An instance of `Project` is composed by related samples, files and programs that are represented by
-corresponding classes from the BioProv library. The `Project` class has specific methods that allow the user to specify the relationships between objects, such
-as the association between a file and a sample or program.
+corresponding classes from the BioProv library. The `Project` class has specific methods that allow for the user to specify the relationships between objects, such as a file, a biological sample or a computer program.
 Projects also carry information about agents, *i.e.* users and computing environments used to execute programs.
 In the context of BioProv, a "Project" is distinct from a "Workflow"
 in the sense that a Project refers to a particular set of samples and files and associated programs, while a Workflow refers to a sequence of programs that
-can be run on a set of adequate input files. A user can therefore use the same workflow in many projects.
+can be run on a set of adequate input files. A user can therefore use the same Workflow for multiple Projects.
 Because they are serializable in JSON and tabular formats, BioProv objects can be stored and shared across computing environments, and can be exported as W3C-PROV compliant documents,
-allowing better integration with web systems. The library can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
+allowing better integration with web-based systems. The library can be used interactively, in an environment such as Jupyter [@ragan2014jupyter],
 or from the application's command line interface (CLI). The CLI component of BioProv allows users to quickly launch custom workflows from the command line using
 the `bioprov <workflow_name>` command. 
 
 ![Architecture of a BioProv application.\label{fig:archi}](figures/architecture-en.png){ width=100% }
 
-BioProv uses the BioPython [@Cock2009] library as a wrapper to parse common bioinformatics file formats, and it supports
+BioProv is built on top of the BioPython [@Cock2009] library, which has the capacity to parse common bioinformatics file formats, and supports
 several file formats for both [sequence](https://biopython.org/wiki/SeqIO) and [alignment](https://biopython.org/wiki/AlignIO) data, allowing the user
 to easily extract domain data without having to write any parsers. Here we present some of the core features of BioProv, but for a more complete introduction,
 we recommend the package's [tutorials](https://github.com/vinisalazar/BioProv/blob/master/docs/tutorials/introduction.ipynb) in Jupyter Notebook format, that
@@ -121,22 +120,20 @@ be used to demonstrate the installation and to illustrate some of the core featu
 ## Classes
 
 BioProv implements several classes in order to represent provenance data extracted from BWfs.
-Its object-oriented design allows users to benefit from the flexibility of working with extensible Python objects, that
+Its object-oriented design allows for users to benefit from the flexibility of working with extensible Python objects, that
 are familiar to frameworks such as the libraries in the scientific Python stack: NumPy [@Harris2020], SciPy [@Virtanen2020],
 Matplotlib [@Hunter2007], and others. The five main classes are:
 
 * `Project`: The higher-level structure that represents core project information, like samples, files, and programs.
 * `Sample`: Describes biological samples. Contains collections of files and programs, and can group any sample attributes,
-  such as collection date, collection site, type of sample (soil, water, tissue, etc.).
+  such as collection date, collection site, type of sample (soil, water, tissue, *etc.*).
 * `File`: Describes computer files that may be associated with a Sample or Project.
-* `Program`: Describes programs that process and create files. Instances of `Program` are composed by instances
-of the `Parameter` and `Run` classes (the latter representing a program execution).
+* `Program`: Describes programs that process and create files. Instances of `Program` are associated to instances of the `Parameter` and `Run` classes (the latter representing a program execution).
 * `Environment`: Describes an environment that was used to run a program, including environment variables
-and library versions. Users do not need to worry about specifying this information, it is automatically collected by the
-library.
+and library versions.
 
 A `Project` instance is the top-level object in the BioProv library. It is composed by **Samples**,
-**Files**, and **Programs**. A `Sample` instance represents any biological sample, its attributes, and it's composed
+**Files**, and **Programs**. A `Sample` instance represents any biological sample, its attributes, and it is composed
 by **Files** and **Programs** that are associated with that particular sample. **Files** and **Programs** are associated with
 the **Project** when they contain or process information from multiple samples. In the provenance data model, instances
 of the `Project`, `Sample`, and `File` classes are represented as entities,
