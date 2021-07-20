@@ -140,12 +140,6 @@ of the `Project`, `Sample`, and `File` classes are represented as entities,
 and instances of `Program` are represented as activities. Instances of `Environment` are represented as agents that
 act on behalf of the current user.
 
-![Class diagram showing composition relationships between classes in the BioProv library. Instances of the Project, Sample and File
-classes (in yellow) are represented as entities in the provenance data model, while instances of the Program class (in blue)
-are represented as activities, and instances of the Environment class (in orange) are represented as agents. The Parameter
-and Run classes are auxiliary classes that compose the Program class.
-\label{fig:classes}](figures/classes.png){ width=75% }
-
 BioProv detects the current user and environment variables and stores them alongside the Project;
 each Program, when executed, is automatically associated with the current computing environment (Figure \autoref{fig:classes}). 
 This way, BioProv can represent which execution is associated with each user and environment, allowing for traceable collaborative work.
@@ -169,6 +163,12 @@ Some of the included programs are:
 * **MAFFT:** multiple sequence alignment [@Katoh2005]
 * **Muscle:** multiple sequence alignment [@Edgar2004]
 * **Prodigal:** prokaryotic gene prediction [@Hyatt2010]
+
+![Class diagram showing composition relationships between classes in the BioProv library. Instances of the Project, Sample and File
+classes (in yellow) are represented as entities in the provenance data model, while instances of the Program class (in blue)
+are represented as activities, and instances of the Environment class (in orange) are represented as agents. The Parameter
+and Run classes are auxiliary classes that are associated with the Program class.
+\label{fig:classes}](figures/classes.svg){ width=75% }
 
 Users can create their own presets with either the Program class or the `PresetProgram` class, that inherits from `Program`
 and possesses additional methods for batch execution. To manually create programs (that are not presets), the user should
