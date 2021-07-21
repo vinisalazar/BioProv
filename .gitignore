@@ -4,6 +4,7 @@ bioprov/provstore_api.txt
 **/*.log
 docs/tutorials/*txt
 docs/tutorials/*csv
+paper/review
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
