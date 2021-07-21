@@ -9,7 +9,7 @@ tags:
  - PROV
  - JSON
 authors:
- - name: Vinícius W. Salazar^[Corresponding author]
+ - name: Vinícius W. Salazar^[Corresponding author. Current affiliation: School of Mathematics & Statistics, The University of Melbourne]
    orcid: 0000-0002-8362-3195
    affiliation: 1,4
  - name: João Vitor Ferreira Cavalcante
@@ -141,7 +141,7 @@ and instances of `Program` are represented as activities. Instances of `Environm
 act on behalf of the current user.
 
 BioProv detects the current user and environment variables and stores them alongside the Project;
-each Program, when executed, is automatically associated with the current computing environment (Figure \autoref{fig:classes}). 
+each Program, when executed, is automatically associated with the current computing environment (\autoref{fig:classes}). 
 This way, BioProv can represent which execution is associated with each user and environment, allowing for traceable collaborative work.
 
 These five classes constitute the basis of a BioProv project. The library captures provenance data through instances of these classes.
@@ -164,10 +164,8 @@ Some of the included programs are:
 * **Muscle:** multiple sequence alignment [@Edgar2004]
 * **Prodigal:** prokaryotic gene prediction [@Hyatt2010]
 
-![Class diagram showing composition relationships between classes in the BioProv library. Instances of the Project, Sample and File
-classes (in yellow) are represented as entities in the provenance data model, while instances of the Program class (in blue)
-are represented as activities, and instances of the Environment class (in orange) are represented as agents. The Parameter
-and Run classes are auxiliary classes that are associated with the Program class.
+![Diagram showing relationships between classes in the BioProv library. Each class 
+is related to a PROV element, depicted above the class name. The color scheme is the same as in \autoref{fig:w3c-prov} (entities in yellow, activities in blue, agents in orange).
 \label{fig:classes}](figures/classes.svg){ width=75% }
 
 Users can create their own presets with either the Program class or the `PresetProgram` class, that inherits from `Program`
@@ -252,11 +250,11 @@ Now that the project is loaded, the user can add new files, samples and programs
 is captured (such as **stdout** and **stderr**, start and end time, and files involved).
 
 ```python
-In [8]: from bioprov.programs import prodigal                                                                                                                                                                                              
+In [8]: from bioprov.programs import prodigal
 
-In [9]: with project["sample_1"] as sample: 
-            sample.add_programs(prodigal(sample))
-            sample.run_programs()
+In [9]: project["sample_1"].add_programs(prodigal)
+
+In [10]: project["sample_1"].run_programs()
 ```
 
 To export the project, there are a few options. The user can either:
@@ -268,11 +266,11 @@ To export the project, there are a few options. The user can either:
    * store the project in BioProv's database. BioProv has a builtin document-oriented database, as explained in the following section.
 
 ```python
-In [10]: project.to_csv()  # exports in tabular format
+In [11]: project.to_csv()  # exports in tabular format
 
-In [11]: project.to_json()  # exports as JSON
+In [12]: project.to_json()  # exports as JSON
 
-In [12]: project.update_db()  # stores in the BioProv database
+In [13]: project.update_db()  # stores in the BioProv database
 Inserting new project 'myProject' in /path/to/bioprov/db.json                                                                                                                                                   
 ```
 
@@ -299,7 +297,7 @@ manipulated as so. A `Sample` instance will also contain `.files` and `.programs
 dictionary with additional information about the sample (*e.g.* the `source` column in our data table).
 
 ```python
-In [4]: for k, sample in project.samples.items():
+In [4]: for sample in project.samples:
    ...:     # loop over samples
    ...:     source =  sample.attributes['source']
    ...:     print(sample.name, 'is a', source, 'sample.')
