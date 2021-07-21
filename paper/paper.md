@@ -9,7 +9,7 @@ tags:
  - PROV
  - JSON
 authors:
- - name: Vinícius W. Salazar^[Corresponding author. Current affiliation: School of Mathematics & Statistics, The University of Melbourne]
+ - name: Vinícius W. Salazar^[Corresponding author. Current affiliation - School of Mathematics & Statistics, The University of Melbourne]
    orcid: 0000-0002-8362-3195
    affiliation: 1,4
  - name: João Vitor Ferreira Cavalcante
@@ -294,10 +294,10 @@ The database can be managed from BioProv's CLI application.
 To **query** an existing project, it must be loaded with the `load_project()` function, and it can then be queried
 with Python syntax. The Project's `.samples`, `.files` and `.programs` attributes are Python dictionaries, and can be
 manipulated as so. A `Sample` instance will also contain `.files` and `.programs`, and additionally a `.attributes`
-dictionary with additional information about the sample (*e.g.* the `source` column in our data table).
+dictionary with additional information about the sample (*e.g.* the `source` column in our data table). When iterating over a `Project` object, we can loop over each sample:
 
 ```python
-In [4]: for sample in project.samples:
+In [4]: for sample in project:
    ...:     # loop over samples
    ...:     source =  sample.attributes['source']
    ...:     print(sample.name, 'is a', source, 'sample.')
