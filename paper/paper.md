@@ -166,7 +166,7 @@ Some of the included programs are:
 
 ![Diagram showing relationships between classes in the BioProv library. Each class 
 is related to a PROV element, depicted above the class name. The color scheme is the same as in \autoref{fig:w3c-prov} (entities in yellow, activities in blue, agents in orange).
-\label{fig:classes}](figures/classes.svg){ width=75% }
+\label{fig:classes}](figures/classes.png){ width=75% }
 
 Users can create their own presets with either the Program class or the `PresetProgram` class, that inherits from `Program`
 and possesses additional methods for batch execution. To manually create programs (that are not presets), the user should
