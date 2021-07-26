@@ -9,7 +9,7 @@ tags:
  - PROV
  - JSON
 authors:
- - name: Vinícius W. Salazar^[Corresponding author. Current affiliation - School of Mathematics & Statistics, The University of Melbourne]
+ - name: Vinícius W. Salazar^[Corresponding author]
    orcid: 0000-0002-8362-3195
    affiliation: 1,4
  - name: João Vitor Ferreira Cavalcante
