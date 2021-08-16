@@ -11,7 +11,7 @@ tags:
 authors:
  - name: Vinícius W. Salazar^[Corresponding author]
    orcid: 0000-0002-8362-3195
-   affiliation: 1,4
+   affiliation: "1, 4"
  - name: João Vitor Ferreira Cavalcante
    orcid: 0000-0001-7513-7376
    affiliation: 2
