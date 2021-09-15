@@ -201,7 +201,7 @@ Columns that are not files will be processed as sample attributes. For example, 
 
 The `sample-id` column is our index, *i.e.* each sample is identified by it.
 The `assembly` column contains the path to the genome assembly of each sample (therefore, a "sequence file").
-The `report` column points to a plain text file contaning the assembly report (therefore, a "file").
+The `report` column points to a plain text file containing the assembly report (therefore, a "file").
 The other columns will be parsed as sample attributes. This can be easily done with the `read_csv()` function:
 
 ```python
