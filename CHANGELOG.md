@@ -10,7 +10,7 @@
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.24
-* State requirements more clearly [ ]
+* State requirements more clearly [x]
 * Improve error handling when getting `Program` attributes [x]
 * Add `__doc__` variable to modules to build documentation [x]
 * Fix `File.size` property [x]

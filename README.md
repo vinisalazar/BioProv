@@ -97,10 +97,13 @@ You can import data into BioProv using Pandas objects.
 # Install from pip
 $ pip install bioprov
 
-# Or install from source
-$ git clone https://github.com/vinisalazar/bioprov  # download
-$ cd bioprov; pip install .                         # install
-$ pytest                                            # test
+# Install from conda
+$ conda install -c conda-forge -c bioconda bioprov
+
+# Install from source
+$ git clone https://github.com/vinisalazar/bioprov && cd bioprov;     # download
+$ conda env create -f environment.yaml && conda activate bioprov;     # install dependencies
+$ pip install . && pytest;                                            # install and test
 ```
 
 **Important!** BioProv requires [Prodigal](https://github.com/hyattpd/Prodigal) to be tested. Otherwise tests will fail.
@@ -108,3 +111,21 @@ $ pytest                                            # test
 Contributions are welcome!
 
 **BioProv is in active development and no warranties are provided (please see the License).**
+
+### Dependencies
+
+BioProv requires the follow dependencies to run. Also see the [setup](./setup.py) and [environment](./environment.yaml) files.
+
+- biopython
+- coolname
+- coveralls
+- dataclasses
+- pandas
+- prodigal
+- prov
+- provstore-api
+- pydot
+- pytest
+- pytest-cov
+- tqdm
+- tinydb
