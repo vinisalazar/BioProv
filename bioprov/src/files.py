@@ -2,12 +2,11 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.23"
-
-
-"""
+__version__ = "0.1.24"
+__doc__ = """
 Contains the File and SeqFile classes and related functions.
 """
+
 
 import logging
 from dataclasses import dataclass
@@ -53,7 +52,7 @@ class File:
         self.attributes = attributes
         self._exists = self.path.exists()
         self.size = get_size(self.path)
-        self.raw_size = get_size(self.path, convert=False)
+        self._raw_size = get_size(self.path, convert=False)
         self._sha256 = file_to_sha256(self.path)
 
         # Provenance attributes
@@ -91,11 +90,21 @@ class File:
 
     @property
     def size(self):
+        self._size = get_size(self.path)
         return self._size
 
     @size.setter
     def size(self, value):
         self._size = value
+
+    @property
+    def raw_size(self):
+        self._raw_size = get_size(self.path, convert=False)
+        return self._raw_size
+
+    @raw_size.setter
+    def raw_size(self, value):
+        self._raw_size = value
 
     @property
     def entity(self):

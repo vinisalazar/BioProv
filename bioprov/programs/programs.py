@@ -2,13 +2,11 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.23"
-
-
-"""
-Module for holding preset instances of the Program class.
+__version__ = "0.1.24"
+__doc__ = """
 Module for holding preset instances of the Program class.
 """
+
 
 from os import path
 from pathlib import Path
@@ -267,7 +265,7 @@ def prokka(
     :param contigs: Output contigs.
     :param genes: Output genes.
     :param proteins: Output proteins.
-    :param feature_table Output feature table.
+    :param feature_table: Output feature table.
     :param submit_contigs: Output contigs formatted for NCBI submission.
     :param sequin: Output sequin file.
     :param genbank: Output genbank .gbk file

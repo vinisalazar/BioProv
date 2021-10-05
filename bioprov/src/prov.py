@@ -2,14 +2,14 @@ __author__ = "Vini Salazar"
 __license__ = "MIT"
 __maintainer__ = "Vini Salazar"
 __url__ = "https://github.com/vinisalazar/bioprov"
-__version__ = "0.1.23"
-
-"""
+__version__ = "0.1.24"
+__doc__ = """
 Module containing base provenance attributes.
 
 This module extracts system-level information, such as user and environment
 settings, and stores them. It is invoked to export provenance objects. 
 """
+
 import logging
 from pathlib import Path
 
