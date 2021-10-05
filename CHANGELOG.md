@@ -10,9 +10,7 @@
 * Add logger calls when saving to JSON and uploading to ProvStore [ ]
 
 ### v0.1.24
-* Add more tutorials [ ]
-* Fix bug on JSON import when documents are in the Project [ ]
-* Fix 'Too many open files' bug, when reading TempFile when loading Project [ ]
+* State requirements more clearly [ ]
 * Improve error handling when getting `Program` attributes [x]
 * Add `__doc__` variable to modules to build documentation [x]
 * Fix `File.size` property [x]
