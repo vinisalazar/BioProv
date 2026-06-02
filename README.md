@@ -1,4 +1,10 @@
+> [!IMPORTANT]
+> BioProv is no longer under development or maintenance. It was a proof-of-concept project developed for academic / research purposes. The [BioProv manuscript](https://joss.theoj.org/papers/10.21105/joss.03622), published in The Journal of Open Source Software, remains a useful contribution in respect to the implementation of a bioinformatics provenance framework under W3C-PROV standards. Thank you to everyone who used, cited, or contributed to BioProv 💜
+
+
 ### BioProv - W3C-PROV provenance documents for bioinformatics
+
+[![DOI](https://img.shields.io/badge/DOI-10.21105%2Fjoss.03622-blue)](https://joss.theoj.org/papers/10.21105/joss.03622)
 
 Code | [![PyPI Version](https://img.shields.io/pypi/v/bioprov)](https://pypi.org/project/bioprov/) | [![lint](https://github.com/vinisalazar/BioProv/workflows/lint/badge.svg?branch=master)](https://github.com/vinisalazar/BioProv/actions?query=workflow%3Alint) | [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black) 
 ---------------|--|--|--
